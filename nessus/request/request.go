@@ -109,7 +109,7 @@ func (this *request) Do() (respBody []byte, err error) {
 	for k, v := range this.Headers {
 		req.Header.Add(k, v)
 	}
-	fmt.Println("request info : \n", this.ToString())
+	fmt.Println("request dashboard : \n", this.ToString())
 	//请求
 	resp, err := client.Do(req)
 	if err != nil {
