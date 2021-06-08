@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	"github.com/1uLang/zhiannet-api/hids/model/user"
 	"github.com/1uLang/zhiannet-api/hids/request"
 	"github.com/1uLang/zhiannet-api/hids/server"
 	"testing"
@@ -23,10 +24,25 @@ func init() {
 	}
 }
 func TestAdd(t *testing.T) {
-	orgId, err := Add()
+	orgId, err := Add(&user.AddReq{
+		UserName: "LUSIR2",
+		Password: "2323",
+		Role:     3,
+	})
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()
 	}
 	fmt.Println(orgId)
+}
+func TestList(t *testing.T) {
+
+	list, err := List(&user.SearchReq{
+		UserName: "LUSIR2",
+	})
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
 }

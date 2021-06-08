@@ -19,7 +19,8 @@ import (
 
 type request struct {
 	Method  string
-	Url     string
+	url     string
+	Path    string
 	Params  map[string]interface{}
 	Headers map[string]string
 	Secret  string
@@ -50,7 +51,7 @@ func (this *APIKeys) Check() (bool, error) {
 	return true, nil
 }
 func InitServerUrl(url string) error {
-	req.Url = url
+	req.url = url
 	return nil
 }
 func InitRequestAPIKeys(api *APIKeys) error {
@@ -69,13 +70,26 @@ func InitRequestAPIKeys(api *APIKeys) error {
 }
 
 func NewRequest() (*request, error) {
-	if req.Url == "" {
+	if req.url == "" {
 		return nil, fmt.Errorf("未配置主机防护 服务器地址")
 	}
 	if _, isExist := req.Headers["appId"]; !isExist {
-		return nil, fmt.Errorf("未配置appid")
+		return nil, fmt.Errorf("未配置appId")
 	}
-	return &request{Headers: req.Headers, Url: req.Url, Secret: req.Secret}, nil
+	return &request{Headers: req.Headers, url: req.url, Secret: req.Secret}, nil
+}
+func NewRequest2() (*request, error) {
+	if req.url == "" {
+		return nil, fmt.Errorf("未配置主机防护 服务器地址")
+	}
+	if _, isExist := req.Headers["appId"]; !isExist {
+		return nil, fmt.Errorf("未配置appId")
+	}
+	r := &request{Headers: req.Headers, url: req.url, Secret: req.Secret}
+
+	r.Headers["version"] = _const.Version2
+	r.Headers["signVersion"] = _const.Sign_version2
+	return r, nil
 }
 
 //sign  rsa HmacSHA256 签名函数
@@ -112,13 +126,105 @@ func (this *request) sign() string {
 
 	return hex.EncodeToString(h.Sum(nil))
 }
+
+//sign2  rsa HmacSHA256 签名函数
+//参数：
+//	params 请求参数
+//	secret 密钥
+func (this *request) sign2() string {
+
+	keyList := []string{}
+	addData := false
+	//排序
+	for k := range this.Params {
+		if !addData && k == "data" {
+			for key := range this.Params["data"].(map[string]interface{}) {
+				keyList = append(keyList, key)
+			}
+			addData = true
+			continue
+		}
+		keyList = append(keyList, k)
+	}
+	sort.Strings(keyList)
+
+	stringSignTemp := ""
+	for _, k := range keyList {
+		value, isExist := this.Params[k]
+		if !isExist {
+			value = this.Params["data"].(map[string]interface{})[k]
+		}
+		stringSignTemp += fmt.Sprintf("%s=%v&", k, value)
+	}
+	//加上私钥key
+	stringSignTemp += "key=" + this.Secret
+	fmt.Println(stringSignTemp)
+	//rsa加密
+	h := hmac.New(sha256.New, []byte(this.Secret))
+	h.Write([]byte(stringSignTemp))
+
+	return hex.EncodeToString(h.Sum(nil))
+}
 func (this *request) ToString() string {
 	str := ""
-	str += fmt.Sprintf("Url : %v \n", this.Url)
+	str += fmt.Sprintf("url : %v \n", this.url+this.Path)
 	str += fmt.Sprintf("Method : %v \n", this.Method)
 	str += fmt.Sprintf("Params : %v \n", this.Params)
 	str += fmt.Sprintf("Header : %v \n", this.Headers)
 	return str
+}
+func (this *request) Do2() (respBody []byte, err error) {
+
+	this.Method = strings.ToUpper(this.Method)
+	client := &http.Client{
+		Timeout:   5 * time.Second,
+		Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}},
+	}
+	//将header参数放在param中
+	//appId
+	this.Params["appid"] = this.Headers["appId"]
+	this.Params["version"] = this.Headers["version"]
+	this.Params["signVersion"] = this.Headers["signVersion"]
+	this.Params["signMethod"] = this.Headers["signMethod"]
+	//毫秒时间戳
+	this.Params["time"] = fmt.Sprintf("%d", time.Now().UnixNano()/1e6)
+	//签名
+	this.Params["sign"] = this.sign2()
+
+	var body io.Reader
+	//非get 参数设置在body中 以json形式传输
+	if strings.ToUpper(this.Method) != "GET" {
+		buf, _ := json.Marshal(this.Params)
+		body = bytes.NewReader(buf)
+	}
+	req, err := http.NewRequest(this.Method, this.url+this.Path, body)
+	if err != nil {
+		return nil, err
+	}
+
+	//非get 设置content-type
+	if this.Method != "GET" {
+		req.Header.Add("Content-Type", "application/json")
+	} else {
+		q := req.URL.Query()
+		for k, v := range this.Params {
+			q.Add(k, fmt.Sprintf("%v", v))
+		}
+		req.URL.RawQuery = q.Encode()
+	}
+	fmt.Println("http request :" + req.URL.String())
+	for k, v := range this.Headers {
+		req.Header.Add(k, v)
+	}
+	fmt.Println("request info : \n", this.ToString())
+	//请求
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	return ioutil.ReadAll(resp.Body)
 }
 
 //Do 执行请求
@@ -136,7 +242,7 @@ func (this *request) Do() (respBody []byte, err error) {
 		buf, _ := json.Marshal(this.Params)
 		body = bytes.NewReader(buf)
 	}
-	req, err := http.NewRequest(this.Method, this.Url, body)
+	req, err := http.NewRequest(this.Method, this.url+this.Path, body)
 	if err != nil {
 		return nil, err
 	}
