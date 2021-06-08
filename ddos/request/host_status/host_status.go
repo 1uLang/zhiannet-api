@@ -12,7 +12,7 @@ import (
 
 type (
 	HostReq struct {
-		Host string
+		Addr []string
 	}
 	//主机状态
 	StatusFBlink struct {
@@ -95,7 +95,6 @@ func HostStatus(req *HostReq, retry bool) (res *StatusFBlink, err error) {
 		failure := &request.Failure{}
 		xml.Unmarshal(resp.Body(), &failure)
 		if retry && failure.Info == _const.FAILURE_INFO {
-			request.Login()
 			return HostStatus(req, false)
 		}
 	}
@@ -105,32 +104,36 @@ func HostStatus(req *HostReq, retry bool) (res *StatusFBlink, err error) {
 }
 
 //主机列表
-func HostList(req *HostReq, retry bool) (res *StatusHost, err error) {
+func HostList(req *HostReq, loginReq *request.LoginReq, retry bool) (res []*StatusHost, err error) {
 	// Create a Resty Client
 	client := resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
-	resp, err := client.R().
-		SetCookie(&http.Cookie{
-			Name:  "sid",
-			Value: request.Cookie,
+	for _, v := range req.Addr {
+		resp, err := client.R().
+			SetCookie(&http.Cookie{
+				Name:  "sid",
+				Value: request.GetCookie(loginReq),
+			}).SetFormData(map[string]string{
+			"param_submit_type": "query-host", //查询
+			"param_netaddr":     v,            //单个IP查询
 		}).
-		Post(_const.DDOS_HOST + _const.DDOS_HOST_STATUS_URL)
-	fmt.Println(string(resp.Body()), err)
+			Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_HOST_STATUS_URL)
 
-	res = &StatusHost{}
-	err = xml.Unmarshal(resp.Body(), res)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	if len(res.Host) == 0 { //可能登陆信息过期
-		failure := &request.Failure{}
-		xml.Unmarshal(resp.Body(), &failure)
-		if retry && failure.Info == _const.FAILURE_INFO {
-			request.Login()
-			return HostList(req, false)
+		fmt.Println(string(resp.Body()), err)
+
+		apiRes := &StatusHost{}
+		err = xml.Unmarshal(resp.Body(), apiRes)
+		if err != nil {
+			fmt.Println(err)
+			break
 		}
+		res = append(res, apiRes)
+		//if len(apiRes.Host) == 0 { //可能登陆信息过期
+		//	failure := &request.Failure{}
+		//	xml.Unmarshal(resp.Body(), &failure)
+		//	if retry && failure.Info == _const.FAILURE_INFO {
+		//		return HostList(req, loginReq, false)
+		//	}
+		//}
 	}
-
-	fmt.Println(res)
 	return res, err
 }

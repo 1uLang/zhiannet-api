@@ -4,7 +4,9 @@ import (
 	"crypto/tls"
 	"encoding/xml"
 	"fmt"
+	"github.com/1uLang/zhiannet-api/common/cache"
 	_const "github.com/1uLang/zhiannet-api/ddos/const"
+	"github.com/go-redis/redis/v8"
 	"github.com/go-resty/resty/v2"
 	"github.com/sirupsen/logrus"
 )
@@ -12,6 +14,12 @@ import (
 var Cookie string = "%2D%88%D9%3A%19%87%9C%28%8A%AF%EA%F8v%9CB%95%87%9E%8A3%98%EF%ED%F0%8C%075KAPfR%8B%82%85%D0%CC%AC4%00%96%DB%AE%88f%3E%7C%D6v1%C5%2D%A1%BE%7BQ%E4%B4u%D9%F9%E5%EBo%F9Qp%133l%C6%93%97%99%F2%DDdI%5Bx%AC%89%F6%05ha%ADw%16%10%F873%ABq%E4%F3lT%7D%E7%7F9%11IxU%BA%21%B7%2C%DC"
 
 type (
+	LoginReq struct {
+		Name     string
+		Password string
+		Addr     string
+		Port     string
+	}
 	LoginRes struct {
 		Redirect `xml:"redirect"`
 		Failure  `xml:"failure"`
@@ -27,7 +35,7 @@ type (
 )
 
 //登陆获取cookie
-func Login() (string, error) {
+func Login(req *LoginReq) (string, error) {
 	var err error
 	// https://182.131.30.171:28443/cgi-bin/login.cgi
 	client := resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
@@ -35,10 +43,10 @@ func Login() (string, error) {
 		SetHeader("Content-Type", "multipart/form-data; boundary=<calculated when request is sent>").
 		SetFormData(map[string]string{
 			"param_type":     "login",
-			"param_username": _const.USERNAME,
-			"param_password": _const.PASSWORD,
+			"param_username": req.Name,
+			"param_password": req.Password,
 		}).
-		Post(_const.DDOS_HOST + _const.DDOS_LOGIN_URL)
+		Post("https://" + req.Addr + ":" + req.Port + _const.DDOS_LOGIN_URL)
 	if err != nil {
 		logrus.Error(err)
 		return Cookie, err
@@ -62,6 +70,23 @@ func Login() (string, error) {
 		Cookie = cook.Value
 	}
 	fmt.Println(Cookie)
+
 	return Cookie, err
 	//logrus.Info( err)
+}
+
+func GetCookie(req *LoginReq) (cookie string) {
+
+	key := fmt.Sprintf("ddos-cookie-%v:%v", req.Addr, req.Port)
+	//cache.CheckCache(key, Login(req), 3600, true)
+	res, err := cache.GetCache(cache.Rdb, key)
+	if err != nil {
+		if err == redis.Nil {
+			cookie, _ = Login(req)
+			cache.SetCache(cache.Rdb, key, cookie, 3600)
+		}
+		return
+	}
+	cookie = fmt.Sprintf("%v", res)
+	return
 }
