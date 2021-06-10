@@ -54,7 +54,7 @@ func GetList(req *HostReq) (list []*DdosHostIp, err error) {
 //}
 
 // 添加ip操作
-func Add(req *AddHost) (err error, insertId uint64) {
+func Add(req *AddHost) (insertId uint64, err error) {
 	if req == nil {
 		err = fmt.Errorf("参数错误")
 		return
@@ -66,14 +66,14 @@ func Add(req *AddHost) (err error, insertId uint64) {
 	}
 	res := model.MysqlConn.Create(&host)
 	if res.Error != nil {
-		return res.Error, 0
+		return 0, res.Error
 	}
 	insertId = host.Id
 	return
 }
 
 //修改菜单操作
-func Edit(req *AddHost, id uint64) (err error, rows int64) {
+func Edit(req *AddHost, id uint64) (rows int64, err error) {
 	var entity DdosHostIp
 	err = model.MysqlConn.Where("id=?", id).Find(&entity).Error
 	if err != nil {
@@ -90,7 +90,7 @@ func Edit(req *AddHost, id uint64) (err error, rows int64) {
 	return
 }
 
-//删除菜单
+//删除
 func DeleteByIds(ids []uint64) (err error) {
 	res := model.MysqlConn.Where("id in (?)", ids).Delete(&DdosHostIp{})
 	return res.Error

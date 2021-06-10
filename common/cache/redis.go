@@ -9,10 +9,12 @@ import (
 	"time"
 
 	"github.com/tidwall/gjson"
+	"golang.org/x/sync/singleflight"
 )
 
 var (
-	Rdb *redis.Client
+	Rdb   *redis.Client
+	lockG = &singleflight.Group{}
 )
 
 // 初始化连接
@@ -35,15 +37,16 @@ func InitClient() (err error) {
 设置缓存
 返回参数,,第一个数据,,第二个数据执行结果,第三个是否走缓存
 */
-func CheckCache(key string, f interface{}, duration uint32, needCache bool) (interface{}, error, bool) {
+func CheckCache(key string, fn func() (interface{}, error), duration uint32, needCache bool) (interface{}, error) {
 	key = Md5Str(key)
-	//Rdb.SetNX(context.Background(),key+"-setnx",1, time.Duration(10))
-	s, err := GetCache(Rdb, key)
+	s, err := GetCache(key)
 	if needCache && err == nil {
-		return s, nil, true
+		return s, nil
 	} else {
 		var re interface{}
-		Num, ok := f.(func() (interface{}, error))()
+		//Num, ok := fn()
+		//同一时间只有一个带相同key的函数执行 防击穿
+		Num, ok, _ := lockG.Do(key, fn)
 		if ok == nil {
 
 			data := make(map[string]interface{})
@@ -52,7 +55,7 @@ func CheckCache(key string, f interface{}, duration uint32, needCache bool) (int
 			if jsErr != nil {
 				//logs.Error("----json.Marshal--", jsErr)
 			}
-			SetCache(Rdb, key, data, duration)
+			SetCache(key, data, duration)
 
 			dom := gjson.ParseBytes(js)
 			re = dom.Get("data").Value()
@@ -60,7 +63,7 @@ func CheckCache(key string, f interface{}, duration uint32, needCache bool) (int
 			re = Num
 		}
 
-		return re, ok, false
+		return re, ok
 	}
 
 }
@@ -75,7 +78,7 @@ func Md5Str(str string) string {
 	return md5str
 }
 
-func GetCache(Rdb *redis.Client, key string) (interface{}, error) {
+func GetCache(key string) (interface{}, error) {
 	bg := context.Background()
 	val, err := Rdb.Get(bg, key).Result()
 	if err == nil && val != "" {
@@ -86,7 +89,7 @@ func GetCache(Rdb *redis.Client, key string) (interface{}, error) {
 	return nil, err
 }
 
-func SetCache(Rdb *redis.Client, key string, data interface{}, duration uint32) (err error) {
+func SetCache(key string, data interface{}, duration uint32) (err error) {
 	bg := context.Background()
 	dataMap := make(map[string]interface{})
 	dataMap["data"] = data
@@ -104,7 +107,7 @@ func SetCache(Rdb *redis.Client, key string, data interface{}, duration uint32) 
 }
 
 func getA() (a interface{}, err error) {
-	fmt.Println("a")
+	fmt.Println("request a")
 	time.Sleep(time.Second * 3)
 	return "a", nil
 }

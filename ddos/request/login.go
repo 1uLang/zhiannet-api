@@ -79,11 +79,11 @@ func GetCookie(req *LoginReq) (cookie string) {
 
 	key := fmt.Sprintf("ddos-cookie-%v:%v", req.Addr, req.Port)
 	//cache.CheckCache(key, Login(req), 3600, true)
-	res, err := cache.GetCache(cache.Rdb, key)
+	res, err := cache.GetCache(key)
 	if err != nil {
 		if err == redis.Nil {
 			cookie, _ = Login(req)
-			cache.SetCache(cache.Rdb, key, cookie, 3600)
+			cache.SetCache(key, cookie, 3600)
 		}
 		return
 	}
