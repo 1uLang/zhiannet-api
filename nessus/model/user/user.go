@@ -2,10 +2,10 @@ package user
 
 import (
 	"fmt"
+	"github.com/1uLang/zhiannet-api/hids/util"
 	_const "github.com/1uLang/zhiannet-api/nessus/const"
 	"github.com/1uLang/zhiannet-api/nessus/model"
 	"github.com/1uLang/zhiannet-api/nessus/request"
-	"strconv"
 )
 
 /*
@@ -41,7 +41,7 @@ func Add(args *AddReq) (uint64, error) {
 	if err != nil {
 		return 0, err
 	}
-	id, _ := strconv.ParseUint(fmt.Sprintf("%v", ret["id"]), 10, 64)
+	id, _ := util.Interface2Uint64(ret["id"])
 	return id, nil
 }
 
