@@ -56,7 +56,7 @@ func CheckMenuNameUnique(name string, id uint64) bool {
 }
 
 // 添加菜单操作
-func Add(req *Subassemblynode) (err error, insertId uint64) {
+func Add(req *Subassemblynode) (insertId uint64, err error) {
 	if req == nil {
 		err = fmt.Errorf("参数错误")
 		return
@@ -64,14 +64,14 @@ func Add(req *Subassemblynode) (err error, insertId uint64) {
 
 	res := model.MysqlConn.Create(&req)
 	if res.Error != nil {
-		return res.Error, 0
+		return 0, res.Error
 	}
 	insertId = req.Id
 	return
 }
 
 //修改菜单操作
-func Edit(req *Subassemblynode, id uint64) (err error, rows int64) {
+func Edit(req *Subassemblynode, id uint64) (rows int64, err error) {
 	var entity Subassemblynode
 	err = model.MysqlConn.Where("id=?", id).Find(&entity).Error
 	if err != nil {
