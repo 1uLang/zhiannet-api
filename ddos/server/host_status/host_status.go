@@ -61,7 +61,7 @@ type (
 
 //ddos节点列表
 func GetDdosNodeList() (list []*subassemblynode.Subassemblynode, err error) {
-	list, err = subassemblynode.GetList(&subassemblynode.NodeReq{Type: 1})
+	list, err = subassemblynode.GetList(&subassemblynode.NodeReq{Type: 1, State: "1"})
 	return
 }
 

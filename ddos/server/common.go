@@ -14,7 +14,7 @@ type (
 
 //获取登陆的账号信息
 func GetLoginInfo(req NodeReq) (logReq *request.LoginReq, err error) {
-	var nodeInfo subassemblynode.Subassemblynode
+	var nodeInfo *subassemblynode.Subassemblynode
 	//获取节点账号信息
 	nodeInfo, err = subassemblynode.GetNodeInfoById(req.NodeId)
 	if err != nil {

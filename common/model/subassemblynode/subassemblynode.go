@@ -28,7 +28,7 @@ type (
 //获取节点
 func GetList(req *NodeReq) (list []*Subassemblynode, err error) {
 	//从数据库获取
-	model := model.MysqlConn.Model(&Subassemblynode{})
+	model := model.MysqlConn.Model(&Subassemblynode{}).Where("status=?", 0)
 	if req != nil {
 		if req.State != "" {
 			model = model.Where("state=?", req.State)
@@ -97,12 +97,12 @@ func Edit(req *Subassemblynode, id uint64) (rows int64, err error) {
 
 //删除菜单
 func DeleteByIds(ids []uint64) (err error) {
-	res := model.MysqlConn.Where("id in (?)", ids).Delete(&Subassemblynode{})
+	res := model.MysqlConn.Model(&Subassemblynode{}).Where("id in (?)", ids).Update("status", 1)
 	return res.Error
 }
 
 //获取节点详细信息
-func GetNodeInfoById(id uint64) (info Subassemblynode, err error) {
+func GetNodeInfoById(id uint64) (info *Subassemblynode, err error) {
 	err = model.MysqlConn.Where("id=?", id).First(&info).Error
 	return
 }
