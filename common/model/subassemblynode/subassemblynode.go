@@ -20,7 +20,7 @@ type (
 	}
 	NodeReq struct {
 		Type  int    `json:"idc" gorm:"column:idc"`     // 数据中心
-		State string `json:"state" gorm:"column:state"` // 启用、禁用
+		State string `json:"state" gorm:"column:state"` // 启用、禁用fd
 
 	}
 )
