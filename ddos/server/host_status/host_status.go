@@ -7,6 +7,7 @@ import (
 	"github.com/1uLang/zhiannet-api/ddos/request"
 	"github.com/1uLang/zhiannet-api/ddos/request/host_status"
 	"github.com/1uLang/zhiannet-api/ddos/server"
+	"strconv"
 )
 
 type (
@@ -40,6 +41,23 @@ type (
 		SetTcp     int    `json:"set_tcp"`     //tcp端口集
 		SetUdp     int    `json:"set_udp"`     //udp端口集
 	}
+	HostListResp struct { //主机列表响应参数
+		HostId       uint64  `json:"host_id"`
+		Addr         string  `json:"addr"`
+		BandwidthIn  float64 `json:"bandwidth_in"`  //带宽in input_bps
+		BandwidthOut float64 `json:"bandwidth_out"` //带宽out output_bps
+		RateSyn      float64 `json:"rate_syn"`      //频率 syn
+		RateAck      float64 `json:"rate_ack"`      //频率 ack
+		RateUdp      float64 `json:"rate_udp"`      //频率 udp
+		RateIcmp     float64 `json:"rate_icmp"`     //频率 icmp
+		RateFrag     float64 `json:"rate_frag"`     //频率 frag
+		RateNonip    float64 `json:"rate_nonip"`    //频率 nonip
+		RateNewTcp   float64 `json:"rate_new_tcp"`  //频率 new_tcp
+		RateNewUdp   float64 `json:"rate_new_udp"`  //频率 new_udp
+		TcpConnIn    float64 `json:"tcp_conn_in"`   //tcp in 连接数
+		TcpConnOut   float64 `json:"tcp_conn_out"`  //tcp out 连接数
+		UdpConn      float64 `json:"udp_conn"`      //udp  连接数
+	}
 )
 
 //获取登陆的账号信息
@@ -72,24 +90,76 @@ func GetDdosNodeList() (list []*subassemblynode.Subassemblynode, total int64, er
 //}
 
 //主机列表
-func GetHostList(req *ddos_host_ip.HostReq) (hostList []*host_status.StatusHost, total int64, err error) {
+func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64, err error) {
 	//先从数据库获取ip列表
 	var list []*ddos_host_ip.DdosHostIp
 	list, total, err = ddos_host_ip.GetList(req)
 	if err != nil || total == 0 {
 		return
 	}
-
+	hostMap := make(map[string]uint64, len(list))
 	apiReq := &host_status.HostReq{}
 	for _, v := range list {
 		apiReq.Addr = append(apiReq.Addr, v.Addr)
+		hostMap[v.Addr] = v.Id
 	}
 	//获取节点信息
 	logReq, err := server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
 	if err != nil {
 		return
 	}
-	hostList, err = host_status.HostList(apiReq, logReq, true)
+	hostList, err := host_status.HostList(apiReq, logReq, true)
+	if err != nil || hostList == nil {
+		return
+	}
+	lists = make([]*HostListResp, len(hostList)+1)
+	all := &HostListResp{
+		Addr: "all",
+	}
+	for k, v := range hostList { //所有ip的数据
+		l := &HostListResp{
+			Addr: v.Netaddr,
+		}
+		if len(v.Host) > 0 {
+			for _, y := range v.Host {
+				if y.Address == l.Addr { //当前IP的数据
+					if id, ok := hostMap[y.Address]; ok { //ddos_host_id表的ID
+						l.HostId = id
+					}
+					l.BandwidthIn, _ = strconv.ParseFloat(y.InputBps, 64)
+					l.BandwidthOut, _ = strconv.ParseFloat(y.OutputBps, 64)
+					l.RateSyn, _ = strconv.ParseFloat(y.SynRate, 64)
+					l.RateAck, _ = strconv.ParseFloat(y.AckRate, 64)
+					l.RateUdp, _ = strconv.ParseFloat(y.UdpRate, 64)
+					l.RateIcmp, _ = strconv.ParseFloat(y.IcmpRate, 64)
+					l.RateFrag, _ = strconv.ParseFloat(y.FragRate, 64)
+					l.RateNonip, _ = strconv.ParseFloat(y.NonipRate, 64)
+					l.RateNewTcp, _ = strconv.ParseFloat(y.NewTcpRate, 64)
+					l.RateNewUdp, _ = strconv.ParseFloat(y.NewUdpRate, 64)
+					l.TcpConnIn, _ = strconv.ParseFloat(y.TcpConnIn, 64)
+					l.TcpConnOut, _ = strconv.ParseFloat(y.TcpConnOut, 64)
+					l.UdpConn, _ = strconv.ParseFloat(y.UdpConn, 64)
+
+					//相关host数据合计
+					all.BandwidthIn += l.BandwidthIn
+					all.BandwidthOut += l.BandwidthOut
+					all.RateSyn += l.RateSyn
+					all.RateAck += l.RateAck
+					all.RateUdp += l.RateUdp
+					all.RateIcmp += l.RateIcmp
+					all.RateFrag += l.RateFrag
+					all.RateNonip += l.RateNonip
+					all.RateNewTcp += l.RateNewTcp
+					all.RateNewUdp += l.RateNewUdp
+					all.TcpConnIn += l.TcpConnIn
+					all.TcpConnOut += l.TcpConnOut
+					all.UdpConn += l.UdpConn
+				}
+			}
+		}
+		lists[k+1] = l
+	}
+	lists[0] = all
 	return
 }
 

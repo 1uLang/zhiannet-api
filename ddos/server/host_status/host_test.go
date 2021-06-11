@@ -29,6 +29,8 @@ func Test_host_list(t *testing.T) {
 	InitDB()
 	list, total, err := GetHostList(&ddos_host_ip.HostReq{NodeId: 1})
 	fmt.Println(list[0])
+	fmt.Println(list[1])
+	fmt.Println(list[2])
 	fmt.Println(total)
 	fmt.Println(err)
 }
