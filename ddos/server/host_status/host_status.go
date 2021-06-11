@@ -60,8 +60,8 @@ type (
 //}
 
 //ddos节点列表
-func GetDdosNodeList() (list []*subassemblynode.Subassemblynode, err error) {
-	list, err = subassemblynode.GetList(&subassemblynode.NodeReq{Type: 1, State: "1"})
+func GetDdosNodeList() (list []*subassemblynode.Subassemblynode, total int64, err error) {
+	list, total, err = subassemblynode.GetList(&subassemblynode.NodeReq{Type: 1, State: "1"})
 	return
 }
 
@@ -72,10 +72,11 @@ func GetDdosNodeList() (list []*subassemblynode.Subassemblynode, err error) {
 //}
 
 //主机列表
-func GetHostList(req *ddos_host_ip.HostReq) (hostList []*host_status.StatusHost, err error) {
+func GetHostList(req *ddos_host_ip.HostReq) (hostList []*host_status.StatusHost, total int64, err error) {
 	//先从数据库获取ip列表
-	list, err := ddos_host_ip.GetList(req)
-	if err != nil {
+	var list []*ddos_host_ip.DdosHostIp
+	list, total, err = ddos_host_ip.GetList(req)
+	if err != nil || total == 0 {
 		return
 	}
 

@@ -3,8 +3,8 @@ package subassemblynode
 import "github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 
 //所有节点列表
-func GetNodeList() (list []*subassemblynode.Subassemblynode, err error) {
-	list, err = subassemblynode.GetList(&subassemblynode.NodeReq{})
+func GetNodeList() (list []*subassemblynode.Subassemblynode, total int64, err error) {
+	list, total, err = subassemblynode.GetList(&subassemblynode.NodeReq{})
 	return
 }
 

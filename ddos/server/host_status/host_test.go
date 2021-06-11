@@ -14,7 +14,7 @@ func InitDB() {
 }
 func Test_ddos_list(t *testing.T) {
 	model.InitMysqlLink()
-	list, err := GetDdosNodeList()
+	list, _, err := GetDdosNodeList()
 	fmt.Println("data ====", list[0])
 	fmt.Println(list, err)
 }
@@ -27,8 +27,9 @@ func Test_host_status(t *testing.T) {
 //主机列表
 func Test_host_list(t *testing.T) {
 	InitDB()
-	list, err := GetHostList(&ddos_host_ip.HostReq{NodeId: 1})
+	list, total, err := GetHostList(&ddos_host_ip.HostReq{NodeId: 1})
 	fmt.Println(list[0])
+	fmt.Println(total)
 	fmt.Println(err)
 }
 

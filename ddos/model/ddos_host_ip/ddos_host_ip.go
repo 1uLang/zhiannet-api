@@ -14,8 +14,10 @@ type (
 		CreateTime int64  `json:"create_time" gorm:"column:create_time"` // 创建时间
 	}
 	HostReq struct {
-		Addr   string `json:"addr" `
-		NodeId uint64 `json:"node_id" `
+		Addr     string `json:"addr" `
+		NodeId   uint64 `json:"node_id" `
+		PageNum  int    `json:"page_num"`
+		PageSize int    `json:"page_size"`
 	}
 	AddHost struct {
 		Addr   string `json:"addr" gorm:"column:addr"`       // ip地址
@@ -24,7 +26,7 @@ type (
 )
 
 //获取节点
-func GetList(req *HostReq) (list []*DdosHostIp, err error) {
+func GetList(req *HostReq) (list []*DdosHostIp, total int64, err error) {
 	//从数据库获取
 	model := model.MysqlConn.Model(&DdosHostIp{})
 	if req != nil {
@@ -35,7 +37,17 @@ func GetList(req *HostReq) (list []*DdosHostIp, err error) {
 			model = model.Where("node_id=?", req.NodeId)
 		}
 	}
-	err = model.Order("id desc").Find(&list).Error
+	err = model.Count(&total).Error
+	if err != nil || total == 0 {
+		return
+	}
+	if req.PageNum <= 0 {
+		req.PageNum = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 20
+	}
+	err = model.Offset((req.PageNum - 1) * req.PageSize).Limit(req.PageSize).Order("id desc").Find(&list).Error
 	if err != nil {
 		return
 	}

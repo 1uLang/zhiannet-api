@@ -19,14 +19,15 @@ type (
 		Secret string `json:"secret" gorm:"column:secret"` // api secret
 	}
 	NodeReq struct {
-		Type  int    `json:"idc" gorm:"column:idc"`     // 数据中心
-		State string `json:"state" gorm:"column:state"` // 启用、禁用fd
-
+		Type     int    `json:"idc" gorm:"column:idc"`     // 数据中心
+		State    string `json:"state" gorm:"column:state"` // 启用、禁用fd
+		PageNum  int    `json:"page_num" `                 //页数
+		PageSize int    `json:"page_size" `                //每页条数
 	}
 )
 
 //获取节点
-func GetList(req *NodeReq) (list []*Subassemblynode, err error) {
+func GetList(req *NodeReq) (list []*Subassemblynode, total int64, err error) {
 	//从数据库获取
 	model := model.MysqlConn.Model(&Subassemblynode{}).Where("status=?", 0)
 	if req != nil {
@@ -37,7 +38,17 @@ func GetList(req *NodeReq) (list []*Subassemblynode, err error) {
 			model = model.Where("type=?", req.Type)
 		}
 	}
-	err = model.Debug().Order("id desc").Find(&list).Error
+	err = model.Count(&total).Error
+	if err != nil || total == 0 {
+		return
+	}
+	if req.PageNum <= 0 {
+		req.PageNum = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 20
+	}
+	err = model.Debug().Offset((req.PageNum - 1) * req.PageSize).Limit(req.PageSize).Order("id desc").Find(&list).Error
 	if err != nil {
 		return
 	}
