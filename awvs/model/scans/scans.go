@@ -31,31 +31,28 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 }
 
 //Add 创建扫描
-func Add(args *AddReq) (target_id string, err error) {
+func Add(args *AddReq) (err error) {
 
 	ok, err := args.Check()
 	if err != nil || !ok {
-		return "", fmt.Errorf("参数错误：%v", err)
+		return fmt.Errorf("参数错误：%v", err)
 	}
 
 	req, err := request.NewRequest()
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	req.Method = "post"
-	req.Url = _const.Awvs_server + _const.Scans_api_url
+	req.Url += _const.Scans_api_url
 	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
 	if err != nil {
-		return "", err
+		return err
 	}
-	info, err := model.ParseResp(resp)
-	if err != nil {
-		return "", err
-	}
-	return info["target_id"].(string), nil
+	_, err = model.ParseResp(resp)
+	return err
 }
 
 //ScanningProfiles 扫描配置文件列表
@@ -67,7 +64,7 @@ func ScanningProfiles() (list map[string]interface{}, err error) {
 	}
 
 	req.Method = "get"
-	req.Url = _const.Awvs_server + _const.Scanning_profiles_api_url
+	req.Url += _const.Scanning_profiles_api_url
 
 	resp, err := req.Do()
 	if err != nil {
@@ -85,7 +82,7 @@ func ReportTemplates() (list map[string]interface{}, err error) {
 	}
 
 	req.Method = "get"
-	req.Url = _const.Awvs_server + _const.Report_templates_api_url
+	req.Url += _const.Report_templates_api_url
 
 	resp, err := req.Do()
 	if err != nil {
@@ -103,7 +100,7 @@ func GetScansId(target_id string) (map[string]interface{}, error) {
 	}
 
 	req.Method = "get"
-	req.Url = _const.Awvs_server + _const.Scans_api_url + "/" + target_id
+	req.Url += _const.Scans_api_url + "/" + target_id
 
 	resp, err := req.Do()
 	if err != nil {
@@ -121,7 +118,7 @@ func Delete(scan_id string) error {
 	}
 
 	req.Method = "DELETE"
-	req.Url = _const.Awvs_server + _const.Scans_api_url + "/" + scan_id
+	req.Url += _const.Scans_api_url + "/" + scan_id
 
 	resp, err := req.Do()
 	if err != nil {
@@ -143,7 +140,7 @@ func GetInfo(scan_id string) (info map[string]interface{}, err error) {
 	}
 
 	req.Method = "get"
-	req.Url = _const.Awvs_server + _const.Scans_api_url + "/" + scan_id
+	req.Url += _const.Scans_api_url + "/" + scan_id
 
 	resp, err := req.Do()
 	if err != nil {
@@ -166,7 +163,7 @@ func Statistics(scan_id, scan_session_id string) (info map[string]interface{}, e
 	}
 
 	req.Method = "get"
-	req.Url = _const.Awvs_server + _const.Scans_api_url + "/" + scan_id + "/results/" + scan_session_id + "/statistics"
+	req.Url += "/" + scan_id + "/results/" + scan_session_id + "/statistics"
 
 	resp, err := req.Do()
 	if err != nil {
