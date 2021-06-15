@@ -1,8 +1,7 @@
 package request
 
-//
-////登陆获取cookie
-//func Login(req *LoginReq) (string, error) {
+//登陆获取cookie
+//func Login(req *ApiKey) (string, error) {
 //	var err error
 //	// https://182.131.30.171:28443/cgi-bin/login.cgi
 //	client := resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
