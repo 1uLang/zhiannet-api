@@ -11,7 +11,7 @@ var MysqlConn *gorm.DB
 
 func InitMysqlLink() {
 	var err error
-	dsn := "root:123456@tcp(192.168.168.22:3306)/db_edge?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:mysql8@tcp(45.195.61.132:3306)/zhian-edges?charset=utf8mb4&parseTime=True&loc=Local"
 	MysqlConn, err = gorm.Open(gmysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   "",   //表前缀
