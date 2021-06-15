@@ -15,7 +15,7 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 	}
 
 	req.Method = "GET"
-	req.Url = _const.Awvs_server + _const.Targets_api_url
+	req.Url += _const.Targets_api_url
 	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
@@ -38,7 +38,7 @@ func Add(args *AddReq) (target_id string, err error) {
 	}
 
 	req.Method = "POST"
-	req.Url = _const.Awvs_server + _const.Targets_api_url
+	req.Url += _const.Targets_api_url
 	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
@@ -61,7 +61,7 @@ func Delete(target_id string) error {
 	}
 
 	req.Method = "DELETE"
-	req.Url = _const.Awvs_server + _const.Targets_api_url + "/" + target_id
+	req.Url += _const.Targets_api_url + "/" + target_id
 
 	resp, err := req.Do()
 	if err != nil {
@@ -85,7 +85,7 @@ func Update(target_id string, args *UpdateReq) error {
 	}
 
 	req.Method = "PATCH"
-	req.Url = _const.Awvs_server + _const.Targets_api_url + "/" + target_id
+	req.Url += _const.Targets_api_url + "/" + target_id
 	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
@@ -112,7 +112,7 @@ func SetLogin(target_id string, args *SetLoginReq) error {
 	}
 
 	req.Method = "PATCH"
-	req.Url = _const.Awvs_server + _const.Targets_api_url + "/" + target_id + "/configuration"
+	req.Url += _const.Targets_api_url + "/" + target_id + "/configuration"
 	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
