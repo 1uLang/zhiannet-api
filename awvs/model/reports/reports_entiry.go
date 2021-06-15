@@ -7,3 +7,8 @@ type CreateResp struct {
 	} `json:"source"`
 	TemplateId string `json:"template_id"`
 }
+
+type ListReq struct {
+	Limit int `json:"l,omitempty"` //限制条数
+	C     int `json:"c,omitempty"` //偏移量
+}

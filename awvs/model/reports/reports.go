@@ -8,7 +8,7 @@ import (
 )
 
 //List 报表列表
-func List(limit int) (list map[string]interface{}, err error) {
+func List(args *ListReq) (list map[string]interface{}, err error) {
 	req, err := request.NewRequest()
 	if err != nil {
 		return nil, err
@@ -16,9 +16,7 @@ func List(limit int) (list map[string]interface{}, err error) {
 
 	req.Method = "get"
 	req.Url += _const.Reports_api_url
-	req.Params = map[string]interface{}{
-		"l": limit,
-	}
+	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
 	if err != nil {
