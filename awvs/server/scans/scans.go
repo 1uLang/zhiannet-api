@@ -28,3 +28,8 @@ func ReportTemplates() (list map[string]interface{}, err error) {
 func Abort(scan_id string) (err error) {
 	return scans.Abort(scan_id)
 }
+
+//Delete 删除扫描
+func Delete(scan_id string) (err error) {
+	return scans.Delete(scan_id)
+}
