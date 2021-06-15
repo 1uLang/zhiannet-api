@@ -10,16 +10,17 @@ import (
 //List 扫描列表
 //参数：
 //	l 显示条数 int
-func List(limit int) (list map[string]interface{}, err error) {
+func List(args *ListReq) (list map[string]interface{}, err error) {
 	req, err := request.NewRequest()
 	if err != nil {
 		return nil, err
 	}
 
 	req.Method = "get"
-	req.Url = _const.Awvs_server + _const.Scans_api_url
+	req.Url += _const.Scans_api_url
 	req.Params = map[string]interface{}{
-		"l": limit,
+		"l": args.Limit,
+		"c": args.C,
 	}
 
 	resp, err := req.Do()
