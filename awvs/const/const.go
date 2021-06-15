@@ -25,5 +25,7 @@ const (
 
 	Report_templates_api_url = "/api/v1/report_templates"
 
+	Report_vulnerabilities_api_url = "/api/v1/vulnerabilities"
+
 	UserId = "986ad8c0-a5b3-df4d-7028-d5f3c06e936c"
 )
