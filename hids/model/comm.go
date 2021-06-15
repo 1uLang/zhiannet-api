@@ -14,7 +14,7 @@ func ToMap(obj interface{}) map[string]interface{} {
 	return ret
 }
 
-func ParseResp(resp []byte,retObj ...interface{}) (map[string]interface{}, error) {
+func ParseResp(resp []byte, retObj ...interface{}) (map[string]interface{}, error) {
 	ret := map[string]interface{}{}
 	if len(resp) == 0 {
 		return nil, nil
@@ -24,28 +24,20 @@ func ParseResp(resp []byte,retObj ...interface{}) (map[string]interface{}, error
 	if err != nil {
 		return nil, err
 	}
-	if ret["reqCode"] == 400 {
-		return nil, fmt.Errorf("%v",ret["msg"])
+
+	reqCode, isExist := ret["reqCode"]
+	if isExist {
+		if reqCode == 400 {
+			return nil, fmt.Errorf("%v", ret["msg"])
+		}
+		if ret["returnCode"] != "1" {
+			return nil, fmt.Errorf("%v", ret["returnMsg"])
+		}
 	}
-	if len(retObj) > 0 {
-		buf,_ := json.Marshal(ret["data"])
-		err = json.Unmarshal(buf,retObj[0])
+	data, isExist := ret["data"]
+	if isExist && len(retObj) > 0 {
+		buf, _ := json.Marshal(data)
+		err = json.Unmarshal(buf, retObj[0])
 	}
 	return ret, nil
-}
-
-func ParseResp2(resp []byte) (map[string]interface{}, error) {
-	ret := map[string]interface{}{}
-	if len(resp) == 0 {
-		return nil, nil
-	}
-	err := json.Unmarshal(resp, ret)
-	fmt.Println(string(resp))
-	if err != nil {
-		return nil, err
-	}
-	if ret["returnCode"] != "1" {
-		return nil, fmt.Errorf("%v",ret["returnMsg"])
-	}
-	return ret["data"].(map[string]interface{}), nil
 }

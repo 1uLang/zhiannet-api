@@ -13,12 +13,12 @@ import (
 func Add(args *AddReq) (uint64, error) {
 
 	//先判断用户账号是否已存在
-	list,err := List(&SearchReq{UserName: args.UserName})
+	list, err := List(&SearchReq{UserName: args.UserName})
 	if err != nil {
-		return 0, fmt.Errorf("获取数据失败：%v",err)
+		return 0, fmt.Errorf("获取数据失败：%v", err)
 	}
 	if list.TotalData > 0 {
-		return 0,fmt.Errorf("账号已存在")
+		return 0, fmt.Errorf("账号已存在")
 	}
 
 	//参数判断
@@ -51,7 +51,7 @@ func Add(args *AddReq) (uint64, error) {
 		return 0, err
 	}
 
-	ret, err := model.ParseResp2(resp)
+	ret, err := model.ParseResp(resp)
 	if err != nil {
 		return 0, err
 	}
@@ -71,7 +71,7 @@ func Add(args *AddReq) (uint64, error) {
 		return 0, err
 	}
 
-	ret, err = model.ParseResp2(resp)
+	ret, err = model.ParseResp(resp)
 	if err != nil {
 		return 0, err
 	}
@@ -80,7 +80,7 @@ func Add(args *AddReq) (uint64, error) {
 }
 
 //List 用户列表
-func List(args *SearchReq) (list SearchResp,err error) {
+func List(args *SearchReq) (list SearchResp, err error) {
 
 	list = SearchResp{}
 	if args.PageSize == 0 {
@@ -101,9 +101,9 @@ func List(args *SearchReq) (list SearchResp,err error) {
 
 	resp, err := req.Do()
 	if err != nil {
-		return list ,err
+		return list, err
 	}
 	fmt.Println(resp)
-	_,err = model.ParseResp(resp,&list)
-	return list,err
+	_, err = model.ParseResp(resp, &list)
+	return list, err
 }

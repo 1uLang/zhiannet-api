@@ -1,7 +1,8 @@
-package notifications
+package targets
 
 import (
 	"fmt"
+	"github.com/1uLang/zhiannet-api/awvs/model/targets"
 	"github.com/1uLang/zhiannet-api/awvs/request"
 	"github.com/1uLang/zhiannet-api/awvs/server"
 	"testing"
@@ -22,8 +23,10 @@ func init() {
 	}
 }
 
-func TestNotifications(t *testing.T) {
-	info, err := Notifications()
+func TestList(t *testing.T) {
+	info, err := List(&targets.ListReq{
+		Limit: 20,
+	})
 	if err != nil {
 		t.Error(err)
 		t.Fail()

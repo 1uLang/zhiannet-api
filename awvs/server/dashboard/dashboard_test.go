@@ -9,7 +9,7 @@ import (
 
 func init() {
 	//初始化 awvs 服务器地址
-	err := server.SetUrl("https://scan-web.zhiannet.com/")
+	err := server.SetUrl("https://scan-web.zhiannet.com")
 	if err != nil {
 		panic(err)
 	}

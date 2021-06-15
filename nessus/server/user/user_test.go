@@ -10,7 +10,7 @@ import (
 
 func init() {
 	//初始化 nessus 服务器地址
-	err := server.SetUrl("https://182.150.0.108:8834/")
+	err := server.SetUrl("https://182.150.0.108:8834")
 	if err != nil {
 		panic(err)
 	}
