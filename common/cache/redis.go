@@ -20,10 +20,10 @@ var (
 // 初始化连接
 func InitClient() (err error) {
 	Rdb = redis.NewClient(&redis.Options{
-		Addr:     "192.168.168.17:6379",
-		Password: "",  // no password set
-		DB:       0,   // use default DB
-		PoolSize: 100, // 连接池大小
+		Addr:     "45.195.61.132:6379",
+		Password: "1232345342675", // no password set
+		DB:       0,               // use default DB
+		PoolSize: 100,             // 连接池大小
 	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

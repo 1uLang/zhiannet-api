@@ -7,6 +7,7 @@ import (
 	_const "github.com/1uLang/zhiannet-api/opnsense/const"
 	"github.com/1uLang/zhiannet-api/opnsense/request"
 	"github.com/go-resty/resty/v2"
+	"strings"
 	"time"
 )
 
@@ -47,6 +48,9 @@ type (
 	EditIpsReq struct {
 		Sid int64 `json:"sid"`
 	}
+	DelIpsReq struct {
+		Sid []string `json:"sid"`
+	}
 	EditResp struct {
 		Result string `json:"result"`
 	}
@@ -77,6 +81,21 @@ func EditIps(req *EditIpsReq, apiKey *request.ApiKey) (res bool, err error) {
 	resp, err := client.R().
 		SetBasicAuth(apiKey.Username, apiKey.Password).
 		Post(fmt.Sprintf("https://%v:%v%v/%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_IPS_EDIT_URL, req.Sid))
+	//fmt.Println(string(resp.Body()), err)
+	editRes := EditResp{}
+	err = json.Unmarshal(resp.Body(), &editRes)
+	if err != nil {
+		return res, err
+	}
+	return editRes.Result == "saved", err
+}
+
+//删除 规则
+func DelIps(req *DelIpsReq, apiKey *request.ApiKey) (res bool, err error) {
+	resp, err := client.R().
+		SetBasicAuth(apiKey.Username, apiKey.Password).
+		Post(fmt.Sprintf("https://%v:%v%v", apiKey.Addr, apiKey.Port,
+			fmt.Sprintf(_const.OPNSENSE_IPS_DEL_URL, strings.Join(req.Sid, ","))))
 	//fmt.Println(string(resp.Body()), err)
 	editRes := EditResp{}
 	err = json.Unmarshal(resp.Body(), &editRes)
