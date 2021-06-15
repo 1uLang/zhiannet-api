@@ -1,8 +1,8 @@
-package user
+package risk
 
 import (
 	"fmt"
-	"github.com/1uLang/zhiannet-api/hids/model/user"
+	"github.com/1uLang/zhiannet-api/hids/model/risk"
 	"github.com/1uLang/zhiannet-api/hids/request"
 	"github.com/1uLang/zhiannet-api/hids/server"
 	"testing"
@@ -23,22 +23,25 @@ func init() {
 		panic(err)
 	}
 }
-func TestAdd(t *testing.T) {
-	orgId, err := Add(&user.AddReq{
-		UserName: "LUSIR2",
-		Password: "2323",
-		Role:     3,
+
+func TestRiskList(t *testing.T) {
+
+	list, err := RiskList(&risk.SearchReq{
+		//UserName: "LUSIR2",
+		Level:         2, //高危
+		ProcessStatus: 1, //未处理
 	})
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()
 	}
-	fmt.Println(orgId)
+	fmt.Println(list)
 }
-func TestList(t *testing.T) {
+func TestVirusList(t *testing.T) {
 
-	list, err := List(&user.SearchReq{
-		UserName: "LUSIR2",
+	list, err := VirusList(&risk.RiskSearchReq{
+		UserName:    "LUSIR2",
+		IsProcessed: false, //待处理
 	})
 	if err != nil {
 		t.Errorf(err.Error())

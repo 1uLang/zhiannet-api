@@ -1,4 +1,4 @@
-package server
+package examine
 
 import (
 	"fmt"
@@ -8,10 +8,16 @@ import (
 	"github.com/1uLang/zhiannet-api/hids/util"
 )
 
-//List 主机列表
-func List(args *SearchReq) (list SearchResp, err error) {
+//List 体检列表
+func List(args *SearchReq, online ...bool) (list SearchResp, err error) {
 
 	list = SearchResp{}
+
+	ok, err := args.Check()
+	if err != nil || !ok {
+		return list, fmt.Errorf("参数错误：%v", err)
+	}
+
 	if args.PageSize == 0 {
 		args.PageSize = 10
 	}
@@ -24,15 +30,17 @@ func List(args *SearchReq) (list SearchResp, err error) {
 		return list, err
 	}
 	req.Method = "get"
-	req.Path = _const.ServerList_api_url
+	req.Path = _const.Examine_api_url
 	req.Headers["signNonce"] = util.RandomNum(10)
-	req.Params = model.ToMap(args)
-
+	if len(online) > 0 {
+		req.Params = model.ToMap(OnlineSearchReq{SearchReq: *args, Online: online[0]})
+	} else {
+		req.Params = model.ToMap(args)
+	}
 	resp, err := req.Do()
 	if err != nil {
 		return list, err
 	}
-	fmt.Println(resp)
 	_, err = model.ParseResp(resp, &list)
 	return list, err
 }
