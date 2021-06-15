@@ -171,3 +171,24 @@ func Statistics(scan_id, scan_session_id string) (info map[string]interface{}, e
 	}
 	return model.ParseResp(resp)
 }
+
+//Abort 停止扫描
+func Abort(scan_id string) error {
+	if scan_id == "" {
+		return fmt.Errorf("扫描id不能为空")
+	}
+	req, err := request.NewRequest()
+	if err != nil {
+		return err
+	}
+
+	req.Method = "get"
+	req.Url += _const.Scans_api_url + "/" + scan_id + "/abort"
+
+	resp, err := req.Do()
+	if err != nil {
+		return err
+	}
+	_, err = model.ParseResp(resp)
+	return err
+}

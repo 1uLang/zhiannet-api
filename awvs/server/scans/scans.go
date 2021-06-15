@@ -10,7 +10,7 @@ func List(req *scans.ListReq) (info map[string]interface{}, err error) {
 }
 
 //Add 新建扫描
-func Add(req *scans.AddReq) (targetId string, err error) {
+func Add(req *scans.AddReq) (err error) {
 	return scans.Add(req)
 }
 
@@ -22,4 +22,9 @@ func ScanningProfiles() (list map[string]interface{}, err error) {
 //ReportTemplates 报表列表
 func ReportTemplates() (list map[string]interface{}, err error) {
 	return scans.ReportTemplates()
+}
+
+//Abort 停止扫描
+func Abort(scan_id string) (err error) {
+	return scans.Abort(scan_id)
 }
