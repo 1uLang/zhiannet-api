@@ -261,7 +261,8 @@ func SystemDistributed(args *SearchReq) (info SystemDistributedResp, err error) 
 	}
 	ret = ret["data"].(map[string]interface{})
 	info.Host, _ = util.Interface2Int(ret["totalData"])
-	for _, node := range ret["systemRiskDistributionInfoList"].([]map[string]interface{}) {
+	for _, v := range ret["systemRiskDistributionInfoList"].([]interface{}) {
+		node := v.(map[string]interface{})
 		low, _ := util.Interface2Int(node["lowRiskCount"])
 		middle, _ := util.Interface2Int(node["middleRiskCount"])
 		high, _ := util.Interface2Int(node["highRiskCount"])
@@ -277,9 +278,8 @@ func SystemDistributed(args *SearchReq) (info SystemDistributedResp, err error) 
 }
 
 //WeakList 弱口令分布列表
-func WeakList(args *SearchReq) (list map[string]interface{}, err error) {
+func WeakList(args *SearchReq) (info SystemDistributedResp, err error) {
 
-	list = map[string]interface{}{}
 	if args.PageSize == 0 {
 		args.PageSize = 10
 	}
@@ -289,7 +289,7 @@ func WeakList(args *SearchReq) (list map[string]interface{}, err error) {
 
 	req, err := request.NewRequest()
 	if err != nil {
-		return list, err
+		return info, err
 	}
 	req.Method = "get"
 	req.Path = _const.Risk_weak_api_url
@@ -298,16 +298,34 @@ func WeakList(args *SearchReq) (list map[string]interface{}, err error) {
 
 	resp, err := req.Do()
 	if err != nil {
-		return list, err
+		return info, err
 	}
-	_, err = model.ParseResp(resp, &list)
-	return list, err
+	ret, err := model.ParseResp(resp)
+	if _, isExist := ret["data"]; !isExist || err != nil {
+		return info, err
+	}
+	ret = ret["data"].(map[string]interface{})
+	info.Host, _ = util.Interface2Int(ret["totalData"])
+	for _, v := range ret["weakDistributionInfoList"].([]interface{}) {
+		node := v.(map[string]interface{})
+		low, _ := util.Interface2Int(node["lowRiskCount"])
+		middle, _ := util.Interface2Int(node["middleRiskCount"])
+		high, _ := util.Interface2Int(node["highRiskCount"])
+		critical, _ := util.Interface2Int(node["criticalCount"])
+
+		info.Low += low
+		info.Middle += middle
+		info.High += high
+		info.Critical += critical
+		info.List = append(info.List, node)
+	}
+	info.Total = info.Low + info.Middle + info.High + info.Critical
+	return info, err
 }
 
 //DangerAccountList 高危账号分布列表
-func DangerAccountList(args *SearchReq) (list map[string]interface{}, err error) {
+func DangerAccountList(args *SearchReq) (info SystemDistributedResp, err error) {
 
-	list = map[string]interface{}{}
 	if args.PageSize == 0 {
 		args.PageSize = 10
 	}
@@ -317,7 +335,7 @@ func DangerAccountList(args *SearchReq) (list map[string]interface{}, err error)
 
 	req, err := request.NewRequest()
 	if err != nil {
-		return list, err
+		return info, err
 	}
 	req.Method = "get"
 	req.Path = _const.Risk_danger_account_api_url
@@ -326,16 +344,35 @@ func DangerAccountList(args *SearchReq) (list map[string]interface{}, err error)
 
 	resp, err := req.Do()
 	if err != nil {
-		return list, err
+		return info, err
 	}
-	_, err = model.ParseResp(resp, &list)
-	return list, err
+	ret, err := model.ParseResp(resp)
+
+	if _, isExist := ret["data"]; !isExist || err != nil {
+		return info, err
+	}
+	ret = ret["data"].(map[string]interface{})
+	info.Host, _ = util.Interface2Int(ret["totalData"])
+	for _, v := range ret["dangerAccountDistributionInfoList"].([]interface{}) {
+		node := v.(map[string]interface{})
+		low, _ := util.Interface2Int(node["lowRiskCount"])
+		middle, _ := util.Interface2Int(node["middleRiskCount"])
+		high, _ := util.Interface2Int(node["highRiskCount"])
+		critical, _ := util.Interface2Int(node["criticalCount"])
+
+		info.Low += low
+		info.Middle += middle
+		info.High += high
+		info.Critical += critical
+		info.List = append(info.List, node)
+	}
+	info.Total = info.Low + info.Middle + info.High + info.Critical
+	return info, err
 }
 
 //ConfigDefectList 配置缺陷分布列表
-func ConfigDefectList(args *SearchReq) (list map[string]interface{}, err error) {
+func ConfigDefectList(args *SearchReq) (info SystemDistributedResp, err error) {
 
-	list = map[string]interface{}{}
 	if args.PageSize == 0 {
 		args.PageSize = 10
 	}
@@ -345,7 +382,7 @@ func ConfigDefectList(args *SearchReq) (list map[string]interface{}, err error) 
 
 	req, err := request.NewRequest()
 	if err != nil {
-		return list, err
+		return info, err
 	}
 	req.Method = "get"
 	req.Path = _const.Risk_config_defect_api_url
@@ -354,15 +391,32 @@ func ConfigDefectList(args *SearchReq) (list map[string]interface{}, err error) 
 
 	resp, err := req.Do()
 	if err != nil {
-		return list, err
+		return info, err
 	}
-	_, err = model.ParseResp(resp, &list)
-	return list, err
+	ret, err := model.ParseResp(resp)
+	if _, isExist := ret["data"]; !isExist || err != nil {
+		return info, err
+	}
+	ret = ret["data"].(map[string]interface{})
+	info.Host, _ = util.Interface2Int(ret["totalData"])
+	for _, v := range ret["configDefectDistributionInfoList"].([]interface{}) {
+		node := v.(map[string]interface{})
+		low, _ := util.Interface2Int(node["lowRiskCount"])
+		middle, _ := util.Interface2Int(node["middleRiskCount"])
+		high, _ := util.Interface2Int(node["highRiskCount"])
+		critical, _ := util.Interface2Int(node["criticalCount"])
+
+		info.Low += low
+		info.Middle += middle
+		info.High += high
+		info.Critical += critical
+		info.List = append(info.List, node)
+	}
+	info.Total = info.Low + info.Middle + info.High + info.Critical
+	return info, err
 }
 
-//ProcessRisk 处置服务器系统漏洞
-func ProcessRisk(args *ProcessResp) error {
-
+func process(args *ProcessResp, path string) error {
 	if ok, err := args.Check(); err != nil || !ok {
 		return fmt.Errorf("参数错误：%v", err)
 	}
@@ -372,9 +426,10 @@ func ProcessRisk(args *ProcessResp) error {
 		return err
 	}
 	req.Method = "post"
-	req.Path = _const.Risk_process_api_url + "/ignore" //忽略
+	//忽略
+	req.Path = path + "/" + args.Opt
 	req.Headers["signNonce"] = util.RandomNum(10)
-	req.Params = model.ToMap(args)
+	req.Params = model.ToMap(args.Req)
 
 	resp, err := req.Do()
 	if err != nil {
@@ -382,4 +437,72 @@ func ProcessRisk(args *ProcessResp) error {
 	}
 	_, err = model.ParseResp(resp)
 	return err
+}
+
+//ProcessRisk 处置服务器系统漏洞
+func ProcessRisk(args *ProcessResp) error {
+	return process(args, _const.Risk_process_api_url)
+}
+
+//ProcessWeak 处置服务器弱口令
+func ProcessWeak(args *ProcessResp) error {
+	return process(args, _const.Risk_weak_process_api_url)
+}
+
+//ProcessDangerAccount 处置服务器弱口令
+func ProcessDangerAccount(args *ProcessResp) error {
+	return process(args, _const.Risk_danger_account_process_api_url)
+}
+
+//ProcessConfigDefect 处置服务器配置缺陷
+func ProcessConfigDefect(args *ProcessResp) error {
+	return process(args, _const.Risk_config_defect_process_api_url)
+}
+
+func detail(args *DetailReq, path string) (info DetailResp, err error) {
+	ok, err := args.Check()
+	if err != nil || !ok {
+		return info, err
+	}
+
+	if args.Req.PageSize == 0 {
+		args.Req.PageSize = 10
+	}
+	if args.Req.PageNo == 0 {
+		args.Req.PageNo = 1
+	}
+
+	req, err := request.NewRequest()
+	if err != nil {
+		return info, err
+	}
+	req.Method = "get"
+	req.Path = path + "/" + args.MacCode + "/detail/list"
+	req.Headers["signNonce"] = util.RandomNum(10)
+	req.Params = model.ToMap(args)
+
+	resp, err := req.Do()
+	if err != nil {
+		return info, err
+	}
+	_, err = model.ParseResp(resp, &info)
+	return info, err
+}
+
+//WeakDetail 弱口令详情
+func WeakDetail(args *DetailReq) (info DetailResp, err error) {
+
+	return detail(args, _const.Risk_weak_server_api_url)
+}
+
+//DangerAccountDetail 高危账号详情
+func DangerAccountDetail(args *DetailReq) (info DetailResp, err error) {
+
+	return detail(args, _const.Risk_danger_account_detail_api_url)
+}
+
+//ConfigDefectDetail 配置缺陷详情
+func ConfigDefectDetail(args *DetailReq) (info DetailResp, err error) {
+
+	return detail(args, _const.Risk_config_defect_detail_api_url)
 }

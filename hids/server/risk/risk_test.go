@@ -49,3 +49,34 @@ func TestVirusList(t *testing.T) {
 	}
 	fmt.Println(list)
 }
+
+func TestSystemDistributed(t *testing.T) {
+
+	req := &risk.SearchReq{UserName: "luobing", MacCode: "48C57D8BFC8EE7BEB9ADA36845A6E051"}
+	list, err := SystemDistributed(req)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}
+func TestWeakList(t *testing.T) {
+
+	req := &risk.SearchReq{UserName: "luobing", MacCode: "48C57D8BFC8EE7BEB9ADA36845A6E051"}
+	list, err := WeakList(req)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}
+func TestDangerAccountList(t *testing.T) {
+
+	req := &risk.SearchReq{UserName: "luobing", MacCode: "48C57D8BFC8EE7BEB9ADA36845A6E051"}
+	list, err := DangerAccountList(req)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}

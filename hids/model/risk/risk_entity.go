@@ -10,6 +10,7 @@ type searchReq struct {
 type SearchReq struct {
 	searchReq
 	UserName      string `json:"userName,omitempty"`
+	MacCode       string `json:"macCode,omitempty"`
 	ServerIp      string `json:"serverIp,omitempty"`
 	WeakType      string `json:"weakType,omitempty"`
 	Level         int    `json:"level,omitempty"`         //风险等级：低 中 高 危机：1,2,3,4
@@ -68,34 +69,85 @@ type RiskSearchResp struct {
 }
 
 type SystemDistributedResp struct {
-	Low      int `json:"low"`      // 低危险
-	Middle   int `json:"middle"`   // 中危险
-	High     int `json:"high"`     // 高危险
-	Critical int `json:"critical"` //危急漏洞
-	Total    int `json:"total"`    //漏洞总数
-	Host     int `json:"host"`     //受影响主机数
+	Low      int                      `json:"low"`      // 低危险
+	Middle   int                      `json:"middle"`   // 中危险
+	High     int                      `json:"high"`     // 高危险
+	Critical int                      `json:"critical"` //危急漏洞
+	Total    int                      `json:"total"`    //漏洞总数
+	Host     int                      `json:"host"`     //受影响主机数
+	List     []map[string]interface{} //列表
 }
 
 type ProcessResp struct {
-	Opt     string   `json:"opt"`
-	MacCode string   `json:"macCode"`
-	RiskIds []string `json:"riskIds"`
-	ItemIds []string `json:"ItemIds"`
+	Opt string `json:"opt"`
+	Req struct {
+		MacCode string   `json:"macCode"`
+		RiskIds []string `json:"riskIds"`
+		ItemIds []string `json:"ItemIds"`
+	}
+}
+
+var opts = map[string]bool{
+	"add_trust":     true,
+	"cancel_trust":  true,
+	"isolate":       true,
+	"revert":        true,
+	"delete":        true,
+	"close":         true,
+	"cancel_close":  true,
+	"ignore":        true,
+	"cancel_ignore": true,
+	"repair":        true,
 }
 
 func (this *ProcessResp) Check() (bool, error) {
 
-	if this.Opt != "ignore" && this.Opt != "cancel_ignore" && this.Opt != "repair" {
+	if _, isExist := opts[this.Opt]; !isExist {
 		return false, fmt.Errorf("opt参数有误")
 	}
-	if this.MacCode == "" {
+
+	if this.Req.MacCode == "" {
 		return false, fmt.Errorf("macCode不能为空")
 	}
-	if len(this.RiskIds) == 0 {
+	if len(this.Req.RiskIds) == 0 {
 		return false, fmt.Errorf("风险项id不能为空")
 	}
-	if len(this.ItemIds) == 0 {
+	if len(this.Req.ItemIds) == 0 {
 		return false, fmt.Errorf("报告id集合不能为空")
 	}
 	return true, nil
+}
+
+type DetailReq struct {
+	MacCode string `json:"macCode"`
+	Req     struct {
+		UserName     string `json:"userName"`
+		PageNo       int    `json:"pageNo"`
+		PageSize     int    `json:"pageSize"`
+		Level        int    `json:"level,omitempty"`
+		ProcessState int    `json:"ProcessState,omitempty"`
+	}
+}
+
+func (this *DetailReq) Check() (bool, error) {
+	if this.MacCode == "" {
+		return false, fmt.Errorf("请输入机器码")
+	}
+	if this.Req.Level < 0 || this.Req.Level > 4 {
+		return false, fmt.Errorf("风险等级无效")
+	}
+	if this.Req.ProcessState < 0 || this.Req.ProcessState > 2 {
+		return false, fmt.Errorf("处理状态无效")
+	}
+	return true, nil
+}
+
+type DetailResp struct {
+	PageNo            int                      `json:"pageNo"`
+	PageSize          int                      `json:"pageSize"`
+	TotalData         int                      `json:"totalData"`
+	TotalPage         int                      `json:"totalPage"`
+	WeakInfoList      []map[string]interface{} `json:"weakInfoList"`
+	DangerAccountList []map[string]interface{} `json:"dangerAccountList"`
+	ConfigDefectList  []map[string]interface{} `json:"configDefectList"`
 }

@@ -76,6 +76,8 @@ func NewRequest() (*request, error) {
 	if _, isExist := req.Headers["appId"]; !isExist {
 		return nil, fmt.Errorf("未配置appId")
 	}
+	//删除签名
+	delete(req.Headers, "sign")
 	return &request{Headers: req.Headers, url: req.url, Secret: req.Secret}, nil
 }
 func NewRequest2() (*request, error) {

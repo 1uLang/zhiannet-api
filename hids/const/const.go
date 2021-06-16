@@ -17,9 +17,21 @@ const (
 
 	Risk_weak_api_url = "/sdapi/cloudeyes/risk/weak/server-distributed/list"
 
+	Risk_weak_server_api_url = "/sdapi/cloudeyes/risk/weak/server/"
+
+	Risk_weak_process_api_url = "/sdapi/cloudeyes/risk/weak/process"
+
 	Risk_danger_account_api_url = "/sdapi/cloudeyes/risk/danger-account/server-distributed/list"
 
+	Risk_danger_account_detail_api_url = "/sdapi/cloudeyes/risk/danger-account/"
+
+	Risk_danger_account_process_api_url = "/sdapi/cloudeyes/risk/danger-account/process/"
+
 	Risk_config_defect_api_url = "/sdapi/cloudeyes/risk/config-defect/server-distributed/list"
+
+	Risk_config_defect_detail_api_url = "/sdapi/cloudeyes/risk/config-defect/"
+
+	Risk_config_defect_process_api_url = "/sdapi/cloudeyes/risk/config-defect/process/"
 
 	Risk_baselinew_api_url = "/sdapi/cloudeyes/baseline/check/list"
 
@@ -40,6 +52,10 @@ const (
 	Risk_system_cmd_api_url = "/sdapi/cloudeyes/invade/system-cmd/server-count/list"
 
 	Examine_api_url = "/sdapi/cloudeyes/examine/server/list"
+
+	Examine_scan_server_now_api_url = "/sdapi/cloudeyes/examine/scan-server/now"
+
+	Examine_scan_server_cancel_api_url = "/sdapi/cloudeyes/examine/scan-server/cancel"
 
 	Sign_method   = "HmacSHA256"
 	Sign_version  = "3.0"

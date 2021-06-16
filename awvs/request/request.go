@@ -59,6 +59,7 @@ func NewRequest() (*request, error) {
 	if _, isExist := req.Headers["X-Auth"]; !isExist {
 		return nil, fmt.Errorf("未配置X-Auth")
 	}
+
 	return &request{Headers: req.Headers, Url: req.Url}, nil
 }
 

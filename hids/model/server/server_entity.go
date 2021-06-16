@@ -16,3 +16,10 @@ type SearchResp struct {
 	TotalPage      int                      `json:"totalPage"`
 	ServerInfoList []map[string]interface{} `json:"serverInfoList"`
 }
+type InfoResp struct {
+	LocalIp  string
+	HostName string
+	System   string
+	OsType   string
+	Remark   string
+}
