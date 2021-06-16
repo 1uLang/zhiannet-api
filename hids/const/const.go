@@ -13,27 +13,27 @@ const (
 
 	Risk_distributed_api_url = "/sdapi/cloudeyes/risk/system/server-distributed/list"
 
+	Risk_system_detail_api_url = "/sdapi/cloudeyes/risk/system/detail"
+
 	Risk_process_api_url = "/sdapi/cloudeyes/risk/system/process"
 
 	Risk_weak_api_url = "/sdapi/cloudeyes/risk/weak/server-distributed/list"
 
-	Risk_weak_server_api_url = "/sdapi/cloudeyes/risk/weak/server/"
+	Risk_weak_server_api_url = "/sdapi/cloudeyes/risk/weak/server"
 
 	Risk_weak_process_api_url = "/sdapi/cloudeyes/risk/weak/process"
 
 	Risk_danger_account_api_url = "/sdapi/cloudeyes/risk/danger-account/server-distributed/list"
 
-	Risk_danger_account_detail_api_url = "/sdapi/cloudeyes/risk/danger-account/"
+	Risk_danger_account_detail_api_url = "/sdapi/cloudeyes/risk/danger-account"
 
-	Risk_danger_account_process_api_url = "/sdapi/cloudeyes/risk/danger-account/process/"
+	Risk_danger_account_process_api_url = "/sdapi/cloudeyes/risk/danger-account/process"
 
 	Risk_config_defect_api_url = "/sdapi/cloudeyes/risk/config-defect/server-distributed/list"
 
-	Risk_config_defect_detail_api_url = "/sdapi/cloudeyes/risk/config-defect/"
+	Risk_config_defect_detail_api_url = "/sdapi/cloudeyes/risk/config-defect"
 
-	Risk_config_defect_process_api_url = "/sdapi/cloudeyes/risk/config-defect/process/"
-
-	Risk_baselinew_api_url = "/sdapi/cloudeyes/baseline/check/list"
+	Risk_config_defect_process_api_url = "/sdapi/cloudeyes/risk/config-defect/process"
 
 	Risk_Virus_api_url = "/sdapi/cloudeyes/invade/virus/info/list"
 
@@ -56,6 +56,24 @@ const (
 	Examine_scan_server_now_api_url = "/sdapi/cloudeyes/examine/scan-server/now"
 
 	Examine_scan_server_cancel_api_url = "/sdapi/cloudeyes/examine/scan-server/cancel"
+
+	Baseline_check_list_api_url = "/sdapi/cloudeyes/baseline/check/list"
+
+	Baseline_check_api_url = "/sdapi/cloudeyes/baseline/check/start"
+
+	Baseline_template_list_api_url = "/sdapi/cloudeyes/baseline/template/list"
+
+	Baseline_template_detail_api_url = "/sdapi/cloudeyes/baseline/template/%s/item/list"
+
+	Baseline_check_detail_api_url = "/sdapi/cloudeyes/baseline/check/%s/detail/list"
+
+	Ageent_list_api_url = "/sdapi/cloudeyes/agent/agent/list"
+
+	Ageent_download_api_url = "/sdapi/cloudeyes/agent/download-address/%s/%s"
+
+	Ageent_install_api_url = "/sdapi/cloudeyes/agent/installcmd/%s/%s"
+
+	Agent_dispose_api_uil = "/sdapi/cloudeyes/agent/dispose/%s/%s"
 
 	Sign_method   = "HmacSHA256"
 	Sign_version  = "3.0"

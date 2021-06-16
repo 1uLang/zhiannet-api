@@ -7,6 +7,9 @@ import (
 func RiskList(req *risk.SearchReq) (risk.SearchResp, error) {
 	return risk.RiskList(req)
 }
+func RiskDetail(macCode, riskId string) (info map[string]interface{}, err error) {
+	return risk.RiskDetail(macCode, riskId)
+}
 func VirusList(req *risk.RiskSearchReq) (risk.RiskSearchResp, error) {
 	return risk.VirusList(req)
 }

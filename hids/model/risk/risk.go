@@ -489,6 +489,29 @@ func detail(args *DetailReq, path string) (info DetailResp, err error) {
 	return info, err
 }
 
+//RiskDetail 系统漏洞详情
+func RiskDetail(macCode, riskId string) (info map[string]interface{}, err error) {
+
+	if macCode == "" || riskId == "" {
+		return info, fmt.Errorf("参数错误：机器码和漏洞id不能为空")
+	}
+
+	req, err := request.NewRequest()
+	if err != nil {
+		return info, err
+	}
+	req.Method = "get"
+	req.Path = _const.Risk_system_detail_api_url + "/" + macCode + "/" + riskId
+	req.Headers["signNonce"] = util.RandomNum(10)
+
+	resp, err := req.Do()
+	if err != nil {
+		return info, err
+	}
+	_, err = model.ParseResp(resp, &info)
+	return info, err
+}
+
 //WeakDetail 弱口令详情
 func WeakDetail(args *DetailReq) (info DetailResp, err error) {
 
