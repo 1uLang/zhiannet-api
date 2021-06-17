@@ -12,6 +12,10 @@ import (
 
 //Download agent下载
 func Download(username, osType string) (string, error) {
+
+	if osType != "Windows" && osType != "Linux32" && osType != "Linux64" {
+		return "", fmt.Errorf("操作系统类型参数错误")
+	}
 	req, err := request.NewRequest()
 	if err != nil {
 		return "", err
@@ -32,6 +36,9 @@ func Download(username, osType string) (string, error) {
 
 //Install 安装
 func Install(username, osType string) (string, error) {
+	if osType != "Windows" && osType != "Linux" {
+		return "", fmt.Errorf("操作系统类型参数错误")
+	}
 	req, err := request.NewRequest()
 	if err != nil {
 		return "", err
