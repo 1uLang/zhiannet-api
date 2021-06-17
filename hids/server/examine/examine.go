@@ -8,3 +8,9 @@ func List(req *examine.SearchReq) (examine.SearchResp, error) {
 func Details(macCode string) (info examine.DetailsResp, err error) {
 	return examine.Details(macCode)
 }
+func ScanServerNow(req *examine.ScanReq) error {
+	return examine.ScanServerNow(req)
+}
+func ScanServerCancel(macCodes []string) error {
+	return examine.ScanServerCancel(macCodes)
+}
