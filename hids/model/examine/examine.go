@@ -60,7 +60,7 @@ func ScanServerNow(args *ScanReq) (err error) {
 	if err != nil {
 		return err
 	}
-	req.Method = "get"
+	req.Method = "post"
 	req.Path = _const.Examine_scan_server_now_api_url
 	req.Headers["signNonce"] = util.RandomNum(10)
 	req.Params = model.ToMap(args)
@@ -85,7 +85,7 @@ func ScanServerCancel(macCodes []string) error {
 	if err != nil {
 		return err
 	}
-	req.Method = "get"
+	req.Method = "post"
 	req.Path = _const.Examine_scan_server_cancel_api_url
 	req.Headers["signNonce"] = util.RandomNum(10)
 	req.Params = map[string]interface{}{

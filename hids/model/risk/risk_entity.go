@@ -78,12 +78,12 @@ type SystemDistributedResp struct {
 	List     []map[string]interface{} //列表
 }
 
-type ProcessResp struct {
+type ProcessReq struct {
 	Opt string `json:"opt"`
 	Req struct {
 		MacCode string   `json:"macCode"`
 		RiskIds []string `json:"riskIds"`
-		ItemIds []string `json:"ItemIds"`
+		ItemIds []string `json:"itemIds"`
 	}
 }
 
@@ -100,7 +100,7 @@ var opts = map[string]bool{
 	"repair":        true,
 }
 
-func (this *ProcessResp) Check() (bool, error) {
+func (this *ProcessReq) Check() (bool, error) {
 
 	if _, isExist := opts[this.Opt]; !isExist {
 		return false, fmt.Errorf("opt参数有误")
@@ -124,8 +124,9 @@ type DetailReq struct {
 		UserName     string `json:"userName"`
 		PageNo       int    `json:"pageNo"`
 		PageSize     int    `json:"pageSize"`
-		Level        int    `json:"level,omitempty"`
-		ProcessState int    `json:"ProcessState,omitempty"`
+		Level        int    `json:"level,omitempty"`        //漏洞风险 特有字段
+		ProcessState int    `json:"ProcessState,omitempty"` //漏洞风险 特有字段
+		State        int    `json:"state,omitempty"`        //入侵威胁 特有字段
 	}
 }
 
@@ -143,11 +144,31 @@ func (this *DetailReq) Check() (bool, error) {
 }
 
 type DetailResp struct {
-	PageNo            int                      `json:"pageNo"`
-	PageSize          int                      `json:"pageSize"`
-	TotalData         int                      `json:"totalData"`
-	TotalPage         int                      `json:"totalPage"`
-	WeakInfoList      []map[string]interface{} `json:"weakInfoList"`
+	PageNo    int `json:"pageNo"`
+	PageSize  int `json:"pageSize"`
+	TotalData int `json:"totalData"`
+	TotalPage int `json:"totalPage"`
+	//弱口令列表
+	WeakInfoList []map[string]interface{} `json:"weakInfoList"`
+	//高危账号列表
 	DangerAccountList []map[string]interface{} `json:"dangerAccountList"`
-	ConfigDefectList  []map[string]interface{} `json:"configDefectList"`
+	//配置缺陷列表
+	ConfigDefectList []map[string]interface{} `json:"configDefectList"`
+
+	//木马病毒列表
+	ServerVirusInfoList []map[string]interface{} `json:"serverVirusInfoList"`
+	//网页后门列表
+	WebshellInfoLis []map[string]interface{} `json:"webshellInfoLis"`
+	//反弹shell列表
+	ReboundshellInfoList []map[string]interface{} `json:"reboundshellInfoList"`
+	//异常账号列表
+	AbnormalAccountInfoList []map[string]interface{} `json:"abnormalAccountInfoList"`
+	//日志异常删除列表
+	LogDeleteInfoList []map[string]interface{} `json:"logDeleteInfoList"`
+	//异常登录列表
+	ServerAbnormalLoginInfoList []map[string]interface{} `json:"serverAbnormalLoginInfoList"`
+	//异常进程列表
+	AbnormalProcessInfoList []map[string]interface{} `json:"abnormalProcessInfoList"`
+	//系统命令篡改列表
+	SystemCmdInfoList []map[string]interface{} `json:"systemCmdInfoList"`
 }

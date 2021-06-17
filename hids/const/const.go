@@ -37,19 +37,67 @@ const (
 
 	Risk_Virus_api_url = "/sdapi/cloudeyes/invade/virus/info/list"
 
+	Risk_Virus_detail_list_api_url = "/sdapi/cloudeyes/invade/virus/server"
+
+	Risk_Virus_detail_api_url = "/sdapi/cloudeyes/invade/virus/detail/%s/%s"
+
+	Risk_Virus_process_api_url = "/sdapi/cloudeyes/invade/virus/process/%s"
+
 	Risk_webshell_api_url = "/sdapi/cloudeyes/invade/webshell/server-count/list"
+
+	Risk_webshell_detail_api_url = "/sdapi/cloudeyes/invade/webshell/detail/%s/%s"
+
+	Risk_webshell_detail_list_api_url = "/sdapi/cloudeyes/invade/webshell/server"
+
+	Risk_webshell_process_api_url = "/sdapi/cloudeyes/invade/webshell/process/%s"
 
 	Risk_reboundshell_api_url = "/sdapi/cloudeyes/invade/reboundshell/server-count/list"
 
+	Risk_reboundshell_detail_list_api_url = "/sdapi/cloudeyes/invade/reboundshell/server"
+
+	Risk_reboundshell_detail_api_url = "/sdapi/cloudeyes/invade/reboundshell/detail/%s/%s"
+
+	Risk_reboundshell_process_api_url = "/sdapi/cloudeyes/invade/reboundshell/process/%s"
+
 	Risk_abnormal_account_api_url = "/sdapi/cloudeyes/invade/abnormal-account/server-count/list"
+
+	Risk_abnormal_account_detail_list_api_url = "/sdapi/cloudeyes/invade/abnormal-account/server"
+
+	Risk_abnormal_account_detail_api_url = "/sdapi/cloudeyes/invade/abnormal-account/detail/%s/%s"
+
+	Risk_abnormal_account_process_api_url = "/sdapi/cloudeyes/invade/abnormal-account/process/%s"
 
 	Risk_log_delete_api_url = "/sdapi/cloudeyes/invade/log-delete/server-count/list"
 
+	Risk_log_delete_detail_list_api_url = "/sdapi/cloudeyes/invade/log-delete/server"
+
+	Risk_log_delete_detail_api_url = "/sdapi/cloudeyes/invade/log-delete/detail/%s/%s"
+
+	Risk_log_delete_process_api_url = "/sdapi/cloudeyes/invade/log-delete/process/%s"
+
 	Risk_abnormal_login_api_url = "/sdapi/cloudeyes/invade/abnormal-login/server-count/list"
+
+	Risk_abnormal_login_detail_list_api_url = "/sdapi/cloudeyes/invade/abnormal-login/server"
+
+	Risk_abnormal_login_detail_api_url = "/sdapi/cloudeyes/invade/abnormal-login/detail/%s/%s"
+
+	Risk_abnormal_login_process_api_url = "/sdapi/cloudeyes/invade/abnormal-login/process/%s"
 
 	Risk_abnormal_process_api_url = "/sdapi/cloudeyes/invade/abnormal-process/server-count/list"
 
+	Risk_abnormal_process_detail_list_api_url = "/sdapi/cloudeyes/invade/abnormal-process/server"
+
+	Risk_abnormal_process_detail_api_url = "/sdapi/cloudeyes/invade/abnormal-process/detail/%s/%s"
+
+	Risk_abnormal_process_process_api_url = "/sdapi/cloudeyes/invade/abnormal-process/process/%s"
+
 	Risk_system_cmd_api_url = "/sdapi/cloudeyes/invade/system-cmd/server-count/list"
+
+	Risk_system_cmd_detail_list_api_url = "/sdapi/cloudeyes/invade/system-cmd/server"
+
+	Risk_system_cmd_detail_api_url = "/sdapi/cloudeyes/invade/system-cmd/detail/%s/%s"
+
+	Risk_system_cmd_process_api_url = "/sdapi/cloudeyes/invade/system-cmd/process/%s"
 
 	Examine_api_url = "/sdapi/cloudeyes/examine/server/list"
 

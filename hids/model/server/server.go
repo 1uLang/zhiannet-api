@@ -37,6 +37,7 @@ func List(args *SearchReq) (list SearchResp, err error) {
 	return list, err
 }
 
+//Info 主机信息
 func Info(serverIp string) (info InfoResp, err error) {
 	list, err := List(&SearchReq{ServerIp: serverIp})
 	if err != nil {

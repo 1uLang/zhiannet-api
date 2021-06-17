@@ -68,6 +68,8 @@ func Check(args *CheckReq) (err error) {
 	_, err = model.ParseResp(resp)
 	return err
 }
+
+//TemplateList 模板列表
 func TemplateList(args *TemplateSearchReq) (list TemplateSearchResp, err error) {
 	if args.PageSize == 0 {
 		args.PageSize = 10

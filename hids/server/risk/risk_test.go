@@ -26,7 +26,7 @@ func init() {
 
 func TestRiskList(t *testing.T) {
 
-	list, err := RiskList(&risk.SearchReq{
+	list, err := SystemRiskList(&risk.SearchReq{
 		//UserName: "LUSIR2",
 		Level:         2, //高危
 		ProcessStatus: 1, //未处理
@@ -40,8 +40,8 @@ func TestRiskList(t *testing.T) {
 func TestVirusList(t *testing.T) {
 
 	list, err := VirusList(&risk.RiskSearchReq{
-		UserName:    "LUSIR2",
-		IsProcessed: false, //待处理
+		//UserName:    "LUSIR2",
+		//IsProcessed: false, //待处理
 	})
 	if err != nil {
 		t.Errorf(err.Error())
