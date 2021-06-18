@@ -25,3 +25,18 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 	}
 	return model.ParseResp(resp)
 }
+func Details(vul_id string) (info map[string]interface{}, err error) {
+	req, err := request.NewRequest()
+	if err != nil {
+		return nil, err
+	}
+
+	req.Method = "get"
+	req.Url += _const.Report_vulnerabilities_api_url + "/" + vul_id
+
+	resp, err := req.Do()
+	if err != nil {
+		return nil, err
+	}
+	return model.ParseResp(resp)
+}
