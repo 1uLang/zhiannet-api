@@ -11,6 +11,7 @@ import (
 //参数：
 //	l 显示条数 int
 func List(args *ListReq) (list map[string]interface{}, err error) {
+
 	req, err := request.NewRequest()
 	if err != nil {
 		return nil, err
@@ -18,10 +19,7 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 
 	req.Method = "get"
 	req.Url += _const.Scans_api_url
-	req.Params = map[string]interface{}{
-		"l": args.Limit,
-		"c": args.C,
-	}
+	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
 	if err != nil {

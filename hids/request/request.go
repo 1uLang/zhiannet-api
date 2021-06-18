@@ -179,7 +179,7 @@ func (this *request) Do2() (respBody []byte, err error) {
 
 	this.Method = strings.ToUpper(this.Method)
 	client := &http.Client{
-		Timeout:   5 * time.Second,
+		Timeout:   10 * time.Second,
 		Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}},
 	}
 	//将header参数放在param中
@@ -234,7 +234,7 @@ func (this *request) Do() (respBody []byte, err error) {
 
 	this.Method = strings.ToUpper(this.Method)
 	client := &http.Client{
-		Timeout:   5 * time.Second,
+		Timeout:   10 * time.Second,
 		Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}},
 	}
 
