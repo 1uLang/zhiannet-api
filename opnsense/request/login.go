@@ -1,58 +1,97 @@
 package request
 
+import (
+	"bytes"
+	"crypto/tls"
+	"encoding/json"
+	"fmt"
+	"github.com/1uLang/zhiannet-api/common/cache"
+	"github.com/PuerkitoBio/goquery"
+	"github.com/go-resty/resty/v2"
+	"github.com/tidwall/gjson"
+)
+
+var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).SetDebug(false)
+
 //登陆获取cookie
-//func Login(req *ApiKey) (string, error) {
-//	var err error
-//	// https://182.131.30.171:28443/cgi-bin/login.cgi
-//	client := resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
-//	resp, err := client.R().
-//		SetHeader("Content-Type", "multipart/form-data; boundary=<calculated when request is sent>").
-//		SetFormData(map[string]string{
-//			"param_type":     "login",
-//			"param_username": req.Name,
-//			"param_password": req.Password,
-//		}).
-//		Post("https://" + req.Addr + ":" + req.Port + _const.DDOS_LOGIN_URL)
-//	if err != nil {
-//		logrus.Error(err)
-//		return Cookie, err
-//	}
-//
-//	//logrus.Info(string(resp.Body()))
-//	var data = LoginRes{}
-//	err = xml.Unmarshal(resp.Body(), &data)
-//	if err != nil {
-//		logrus.Error(err)
-//		return Cookie, err
-//	}
-//	//logrus.Info(data)
-//	if data.Failure.Info != "" {
-//		logrus.Debug(data.Failure)
-//		err = fmt.Errorf(data.Failure.Info)
-//		return Cookie, err
-//	}
-//	if len(resp.Cookies()) > 0 {
-//		cook := resp.Cookies()[0]
-//		Cookie = cook.Value
-//	}
-//	fmt.Println(Cookie)
-//
-//	return Cookie, err
-//	//logrus.Info( err)
-//}
-//
-//func GetCookie(req *LoginReq) (cookie string) {
-//
-//	key := fmt.Sprintf("ddos-cookie-%v:%v", req.Addr, req.Port)
-//	//cache.CheckCache(key, Login(req), 3600, true)
-//	res, err := cache.GetCache( key)
-//	if err != nil {
-//		if err == redis.Nil {
-//			cookie, _ = Login(req)
-//			cache.SetCache( key, cookie, 3600)
-//		}
-//		return
-//	}
-//	cookie = fmt.Sprintf("%v", res)
-//	return
-//}
+func Login(req *ApiKey) (CookieMap map[string]string, err error) {
+	CookieMap = make(map[string]string)
+	// https://182.150.0.109:5443/
+	//访问登陆页 获取登陆需要的唯一凭证 key-value
+	index, err := client.R().Get("https://" + req.Addr + ":" + req.Port)
+	if err != nil {
+		return CookieMap, err
+	}
+	//fmt.Println(index.StatusCode())
+	//fmt.Println(string(index.Body()))
+
+	//解析html
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(index.Body()))
+	if err != nil {
+		return CookieMap, err
+	}
+	key, value := "", ""
+	//doc.Find("form input[type='hidden']").Each(func(i int, s *goquery.Selection) {
+	//	// For each item found, get the band and title
+	//	name, _ = s.Attr("name")
+	//	value, _ = s.Attr("value")
+	//	fmt.Printf("Review %d: %s - %s\n", i, name, value)
+	//})
+	//通过标签匹配获取key - value
+	input := doc.Find("form input[type='hidden']").First()
+	key, _ = input.Attr("name")
+	value, _ = input.Attr("value")
+	//登陆 返回cookies
+	resp, err := client.R().
+		SetHeader("Content-Type", "application/x-www-form-urlencoded").
+		SetFormData(map[string]string{
+			"login":       "1",
+			"usernamefld": req.Username,
+			"passwordfld": req.Password,
+			key:           value,
+		}).
+		Post("https://" + req.Addr + ":" + req.Port)
+	//fmt.Println(resp.StatusCode())
+	//fmt.Println(string(resp.Body()))
+	//fmt.Println("key=",name,"value=",value)
+	if err != nil {
+		return CookieMap, err
+	}
+	if resp.StatusCode() == 200 {
+		//获取cookie
+		Cookies := resp.Cookies()
+		if len(Cookies) > 0 {
+			CookieMap["cookie"] = Cookies[0].Value
+			CookieMap["x-csrftoken"] = value //接口调用凭证
+		}
+
+		//fmt.Println("cookies", Cookies)
+		//fmt.Println("login in Cookie=", Cookie)
+	}
+	return CookieMap, err
+}
+
+//获取cookie和接口凭证 x-csrftoken
+func GetCookie(req *ApiKey) (cookie, x_csrftoken string, err error) {
+
+	key := fmt.Sprintf("opnsense-cookie-%v:%v", req.Addr, req.Port)
+	var resp interface{}
+	resp, err = cache.CheckCache(key, func() (interface{}, error) {
+		return Login(req)
+	}, 600, true)
+	if err != nil {
+		return cookie, x_csrftoken, err
+	}
+	var resByte []byte
+	resByte, err = json.Marshal(resp)
+	cookie = gjson.ParseBytes(resByte).Get("cookie").String()
+	x_csrftoken = gjson.ParseBytes(resByte).Get("x-csrftoken").String()
+	return cookie, x_csrftoken, err
+
+}
+
+//设置cookie
+func SetCookie(req *ApiKey) (err error) {
+	req.Cookie, req.XCsrfToken, err = GetCookie(req)
+	return err
+}

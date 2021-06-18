@@ -35,7 +35,7 @@ func InitClient() (err error) {
 
 /**
 设置缓存
-返回参数,,第一个数据,,第二个数据执行结果,第三个是否走缓存
+返回参数,,第一个数据,,第二个数据执行结果
 */
 func CheckCache(key string, fn func() (interface{}, error), duration uint32, needCache bool) (interface{}, error) {
 	key = Md5Str(key)
@@ -48,17 +48,8 @@ func CheckCache(key string, fn func() (interface{}, error), duration uint32, nee
 		//同一时间只有一个带相同key的函数执行 防击穿
 		Num, ok, _ := lockG.Do(key, fn)
 		if ok == nil {
-
-			data := make(map[string]interface{})
-			data["data"] = Num
-			js, jsErr := json.Marshal(data)
-			if jsErr != nil {
-				//logs.Error("----json.Marshal--", jsErr)
-			}
-			SetCache(key, data, duration)
-
-			dom := gjson.ParseBytes(js)
-			re = dom.Get("data").Value()
+			SetCache(key, Num, duration)
+			re = Num
 		} else {
 			re = Num
 		}
@@ -86,7 +77,7 @@ func GetCache(key string) (interface{}, error) {
 		return dom.Get("data").Value(), err
 	}
 
-	return nil, err
+	return "", err
 }
 
 func SetCache(key string, data interface{}, duration uint32) (err error) {

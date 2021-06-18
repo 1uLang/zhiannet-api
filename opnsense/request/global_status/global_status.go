@@ -2,9 +2,13 @@ package global_status
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
+	_const "github.com/1uLang/zhiannet-api/opnsense/const"
 	"github.com/1uLang/zhiannet-api/opnsense/request"
 	"github.com/go-resty/resty/v2"
+	"net/http"
+	"time"
 )
 
 type (
@@ -88,34 +92,25 @@ type (
 
 var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 
-//获取全局统计
-func GetStatusGlobal(apiKey *request.ApiKey, retry bool) (err error) {
+//全局
+func GetGlobal(apiKey *request.ApiKey) (res *GlobalStatus, err error) {
+	//https://182.150.0.109:5443/widgets/api/get.php?load=system%2Cinterfaces&_=1623836610177
+	//PHPSESSID=f8eea58ee17da3ce16ba39bf17312346
 	resp, err := client.R().
-		SetBasicAuth("XUWAuB5AYrfT3BmO6KYWYU7nP6fdMdA4ljLEi5deK9+Rfxp4oJI6ZBfoOTR553HGnUl3Pq45iA4Usv3b", "b+Q/b1HRDASLYdM6DDVmmvdTMm1MIUgLMPhkRINxkSNSWUanBejXRqhE71aQrHYCBzeOoUN0RNbYzhlE").
-		SetQueryParams(map[string]string{
-			//"param_submit_type": "add-host", //
+		SetHeader("Content-Type", "application/x-www-form-urlencoded").
+		SetHeader("x-csrftoken", apiKey.XCsrfToken).
+		SetCookie(&http.Cookie{
+			Name:  "PHPSESSID",
+			Value: apiKey.Cookie,
 		}).
-		Get("https://182.150.0.109:5443/widgets/api/get.php?load=system%2Cinterfaces")
-	fmt.Println(string(resp.Body()), err)
+		Get("https://" + apiKey.Addr + ":" + apiKey.Port + _const.OPNSENSE_GLOBAL_STATUS_URL + fmt.Sprintf("%v", time.Now().Unix()))
 	if err != nil {
-		//fmt.Println(err)
-		return err
+		fmt.Println(err)
+		return
 	}
-	return err
-}
-
-//nat 规则列表
-func GetNATList(apiKey *request.ApiKey, retry bool) (err error) {
-	resp, err := client.R().
-		SetBasicAuth("XUWAuB5AYrfT3BmO6KYWYU7nP6fdMdA4ljLEi5deK9+Rfxp4oJI6ZBfoOTR553HGnUl3Pq45iA4Usv3b", "b+Q/b1HRDASLYdM6DDVmmvdTMm1MIUgLMPhkRINxkSNSWUanBejXRqhE71aQrHYCBzeOoUN0RNbYzhlE").
-		SetQueryParams(map[string]string{
-			//"param_submit_type": "add-host", //
-		}).
-		Get("https://182.150.0.109:5443/api/firewall/filter/searchRule?current=1&rowCount=7&searchPhrase=")
-	fmt.Println(string(resp.Body()), err)
-	if err != nil {
-		//fmt.Println(err)
-		return err
+	if resp.StatusCode() == 200 {
+		err = json.Unmarshal(resp.Body(), &res)
 	}
-	return err
+	fmt.Println(string(resp.Body()))
+	return res, err
 }

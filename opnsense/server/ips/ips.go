@@ -22,6 +22,9 @@ type (
 		NodeId uint64   `json:"node_id"`
 		Sid    []string `json:"sid"`
 	}
+	NodeReq struct {
+		NodeId uint64 `json:"node_id"`
+	}
 )
 
 //获取日志列表
@@ -37,16 +40,16 @@ func GetIpsList(req *IpsReq) (list *ips.IpsListResp, err error) {
 	if req.PageNum <= 0 {
 		req.PageNum = 1
 	}
+	//设置请求接口必须的cookie 和 x-csrftoken
+	err = request.SetCookie(loginInfo)
+	if err != nil {
+		return list, err
+	}
 	return ips.GetIpsList(&ips.IpsReq{
 		Current:      fmt.Sprintf("%v", req.PageNum),
 		RowCount:     fmt.Sprintf("%v", req.PageSize),
 		SearchPhrase: req.Keyword,
-	}, &request.ApiKey{
-		Username: loginInfo.Username,
-		Password: loginInfo.Password,
-		Port:     loginInfo.Port,
-		Addr:     loginInfo.Addr,
-	})
+	}, loginInfo)
 }
 
 //ips规则启动 停止
@@ -54,6 +57,11 @@ func EditIps(req *EditIpsReq) (res bool, err error) {
 	var loginInfo *request.ApiKey
 	loginInfo, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
 	if err != nil || loginInfo == nil {
+		return res, err
+	}
+	//设置请求接口必须的cookie 和 x-csrftoken
+	err = request.SetCookie(loginInfo)
+	if err != nil {
 		return res, err
 	}
 	return ips.EditIps(&ips.EditIpsReq{
@@ -68,7 +76,27 @@ func DelIps(req *DelIpsReq) (res bool, err error) {
 	if err != nil || loginInfo == nil {
 		return res, err
 	}
+	//设置请求接口必须的cookie 和 x-csrftoken
+	err = request.SetCookie(loginInfo)
+	if err != nil {
+		return res, err
+	}
 	return ips.DelIps(&ips.DelIpsReq{
 		Sid: req.Sid,
 	}, loginInfo)
+}
+
+//应用 使规则生效
+func ApplyIps(req *NodeReq) (res bool, err error) {
+	var loginInfo *request.ApiKey
+	loginInfo, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
+	if err != nil || loginInfo == nil {
+		return res, err
+	}
+	//设置请求接口必须的cookie 和 x-csrftoken
+	err = request.SetCookie(loginInfo)
+	if err != nil {
+		return res, err
+	}
+	return ips.ApplyIps(loginInfo)
 }

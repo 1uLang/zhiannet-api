@@ -7,8 +7,8 @@ import (
 	_const "github.com/1uLang/zhiannet-api/opnsense/const"
 	"github.com/1uLang/zhiannet-api/opnsense/request"
 	"github.com/go-resty/resty/v2"
+	"net/http"
 	"strings"
-	"time"
 )
 
 type (
@@ -54,14 +54,22 @@ type (
 	EditResp struct {
 		Result string `json:"result"`
 	}
+	ApplyResp struct {
+		Status string `json:"status"`
+	}
 )
 
-var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).SetTimeout(time.Second * 2)
+var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}) //.SetTimeout(time.Second * 2)
 
 //获取ips规则列表
 func GetIpsList(req *IpsReq, apiKey *request.ApiKey) (list *IpsListResp, err error) {
 	resp, err := client.R().
-		SetBasicAuth(apiKey.Username, apiKey.Password).
+		//SetBasicAuth(apiKey.Username, apiKey.Password).
+		SetHeader("x-csrftoken", apiKey.XCsrfToken).
+		SetCookie(&http.Cookie{
+			Name:  "PHPSESSID",
+			Value: apiKey.Cookie,
+		}).
 		SetFormData(map[string]string{
 			"current":      req.Current, //
 			"rowCount":     req.RowCount,
@@ -79,7 +87,12 @@ func GetIpsList(req *IpsReq, apiKey *request.ApiKey) (list *IpsListResp, err err
 //编辑 启用｜停用 规则
 func EditIps(req *EditIpsReq, apiKey *request.ApiKey) (res bool, err error) {
 	resp, err := client.R().
-		SetBasicAuth(apiKey.Username, apiKey.Password).
+		//SetBasicAuth(apiKey.Username, apiKey.Password).
+		SetHeader("x-csrftoken", apiKey.XCsrfToken).
+		SetCookie(&http.Cookie{
+			Name:  "PHPSESSID",
+			Value: apiKey.Cookie,
+		}).
 		Post(fmt.Sprintf("https://%v:%v%v/%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_IPS_EDIT_URL, req.Sid))
 	//fmt.Println(string(resp.Body()), err)
 	editRes := EditResp{}
@@ -93,7 +106,12 @@ func EditIps(req *EditIpsReq, apiKey *request.ApiKey) (res bool, err error) {
 //删除 规则
 func DelIps(req *DelIpsReq, apiKey *request.ApiKey) (res bool, err error) {
 	resp, err := client.R().
-		SetBasicAuth(apiKey.Username, apiKey.Password).
+		//SetBasicAuth(apiKey.Username, apiKey.Password).
+		SetHeader("x-csrftoken", apiKey.XCsrfToken).
+		SetCookie(&http.Cookie{
+			Name:  "PHPSESSID",
+			Value: apiKey.Cookie,
+		}).
 		Post(fmt.Sprintf("https://%v:%v%v", apiKey.Addr, apiKey.Port,
 			fmt.Sprintf(_const.OPNSENSE_IPS_DEL_URL, strings.Join(req.Sid, ","))))
 	//fmt.Println(string(resp.Body()), err)
@@ -103,4 +121,23 @@ func DelIps(req *DelIpsReq, apiKey *request.ApiKey) (res bool, err error) {
 		return res, err
 	}
 	return editRes.Result == "saved", err
+}
+
+//编辑 启用｜停用 规则
+func ApplyIps(apiKey *request.ApiKey) (res bool, err error) {
+	resp, err := client.R().
+		//SetBasicAuth(apiKey.Username, apiKey.Password).
+		SetHeader("x-csrftoken", apiKey.XCsrfToken).
+		SetCookie(&http.Cookie{
+			Name:  "PHPSESSID",
+			Value: apiKey.Cookie,
+		}).
+		Post(fmt.Sprintf("https://%v:%v%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_IPS_APPLY_URL))
+	fmt.Println(resp.StatusCode(), string(resp.Body()), err)
+	editRes := ApplyResp{}
+	err = json.Unmarshal(resp.Body(), &editRes)
+	if err != nil {
+		return res, err
+	}
+	return editRes.Status != "", err
 }

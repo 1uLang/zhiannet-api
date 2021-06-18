@@ -17,14 +17,14 @@ func InitDB() {
 
 //获取日志列表
 func Test_logs_list(t *testing.T) {
-	list, err := GetLogsList(&LogReq{NodeId: 1})
+	list, err := GetLogsList(&LogReq{NodeId: 12})
 	fmt.Println(list)
 	fmt.Println(err)
 }
 
 //清除日志
 func Test_logs_clear(t *testing.T) {
-	res, err := ClearLogs(&NodeReq{NodeId: 1})
+	res, err := ClearLogs(&NodeReq{NodeId: 12})
 	fmt.Println(res)
 	fmt.Println(err)
 }

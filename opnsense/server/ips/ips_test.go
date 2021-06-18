@@ -35,3 +35,10 @@ func Test_del(t *testing.T) {
 	fmt.Println(res)
 	fmt.Println(err)
 }
+
+//应用 ips规则
+func Test_apply(t *testing.T) {
+	res, err := ApplyIps(&NodeReq{NodeId: 12})
+	fmt.Println(res)
+	fmt.Println(err)
+}
