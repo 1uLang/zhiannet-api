@@ -161,7 +161,7 @@ func Statistics(scan_id, scan_session_id string) (info map[string]interface{}, e
 	}
 
 	req.Method = "get"
-	req.Url += "/" + scan_id + "/results/" + scan_session_id + "/statistics"
+	req.Url += _const.Scans_api_url + "/" + scan_id + "/results/" + scan_session_id + "/statistics"
 
 	resp, err := req.Do()
 	if err != nil {
