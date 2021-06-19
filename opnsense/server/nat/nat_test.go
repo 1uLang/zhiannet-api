@@ -51,14 +51,14 @@ func Test_start_up(t *testing.T) {
 
 //删除
 func Test_del(t *testing.T) {
-	res, err := DelNat1To1(&StartNat1To1Req{NodeId: 12, Id: "2"})
+	res, err := DelNat1To1(&DelNat1To1Req{NodeId: 12, Id: "2"})
 	fmt.Println(res)
 	fmt.Println(err)
 }
 
 //应用
 func Test_apply(t *testing.T) {
-	res, err := ApplyNatTo(12)
+	res, err := ApplyNat1To1(12)
 	fmt.Println(res)
 	fmt.Println(err)
 }

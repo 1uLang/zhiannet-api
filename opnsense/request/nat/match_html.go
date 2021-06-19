@@ -1,7 +1,6 @@
 package nat
 
 import (
-	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"io"
 )
@@ -15,7 +14,7 @@ func ListMatch(data io.Reader) (list []*Nat1To1ListResp, err error) {
 	}
 
 	doc.Find("#iform table tbody tr.rule ").Each(func(i int, s *goquery.Selection) {
-		fmt.Println(s.Html())
+		//fmt.Println(s.Html())
 		//:nth-child(3)
 		//	interfafce := s.Find("td").Eq(3).Text()
 		info := &Nat1To1ListResp{}

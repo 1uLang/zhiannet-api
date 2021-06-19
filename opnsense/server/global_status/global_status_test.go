@@ -1,6 +1,7 @@
 package global_status
 
 import (
+	"fmt"
 	"github.com/1uLang/zhiannet-api/common/cache"
 	"github.com/1uLang/zhiannet-api/common/model"
 	"testing"
@@ -13,9 +14,9 @@ func init() {
 
 //全局状态
 func Test_Global(t *testing.T) {
-	GetGlobalStatus(&GlobalReq{
+	res, err := GetGlobalStatus(&GlobalReq{
 		NodeId: 12,
 	})
-	//fmt.Println(res)
-	//fmt.Println(err)
+	fmt.Println(res)
+	fmt.Println(err)
 }

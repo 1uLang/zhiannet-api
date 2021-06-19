@@ -37,22 +37,22 @@ type (
 					FreqTranslate string   `json:"freq_translate"`
 					Idle          string   `json:"idle"`
 					Intr          string   `json:"intr"`
-					Load          []string `json:"load"`
+					Load          []string `json:"load"` //cpu 负载
 					Maxfreq       string   `json:"max.freq"`
-					Model         string   `json:"model"`
+					Model         string   `json:"model"` //cpu type
 					Nice          string   `json:"nice"`
 					Sys           string   `json:"sys"`
-					Used          string   `json:"used"`
+					Used          string   `json:"used"` //cpu使用率
 					User          string   `json:"user"`
 				} `json:"cpu"`
 				Config struct {
 					LastChange     string `json:"last_change"`
-					LastChangeFrmt string `json:"last_change_frmt"`
+					LastChangeFrmt string `json:"last_change_frmt"` //最近一次配置时间
 				} `json:"config"`
-				DateFrmt string `json:"date_frmt"`
+				DateFrmt string `json:"date_frmt"` //当前时间
 				DateTime string `json:"date_time"`
 				Disk     struct {
-					Devices []struct {
+					Devices []struct { //磁盘信息
 						Available  string `json:"available"`
 						Capacity   string `json:"capacity"`
 						Device     string `json:"device"`
@@ -61,28 +61,28 @@ type (
 						Type       string `json:"type"`
 						Used       string `json:"used"`
 					} `json:"devices"`
-					Swap []struct {
+					Swap []struct { //swap 信息
 						Device string `json:"device"`
 						Total  string `json:"total"`
 						Used   string `json:"used"`
 					} `json:"swap"`
 				} `json:"disk"`
 				Kernel struct {
-					Mbuf struct {
+					Mbuf struct { //MBUF 信息
 						Max   string `json:"max"`
 						Total string `json:"total"`
 					} `json:"mbuf"`
-					Memory struct {
+					Memory struct { //内存信息
 						Total string `json:"total"`
 						Used  string `json:"used"`
 					} `json:"memory"`
-					Pf struct {
+					Pf struct { //状态表大小
 						Maxstates string `json:"maxstates"`
 						States    string `json:"states"`
 					} `json:"pf"`
 				} `json:"kernel"`
-				Uptime   string   `json:"uptime"`
-				Versions []string `json:"versions"`
+				Uptime   string   `json:"uptime"`   //运行时间 秒
+				Versions []string `json:"versions"` //版本信息
 			} `json:"system"`
 		} `json:"data"`
 		Plugins []string `json:"plugins"`
@@ -105,12 +105,12 @@ func GetGlobal(apiKey *request.ApiKey) (res *GlobalStatus, err error) {
 		}).
 		Get("https://" + apiKey.Addr + ":" + apiKey.Port + _const.OPNSENSE_GLOBAL_STATUS_URL + fmt.Sprintf("%v", time.Now().Unix()))
 	if err != nil {
-		fmt.Println(err)
-		return
+		//fmt.Println(err)
+		return res, err
 	}
 	if resp.StatusCode() == 200 {
 		err = json.Unmarshal(resp.Body(), &res)
 	}
-	fmt.Println(string(resp.Body()))
+	//fmt.Println(string(resp.Body()))
 	return res, err
 }

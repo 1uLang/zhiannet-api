@@ -32,8 +32,14 @@ type (
 		Descr         string   `json:"descr"`         //描述
 		Natreflection string   `json:"natreflection"` //NAT回流
 	}
-
+	//启动 停止 请求参数
 	StartNat1To1Req struct {
+		NodeId uint64 `json:"node_id"`
+		Id     string `json:"id"`
+	}
+
+	//删除请求参数
+	DelNat1To1Req struct {
 		NodeId uint64 `json:"node_id"`
 		Id     string `json:"id"`
 	}
@@ -157,6 +163,24 @@ func supplyData(saveReq *SaveNat1To1Req, info *nat.Nat1To1InfoResp) (res map[str
 				}
 			}
 		}
+		//目标
+		if len(info.Dst) > 0 {
+			for _, v := range info.Dst {
+				if v.Selected {
+					res["dst"] = v.Value
+					break
+				}
+			}
+		}
+		//目标掩码
+		if len(info.Dstmask) > 0 {
+			for _, v := range info.Dstmask {
+				if v.Selected {
+					res["dstmask"] = v.Value
+					break
+				}
+			}
+		}
 		//类别
 		cates = make(map[string][]string)
 		if len(info.Category) > 0 {
@@ -212,7 +236,7 @@ func StartUpNat1To1(req *StartNat1To1Req) (res bool, err error) {
 }
 
 //删除
-func DelNat1To1(req *StartNat1To1Req) (res bool, err error) {
+func DelNat1To1(req *DelNat1To1Req) (res bool, err error) {
 	var loginInfo *request.ApiKey
 	loginInfo, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
 	if err != nil || loginInfo == nil {
@@ -228,7 +252,7 @@ func DelNat1To1(req *StartNat1To1Req) (res bool, err error) {
 }
 
 //应用 使修改生效
-func ApplyNatTo(nodeId uint64) (res bool, err error) {
+func ApplyNat1To1(nodeId uint64) (res bool, err error) {
 	var loginInfo *request.ApiKey
 	loginInfo, err = server.GetLoginInfo(server.NodeReq{NodeId: nodeId})
 	if err != nil || loginInfo == nil {
