@@ -33,3 +33,7 @@ func Abort(scan_id string) (err error) {
 func Delete(scan_id string) (err error) {
 	return scans.Delete(scan_id)
 }
+
+func Statistics(scan_id, scan_session_id string) (map[string]interface{}, error) {
+	return scans.Statistics(scan_id, scan_session_id)
+}
