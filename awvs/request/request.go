@@ -59,6 +59,7 @@ func NewRequest() (*request, error) {
 	if _, isExist := req.Headers["X-Auth"]; !isExist {
 		return nil, fmt.Errorf("未配置X-Auth")
 	}
+
 	return &request{Headers: req.Headers, Url: req.Url}, nil
 }
 
@@ -77,7 +78,7 @@ func (this *request) Do() (respBody []byte, err error) {
 
 	this.Method = strings.ToUpper(this.Method)
 	client := &http.Client{
-		Timeout:   5 * time.Second,
+		Timeout:   10 * time.Second,
 		Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}},
 	}
 	var body io.Reader

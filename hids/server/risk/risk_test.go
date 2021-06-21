@@ -26,7 +26,7 @@ func init() {
 
 func TestRiskList(t *testing.T) {
 
-	list, err := RiskList(&risk.SearchReq{
+	list, err := SystemRiskList(&risk.SearchReq{
 		//UserName: "LUSIR2",
 		Level:         2, //高危
 		ProcessStatus: 1, //未处理
@@ -40,9 +40,40 @@ func TestRiskList(t *testing.T) {
 func TestVirusList(t *testing.T) {
 
 	list, err := VirusList(&risk.RiskSearchReq{
-		UserName:    "LUSIR2",
-		IsProcessed: false, //待处理
+		//UserName:    "LUSIR2",
+		//IsProcessed: false, //待处理
 	})
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}
+
+func TestSystemDistributed(t *testing.T) {
+
+	req := &risk.SearchReq{UserName: "luobing", MacCode: "48C57D8BFC8EE7BEB9ADA36845A6E051"}
+	list, err := SystemDistributed(req)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}
+func TestWeakList(t *testing.T) {
+
+	req := &risk.SearchReq{UserName: "luobing", MacCode: "48C57D8BFC8EE7BEB9ADA36845A6E051"}
+	list, err := WeakList(req)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}
+func TestDangerAccountList(t *testing.T) {
+
+	req := &risk.SearchReq{UserName: "luobing", MacCode: "48C57D8BFC8EE7BEB9ADA36845A6E051"}
+	list, err := DangerAccountList(req)
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()

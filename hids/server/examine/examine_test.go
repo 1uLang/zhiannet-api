@@ -24,10 +24,18 @@ func init() {
 	}
 }
 func TestList(t *testing.T) {
-	list, err := List(&examine.SearchReq{UserName: "cloud", Type: -1, State: -1, Score: -1})
+	list, err := List(&examine.SearchReq{UserName: "luobing", Type: -1, State: -1, Score: -1})
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()
 	}
 	fmt.Println(list)
+}
+func TestDetails(t *testing.T) {
+	info, err := Details("48C57D8BFC8EE7BEB9ADA36845A6E051")
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(info)
 }

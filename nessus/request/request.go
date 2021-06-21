@@ -67,6 +67,7 @@ func NewRequest() (*request, error) {
 	if _, isExist := req.Headers["x-apikeys"]; !isExist {
 		return nil, fmt.Errorf("未配置APIKey")
 	}
+
 	return &request{Headers: req.Headers, Url: req.Url}, nil
 }
 func (this *request) ToString() string {

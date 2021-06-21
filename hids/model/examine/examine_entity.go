@@ -54,3 +54,40 @@ type SearchResp struct {
 	TotalPage                   int                      `json:"totalPage"`
 	ServerExamineResultInfoList []map[string]interface{} `json:"serverExamineResultInfoList"`
 }
+
+type ScanReq struct {
+	MacCode   []string `json:"macCodes"`  //机器码集合
+	ScanItems []string `json:"scanItems"` //体检项
+
+	//ScanConfig struct {
+	//	ConfigName     string `json:"configName"`
+	//	ConfigContent string `json:"configContent"`
+	//} `json:"scan_config"`
+}
+
+func (this *ScanReq) Check() (bool, error) {
+
+	checkItems := func() bool {
+		for _, item := range this.ScanItems {
+			if item < "01" || (item > "04" && item < "11") || item > "17" {
+				return false
+			}
+		}
+		return true
+	}
+	if len(this.ScanItems) == 0 || !checkItems() {
+		return false, fmt.Errorf("体检项参数错误")
+	}
+	if len(this.MacCode) == 0 {
+		return false, fmt.Errorf("机器码集合不能为空")
+	}
+	return true, nil
+}
+
+//DetailsResp 系统漏洞 - 弱口令 - 风险账号 - 配置缺陷
+type DetailsResp struct {
+	Risk          int `json:"risk"`
+	Weak          int `json:"weak"`
+	DangerAccount int `json:"danger_account"`
+	ConfigDefect  int `json:"config_defect"`
+}

@@ -76,6 +76,8 @@ func NewRequest() (*request, error) {
 	if _, isExist := req.Headers["appId"]; !isExist {
 		return nil, fmt.Errorf("未配置appId")
 	}
+	//删除签名
+	delete(req.Headers, "sign")
 	return &request{Headers: req.Headers, url: req.url, Secret: req.Secret}, nil
 }
 func NewRequest2() (*request, error) {
@@ -177,7 +179,7 @@ func (this *request) Do2() (respBody []byte, err error) {
 
 	this.Method = strings.ToUpper(this.Method)
 	client := &http.Client{
-		Timeout:   5 * time.Second,
+		Timeout:   10 * time.Second,
 		Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}},
 	}
 	//将header参数放在param中
@@ -232,7 +234,7 @@ func (this *request) Do() (respBody []byte, err error) {
 
 	this.Method = strings.ToUpper(this.Method)
 	client := &http.Client{
-		Timeout:   5 * time.Second,
+		Timeout:   10 * time.Second,
 		Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}},
 	}
 
