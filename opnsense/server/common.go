@@ -28,3 +28,9 @@ func GetLoginInfo(req NodeReq) (logReq *request.ApiKey, err error) {
 	}
 	return
 }
+
+//云防火墙 节点列表
+func GetOpnsenseNodeList() (list []*subassemblynode.Subassemblynode, total int64, err error) {
+	list, total, err = subassemblynode.GetList(&subassemblynode.NodeReq{Type: 2, State: "1"})
+	return
+}
