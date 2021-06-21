@@ -76,6 +76,10 @@ type (
 //	}
 //	return
 //}
+//ddos节点信息
+func GetDDoSNodeInfo(id uint64) (*subassemblynode.Subassemblynode, error) {
+	return subassemblynode.GetNodeInfoById(id)
+}
 
 //ddos节点列表
 func GetDdosNodeList() (list []*subassemblynode.Subassemblynode, total int64, err error) {
