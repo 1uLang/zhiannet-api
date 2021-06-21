@@ -18,6 +18,11 @@ func Test_ddos_list(t *testing.T) {
 	fmt.Println("data ====", list[0])
 	fmt.Println(list, err)
 }
+func Test_ddos_info(t *testing.T) {
+	model.InitMysqlLink()
+	info, err := GetDDoSNodeInfo(11)
+	fmt.Println(info, err)
+}
 
 //主机状态
 func Test_host_status(t *testing.T) {
