@@ -68,7 +68,7 @@ func AttackLogList(req *AttackLogReq, loginReq *request.LoginReq, retry bool) (r
 		"param_start_date":  req.StartTime.Format("2006-01-02 15:04:05"), //开始时间
 		"param_end_date":    req.EndTime.Format("2006-01-02 15:04:05"),   //结束时间
 		"param_address":     req.Addr,                                    //单个IP查询
-		"param_flag":        req.AttackType,                              //类型
+		"param_flags":       req.AttackType,                              //类型
 		"param_status":      fmt.Sprintf("%v", req.Status),               //状态
 	}).
 		Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_LOGS_REPORT_ATTACK_URL)
