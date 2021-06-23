@@ -272,6 +272,7 @@ func SystemDistributed(args *SearchReq) (info SystemDistributedResp, err error) 
 		info.Middle += middle
 		info.High += high
 		info.Critical += critical
+		info.List = append(info.List, node)
 	}
 	info.Total = info.Low + info.Middle + info.High + info.Critical
 	return info, err
