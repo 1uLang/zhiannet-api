@@ -51,6 +51,10 @@ type (
 	DelIpsReq struct {
 		Sid []string `json:"sid"`
 	}
+	EditActionIpsReq struct {
+		Sid    int64  `json:"sid"`
+		Action string `json:"action"`
+	}
 	EditResp struct {
 		Result string `json:"result"`
 	}
@@ -100,6 +104,7 @@ func EditIps(req *EditIpsReq, apiKey *request.ApiKey) (res bool, err error) {
 	if err != nil {
 		return res, err
 	}
+	go ApplyIps(apiKey)
 	return editRes.Result == "saved", err
 }
 
@@ -120,6 +125,7 @@ func DelIps(req *DelIpsReq, apiKey *request.ApiKey) (res bool, err error) {
 	if err != nil {
 		return res, err
 	}
+	go ApplyIps(apiKey)
 	return editRes.Result == "saved", err
 }
 
@@ -140,4 +146,27 @@ func ApplyIps(apiKey *request.ApiKey) (res bool, err error) {
 		return res, err
 	}
 	return editRes.Status != "", err
+}
+
+//修改操作方法
+func EditActionIps(req *EditActionIpsReq, apiKey *request.ApiKey) (res bool, err error) {
+	resp, err := client.R().
+		//SetBasicAuth(apiKey.Username, apiKey.Password).
+		SetHeader("x-csrftoken", apiKey.XCsrfToken).
+		SetCookie(&http.Cookie{
+			Name:  "PHPSESSID",
+			Value: apiKey.Cookie,
+		}).
+		SetFormData(map[string]string{
+			"action": req.Action,
+		}).
+		Post(fmt.Sprintf("https://%v:%v%v/%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_IPS_ACTIOB_URL, req.Sid))
+	//fmt.Println(string(resp.Body()), err)
+	editRes := EditResp{}
+	err = json.Unmarshal(resp.Body(), &editRes)
+	if err != nil {
+		return res, err
+	}
+	go ApplyIps(apiKey)
+	return editRes.Result == "saved", err
 }

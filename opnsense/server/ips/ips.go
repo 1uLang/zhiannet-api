@@ -25,6 +25,11 @@ type (
 	NodeReq struct {
 		NodeId uint64 `json:"node_id"`
 	}
+	EditActionReq struct {
+		NodeId uint64 `json:"node_id"`
+		Sid    int64  `json:"sid"`
+		Action string `json:"action"`
+	}
 )
 
 //获取日志列表
@@ -99,4 +104,22 @@ func ApplyIps(req *NodeReq) (res bool, err error) {
 		return res, err
 	}
 	return ips.ApplyIps(loginInfo)
+}
+
+//drop 或者 alert
+func EditAction(req *EditActionReq) (res bool, err error) {
+	var loginInfo *request.ApiKey
+	loginInfo, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
+	if err != nil || loginInfo == nil {
+		return res, err
+	}
+	//设置请求接口必须的cookie 和 x-csrftoken
+	err = request.SetCookie(loginInfo)
+	if err != nil {
+		return res, err
+	}
+	return ips.EditActionIps(&ips.EditActionIpsReq{
+		Sid:    req.Sid,
+		Action: req.Action,
+	}, loginInfo)
 }
