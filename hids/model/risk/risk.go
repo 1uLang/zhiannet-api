@@ -489,7 +489,7 @@ func detail(args *DetailReq, path string) (info DetailResp, err error) {
 }
 
 //SystemRiskDetail 系统漏洞详情
-func SystemRiskDetail(macCode, riskId string) (info map[string]interface{}, err error) {
+func SystemRiskDetail(macCode, riskId string, state bool) (info map[string]interface{}, err error) {
 
 	if macCode == "" || riskId == "" {
 		return info, fmt.Errorf("参数错误：机器码和漏洞id不能为空")
@@ -502,6 +502,9 @@ func SystemRiskDetail(macCode, riskId string) (info map[string]interface{}, err 
 	req.Method = "get"
 	req.Path = _const.Risk_system_detail_api_url + "/" + macCode + "/" + riskId
 	req.Headers["signNonce"] = util.RandomNum(10)
+	req.Params = map[string]interface{}{
+		"isProcessed": state,
+	}
 
 	resp, err := req.Do()
 	if err != nil {

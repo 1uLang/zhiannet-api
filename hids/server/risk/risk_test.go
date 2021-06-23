@@ -80,3 +80,13 @@ func TestDangerAccountList(t *testing.T) {
 	}
 	fmt.Println(list)
 }
+
+func TestSystemRiskDetail(t *testing.T) {
+
+	list, err := SystemRiskDetail("48C57D8BFC8EE7BEB9ADA36845A6E051", "13255", false)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}

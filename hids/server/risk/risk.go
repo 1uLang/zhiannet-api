@@ -7,8 +7,8 @@ import (
 func SystemRiskList(req *risk.SearchReq) (risk.SearchResp, error) {
 	return risk.SystemRiskList(req)
 }
-func SystemRiskDetail(macCode, riskId string) (info map[string]interface{}, err error) {
-	return risk.SystemRiskDetail(macCode, riskId)
+func SystemRiskDetail(macCode, riskId string, state bool) (info map[string]interface{}, err error) {
+	return risk.SystemRiskDetail(macCode, riskId, state)
 }
 func Dashboard(userName string) (risk.DashboardResp, error) {
 	return risk.Dashboard(userName)
