@@ -1,6 +1,7 @@
 package nat
 
 import (
+	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"io"
 	"strings"
@@ -31,6 +32,13 @@ func ListMatch(data io.Reader) (list []*Nat1To1ListResp, err error) {
 		} else {
 			info.Status = "0"
 		}
+		info.Interface = strings.TrimSpace(info.Interface)
+		info.External = strings.TrimSpace(info.External)
+		info.Src = strings.TrimSpace(info.Src)
+		info.Dst = strings.TrimSpace(info.Dst)
+		info.Descr = strings.TrimSpace(info.Descr)
+		info.ID = strings.TrimSpace(info.ID)
+
 		list = append(list, info)
 	})
 	return list, err
@@ -176,4 +184,11 @@ func MatchSaveErr(data io.Reader) (tips []string, err error) {
 		tips = append(tips, li.Text())
 	})
 	return tips, err
+}
+
+func trim(s string) string {
+	return strings.TrimFunc(s, func(r rune) bool {
+		fmt.Println(string(r))
+		return r == 10 || r == 13
+	})
 }

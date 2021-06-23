@@ -19,8 +19,9 @@ func Test_nat_list(t *testing.T) {
 }
 
 func Test_nat_info(t *testing.T) {
-	res, err := GetNat1To1Info(&InfoReq{NodeId: 12, Id: "3"})
-	fmt.Println(res)
+	res, err := GetNat1To1Info(&InfoReq{NodeId: 12, Id: "2"})
+	fmt.Println("src=", res.External, ";")
+	fmt.Println("src=", "182.12.12.1/24", ";")
 	fmt.Println(err)
 }
 
