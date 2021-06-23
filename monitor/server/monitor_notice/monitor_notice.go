@@ -26,6 +26,7 @@ type (
 func GetList(req *ListReq) (list []*ListResp, total int64, err error) {
 	var res []*monitor_notice.MonitorNotice
 	res, total, err = monitor_notice.GetList(&monitor_notice.ListReq{
+		Message:  req.Message,
 		PageNum:  req.PageNum,
 		PageSize: req.PageSize,
 	})
