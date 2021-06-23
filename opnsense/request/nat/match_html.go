@@ -55,6 +55,9 @@ func InfoMatch(data io.Reader) (info *Nat1To1InfoResp, err error) {
 	info = &Nat1To1InfoResp{}
 	doc.Find("#iform .opnsense_standard_table_form").Each(func(i int, s *goquery.Selection) {
 		//fmt.Println(s.Html())
+
+		info.ID, _ = s.Find("tr").Find("input[name='id']").Attr("value") //id
+		info.ID = strings.TrimSpace(info.ID)
 		//是否启用
 		_, info.Disabled = s.Find("tr").Eq(1).Find("input[name='disabled']").Attr("checked")
 		//接口
@@ -119,7 +122,7 @@ func InfoMatch(data io.Reader) (info *Nat1To1InfoResp, err error) {
 				DataOther: dataOther,
 			}
 			//添加时  把（单个主机网络）目标置空
-			if dataOther && par.Selected && par.Value == "any" {
+			if dataOther && info.ID == "" && par.Value == "any" {
 				par.Value = ""
 			}
 			dst = append(dst, par)
@@ -170,8 +173,6 @@ func InfoMatch(data io.Reader) (info *Nat1To1InfoResp, err error) {
 			natreflection = append(natreflection, par)
 		})
 		info.Natreflection = natreflection
-		info.ID, _ = s.Find("tr").Find("input[name='id']").Attr("value") //id
-		info.ID = strings.TrimSpace(info.ID)
 	})
 	return info, err
 }
