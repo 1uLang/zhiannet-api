@@ -32,7 +32,7 @@ func List(args *SearchReq) (list SearchResp, err error) {
 	if err != nil {
 		return list, err
 	}
-	fmt.Println(resp)
+
 	_, err = model.ParseResp(resp, &list)
 	return list, err
 }

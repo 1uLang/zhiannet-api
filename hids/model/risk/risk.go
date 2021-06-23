@@ -43,7 +43,6 @@ func SystemRiskList(args *SearchReq) (list SearchResp, err error) {
 	if err != nil {
 		return list, err
 	}
-	fmt.Println(resp)
 	_, err = model.ParseResp(resp, &list)
 	return list, err
 }
@@ -163,7 +162,6 @@ func riskList(path string, args *RiskSearchReq) (list RiskSearchResp, err error)
 	if err != nil {
 		return list, err
 	}
-	fmt.Println(resp)
 	_, err = model.ParseResp(resp, &list)
 	return list, err
 }
