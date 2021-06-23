@@ -3,6 +3,7 @@ package acl
 import (
 	"github.com/PuerkitoBio/goquery"
 	"io"
+	"strings"
 )
 
 //匹配列表数据
@@ -68,8 +69,8 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 			value, _ := op.Attr("value")
 			par := SelectedParams{
 				Selected: op.Is("[selected='selected']"),
-				Name:     op.Text(),
-				Value:    value,
+				Name:     strings.TrimSpace(op.Text()),
+				Value:    strings.TrimSpace(value),
 			}
 			typeSelect = append(typeSelect, par)
 		})
@@ -85,8 +86,8 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 			value, _ := inter.Attr("value")
 			par := SelectedParams{
 				Selected: inter.Is("[selected='selected']"),
-				Name:     inter.Text(),
-				Value:    value,
+				Name:     strings.TrimSpace(inter.Text()),
+				Value:    strings.TrimSpace(value),
 			}
 			interfaceSelect = append(interfaceSelect, par)
 		})
@@ -98,8 +99,8 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 			value, _ := op.Attr("value")
 			par := SelectedParams{
 				Selected: op.Is("[selected='selected']"),
-				Name:     op.Text(),
-				Value:    value,
+				Name:     strings.TrimSpace(op.Text()),
+				Value:    strings.TrimSpace(value),
 			}
 			directionSelect = append(directionSelect, par)
 		})
@@ -111,8 +112,8 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 			value, _ := op.Attr("value")
 			par := SelectedParams{
 				Selected: op.Is("[selected='selected']"),
-				Name:     op.Text(),
-				Value:    value,
+				Name:     strings.TrimSpace(op.Text()),
+				Value:    strings.TrimSpace(value),
 			}
 			ipprotocolSelect = append(ipprotocolSelect, par)
 		})
@@ -124,8 +125,8 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 			value, _ := op.Attr("value")
 			par := SelectedParams{
 				Selected: op.Is("[selected='selected']"),
-				Name:     op.Text(),
-				Value:    value,
+				Name:     strings.TrimSpace(op.Text()),
+				Value:    strings.TrimSpace(value),
 			}
 			protocolSelect = append(protocolSelect, par)
 		})
@@ -143,8 +144,8 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 			value, _ := sel.Attr("value")
 			par := SelectedParams{
 				Selected:  sel.Is("[selected='selected']"),
-				Name:      sel.Text(),
-				Value:     value,
+				Name:      strings.TrimSpace(sel.Text()),
+				Value:     strings.TrimSpace(value),
 				DataOther: dataOther,
 			}
 			src = append(src, par)
@@ -158,8 +159,8 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 			value, _ := sel.Attr("value")
 			par := SelectedParams{
 				Selected: sel.Is("[selected='selected']"),
-				Name:     sel.Text(),
-				Value:    value,
+				Name:     strings.TrimSpace(sel.Text()),
+				Value:    strings.TrimSpace(value),
 			}
 			srcmask = append(srcmask, par)
 		})
@@ -178,8 +179,8 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 			value, _ := sel.Attr("value")
 			par := SelectedParams{
 				Selected:  sel.Is("[selected='selected']"),
-				Name:      sel.Text(),
-				Value:     value,
+				Name:      strings.TrimSpace(sel.Text()),
+				Value:     strings.TrimSpace(value),
 				DataOther: dataOther,
 			}
 			dst = append(dst, par)
@@ -193,8 +194,8 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 			value, _ := sel.Attr("value")
 			par := SelectedParams{
 				Selected: sel.Is("[selected='selected']"),
-				Name:     sel.Text(),
-				Value:    value,
+				Name:     strings.TrimSpace(sel.Text()),
+				Value:    strings.TrimSpace(value),
 			}
 			dstmask = append(dstmask, par)
 		})
@@ -218,9 +219,10 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 
 		//描述
 		info.Descr, _ = s.Find("tr").Find("input[name='descr']").Attr("value")
-
+		info.Descr = strings.TrimSpace(info.Descr)
 	})
 	info.ID, _ = doc.Find("#iform").Find("input[name='id']").Attr("value") //id
+	info.ID = strings.TrimSpace(info.ID)
 	return
 }
 
