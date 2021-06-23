@@ -5,6 +5,7 @@ import (
 	"github.com/1uLang/zhiannet-api/common/cache"
 	"github.com/1uLang/zhiannet-api/common/model"
 	"testing"
+	"time"
 )
 
 func init() {
@@ -41,4 +42,12 @@ func Test_apply(t *testing.T) {
 	res, err := ApplyIps(&NodeReq{NodeId: 12})
 	fmt.Println(res)
 	fmt.Println(err)
+}
+
+//修改action
+func Test_action(t *testing.T) {
+	res, err := EditAction(&EditActionReq{NodeId: 12, Sid: 2000005, Action: "alert"})
+	fmt.Println(res)
+	fmt.Println(err)
+	time.Sleep(time.Minute)
 }

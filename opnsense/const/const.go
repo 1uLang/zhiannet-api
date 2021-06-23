@@ -9,6 +9,7 @@ const (
 	OPNSENSE_IPS_EDIT_URL   = "/api/ids/settings/toggleRule"             //ips规则 启动停止
 	OPNSENSE_IPS_DEL_URL    = "/api/ids/settings/toggleRule/%v/drop"     //ips规则 删除
 	OPNSENSE_IPS_APPLY_URL  = "/api/ids/service/reloadRules"             //ips规则 应用
+	OPNSENSE_IPS_ACTIOB_URL = "/api/ids/settings/setRule"                //ips规则 操作修改
 
 	OPNSENSE_FILTER_SEARCH_URL = "/api/firewall/filter/searchRule" //过滤规则 搜索
 	OPNSENSE_FILTER_ENABLE_URL = "/api/firewall/filter/toggleRule" //过滤规则 启用停用
