@@ -96,7 +96,7 @@ func Disport(macCode, opt string) error {
 		return err
 	}
 	req.Method = "get"
-	req.Path = fmt.Sprintf(_const.Agent_dispose_api_uil, opt, macCode)
+	req.Path = fmt.Sprintf(_const.Agent_dispose_api_uil, macCode, opt)
 	req.Headers["signNonce"] = util.RandomNum(10)
 	req.Params = nil
 
