@@ -48,25 +48,3 @@ func Info(serverIp string) (info map[string]interface{}, err error) {
 	}
 	return list.ServerInfoList[0], nil
 }
-
-var osTypeName = map[string]string{
-	"1":  "Windows2003 ",
-	"2":  "Windows2008 ",
-	"3":  "Windows2016 ",
-	"4":  "Centos ",
-	"5":  "Ubuntu ",
-	"6":  "Debian ",
-	"7":  "OpenSUSE ",
-	"8":  "SUSE ",
-	"9":  "RedHat ",
-	"10": "Windows2012 ",
-	"11": "RedFlag ",
-	"12": "NeoKylin ",
-	"13": "WindowsVista ",
-	"14": "WIN7 ",
-	"15": "WIN8 ",
-	"16": "Windows10 ",
-	"17": "FreeBSD ",
-	"18": "Fedora ",
-	"19": "Scientific ",
-}
