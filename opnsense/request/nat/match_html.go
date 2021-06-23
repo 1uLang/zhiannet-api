@@ -3,6 +3,7 @@ package nat
 import (
 	"github.com/PuerkitoBio/goquery"
 	"io"
+	"strings"
 )
 
 //匹配列表数据
@@ -54,8 +55,8 @@ func InfoMatch(data io.Reader) (info *Nat1To1InfoResp, err error) {
 			value, _ := inter.Attr("value")
 			par := SelectedParams{
 				Selected: inter.Is("[selected='selected']"),
-				Name:     inter.Text(),
-				Value:    value,
+				Name:     strings.TrimSpace(inter.Text()),
+				Value:    strings.TrimSpace(value),
 			}
 			interfaceSelect = append(interfaceSelect, par)
 		})
@@ -67,8 +68,8 @@ func InfoMatch(data io.Reader) (info *Nat1To1InfoResp, err error) {
 			value, _ := inter.Attr("value")
 			par := SelectedParams{
 				Selected: inter.Is("[selected='selected']"),
-				Name:     inter.Text(),
-				Value:    value,
+				Name:     strings.TrimSpace(inter.Text()),
+				Value:    strings.TrimSpace(value),
 			}
 			typeSelect = append(typeSelect, par)
 		})
@@ -76,17 +77,18 @@ func InfoMatch(data io.Reader) (info *Nat1To1InfoResp, err error) {
 
 		//外部地址
 		info.External, _ = s.Find("tr").Eq(4).Find("input[name='external']").Attr("value") //外部地址
-		_, info.Srcnot = s.Find("tr").Eq(5).Find("input[name='srcnot']").Attr("checked")   //源 反转
-		info.Src, _ = s.Find("tr").Eq(6).Find("input[for='src']").Attr("value")            //内部地址 源
-
+		info.External = strings.TrimSpace(info.External)
+		_, info.Srcnot = s.Find("tr").Eq(5).Find("input[name='srcnot']").Attr("checked") //源 反转
+		info.Src, _ = s.Find("tr").Eq(6).Find("input[for='src']").Attr("value")          //内部地址 源
+		info.Src = strings.TrimSpace(info.Src)
 		//内部地址 源 掩码
 		srcmask := make([]SelectedParams, 0)
 		s.Find("tr").Eq(6).Find("select[name='srcmask']>option").Each(func(x int, sel *goquery.Selection) {
 			value, _ := sel.Attr("value")
 			par := SelectedParams{
 				Selected: sel.Is("[selected='selected']"),
-				Name:     sel.Text(),
-				Value:    value,
+				Name:     strings.TrimSpace(sel.Text()),
+				Value:    strings.TrimSpace(value),
 			}
 			srcmask = append(srcmask, par)
 		})
@@ -104,8 +106,8 @@ func InfoMatch(data io.Reader) (info *Nat1To1InfoResp, err error) {
 			value, _ := sel.Attr("value")
 			par := SelectedParams{
 				Selected:  sel.Is("[selected='selected']"),
-				Name:      sel.Text(),
-				Value:     value,
+				Name:      strings.TrimSpace(sel.Text()),
+				Value:     strings.TrimSpace(value),
 				DataOther: dataOther,
 			}
 			dst = append(dst, par)
@@ -121,8 +123,8 @@ func InfoMatch(data io.Reader) (info *Nat1To1InfoResp, err error) {
 			value, _ := sel.Attr("value")
 			par := SelectedParams{
 				Selected: sel.Is("[selected='selected']"),
-				Name:     sel.Text(),
-				Value:    value,
+				Name:     strings.TrimSpace(sel.Text()),
+				Value:    strings.TrimSpace(value),
 			}
 			dstmask = append(dstmask, par)
 		})
@@ -134,8 +136,8 @@ func InfoMatch(data io.Reader) (info *Nat1To1InfoResp, err error) {
 			value, _ := cate.Attr("value")
 			par := SelectedParams{
 				Selected: cate.Is("[selected='selected']"),
-				Name:     cate.Text(),
-				Value:    value,
+				Name:     strings.TrimSpace(cate.Text()),
+				Value:    strings.TrimSpace(value),
 			}
 			category = append(category, par)
 		})
@@ -143,20 +145,21 @@ func InfoMatch(data io.Reader) (info *Nat1To1InfoResp, err error) {
 
 		//描述
 		info.Descr, _ = s.Find("tr").Find("input[name='descr']").Attr("value")
+		info.Descr = strings.TrimSpace(info.Descr)
 
 		natreflection := make([]SelectedParams, 0)
 		s.Find("tr").Find("select[name='natreflection']>option").Each(func(n int, cate *goquery.Selection) {
 			value, _ := cate.Attr("value")
 			par := SelectedParams{
 				Selected: cate.Is("[selected='selected']"),
-				Name:     cate.Text(),
-				Value:    value,
+				Name:     strings.TrimSpace(cate.Text()),
+				Value:    strings.TrimSpace(value),
 			}
 			natreflection = append(natreflection, par)
 		})
 		info.Natreflection = natreflection
 		info.ID, _ = s.Find("tr").Find("input[name='id']").Attr("value") //id
-
+		info.ID = strings.TrimSpace(info.ID)
 	})
 	return info, err
 }
