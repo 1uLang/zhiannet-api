@@ -111,7 +111,7 @@ func Dashboard(userName string) (info DashboardResp, err error) {
 
 	//待处理高危漏洞
 	{
-		args := &SearchReq{UserName: userName, Level: 3, ProcessStatus: 1}
+		args := &SearchReq{UserName: userName, Level: 3, ProcessState: 1}
 		args.PageSize = 100
 		args.PageNo = 1
 		today := 0
