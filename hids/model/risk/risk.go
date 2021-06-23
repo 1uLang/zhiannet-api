@@ -43,7 +43,6 @@ func SystemRiskList(args *SearchReq) (list SearchResp, err error) {
 	if err != nil {
 		return list, err
 	}
-	fmt.Println(resp)
 	_, err = model.ParseResp(resp, &list)
 	return list, err
 }
@@ -111,7 +110,7 @@ func Dashboard(userName string) (info DashboardResp, err error) {
 
 	//待处理高危漏洞
 	{
-		args := &SearchReq{UserName: userName, Level: 3, ProcessStatus: 1}
+		args := &SearchReq{UserName: userName, Level: 3, ProcessState: 1}
 		args.PageSize = 100
 		args.PageNo = 1
 		today := 0
@@ -163,7 +162,6 @@ func riskList(path string, args *RiskSearchReq) (list RiskSearchResp, err error)
 	if err != nil {
 		return list, err
 	}
-	fmt.Println(resp)
 	_, err = model.ParseResp(resp, &list)
 	return list, err
 }
@@ -272,6 +270,7 @@ func SystemDistributed(args *SearchReq) (info SystemDistributedResp, err error) 
 		info.Middle += middle
 		info.High += high
 		info.Critical += critical
+		info.List = append(info.List, node)
 	}
 	info.Total = info.Low + info.Middle + info.High + info.Critical
 	return info, err

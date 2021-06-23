@@ -13,4 +13,5 @@ type SearchResp struct {
 	TotalData int                      `json:"totalData"`
 	TotalPage int                      `json:"totalPage"`
 	List      []map[string]interface{} `json:"remoteServerAgentStateInfoList"`
+	//agentState 	1:启用中，2：已启用，3：停用中，4：已停用，5：卸载中，6：已卸载
 }

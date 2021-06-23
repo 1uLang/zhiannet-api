@@ -35,3 +35,12 @@ func TestList(t *testing.T) {
 	}
 	fmt.Println(list)
 }
+func TestInfo(t *testing.T) {
+	info, err := Info("154.91.39.82")
+
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(info)
+}

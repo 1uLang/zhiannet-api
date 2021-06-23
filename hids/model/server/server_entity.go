@@ -21,5 +21,4 @@ type InfoResp struct {
 	HostName string
 	System   string
 	OsType   string
-	Remark   string
 }

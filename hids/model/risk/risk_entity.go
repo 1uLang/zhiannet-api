@@ -9,19 +9,19 @@ type searchReq struct {
 
 type SearchReq struct {
 	searchReq
-	UserName      string `json:"userName,omitempty"`
-	MacCode       string `json:"macCode,omitempty"`
-	ServerIp      string `json:"serverIp,omitempty"`
-	WeakType      string `json:"weakType,omitempty"`
-	Level         int    `json:"level,omitempty"`         //风险等级：低 中 高 危机：1,2,3,4
-	ProcessStatus int    `json:"processStatus,omitempty"` //处理状态 待处理 已处理 不适用 1,2,3
+	UserName     string `json:"userName,omitempty"`
+	MacCode      string `json:"macCode,omitempty"`
+	ServerIp     string `json:"serverIp,omitempty"`
+	WeakType     string `json:"weakType,omitempty"`
+	Level        int    `json:"level,omitempty"`        //风险等级：低 中 高 危机：1,2,3,4
+	ProcessState int    `json:"processState,omitempty"` //处理状态 待处理 已处理 不适用 1,2,3
 }
 
 func (this *SearchReq) Check() (bool, error) {
-	if this.Level != 1 && this.Level != 2 && this.Level != 3 && this.Level != 4 {
+	if this.Level != 0 && this.Level != 1 && this.Level != 2 && this.Level != 3 && this.Level != 4 {
 		return false, fmt.Errorf("风险等级参数错误")
 	}
-	if this.ProcessStatus != 1 && this.ProcessStatus != 2 && this.ProcessStatus != 3 {
+	if this.ProcessState != 0 && this.ProcessState != 1 && this.ProcessState != 2 && this.ProcessState != 3 {
 		return false, fmt.Errorf("处理态度参数错误")
 	}
 	if this.WeakType != "" && this.WeakType != "0201" && this.WeakType != "0202" && this.WeakType != "0203" {
@@ -66,6 +66,9 @@ type RiskSearchResp struct {
 	ReboundshellCountInfoList    []map[string]interface{} `json:"reboundshellCountInfoList"`    //反弹shell数量列表
 	AbnormalAccountCountInfoList []map[string]interface{} `json:"abnormalAccountCountInfoList"` //异常账号数量列表
 	LogDeleteCountInfoList       []map[string]interface{} `json:"logDeleteCountInfoList"`       //日志异常删除
+	AbnormalLoginCountInfoList   []map[string]interface{} `json:"abnormalLoginCountInfoList"`   //异常登录
+	AbnormalProcessCountInfoList []map[string]interface{} `json:"abnormalProcessCountInfoList"` //异常进程
+	SystemCmdInfoList            []map[string]interface{} `json:"systemCmdInfoList"`            //命令篡改
 }
 
 type SystemDistributedResp struct {

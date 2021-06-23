@@ -32,13 +32,13 @@ func List(args *SearchReq) (list SearchResp, err error) {
 	if err != nil {
 		return list, err
 	}
-	fmt.Println(resp)
+
 	_, err = model.ParseResp(resp, &list)
 	return list, err
 }
 
 //Info 主机信息
-func Info(serverIp string) (info InfoResp, err error) {
+func Info(serverIp string) (info map[string]interface{}, err error) {
 	list, err := List(&SearchReq{ServerIp: serverIp})
 	if err != nil {
 		return info, err
@@ -46,10 +46,5 @@ func Info(serverIp string) (info InfoResp, err error) {
 	if len(list.ServerInfoList) == 0 {
 		return info, fmt.Errorf("无该主机信息")
 	}
-	info.System = list.ServerInfoList[0]["systemKernel"].(string)
-	info.OsType = list.ServerInfoList[0]["osType"].(string)
-	info.Remark = list.ServerInfoList[0]["remark"].(string)
-	info.LocalIp = list.ServerInfoList[0]["serverLocalIp"].(string)
-	info.HostName = list.ServerInfoList[0]["hostName"].(string)
-	return info, nil
+	return list.ServerInfoList[0], nil
 }

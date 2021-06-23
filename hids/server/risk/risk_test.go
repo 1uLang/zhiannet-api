@@ -28,8 +28,8 @@ func TestRiskList(t *testing.T) {
 
 	list, err := SystemRiskList(&risk.SearchReq{
 		//UserName: "LUSIR2",
-		Level:         2, //高危
-		ProcessStatus: 1, //未处理
+		Level:        2, //高危
+		ProcessState: 1, //未处理
 	})
 	if err != nil {
 		t.Errorf(err.Error())
