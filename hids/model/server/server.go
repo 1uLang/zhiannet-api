@@ -48,7 +48,6 @@ func Info(serverIp string) (info InfoResp, err error) {
 	}
 	info.System = list.ServerInfoList[0]["systemKernel"].(string)
 	info.OsType = osTypeName[list.ServerInfoList[0]["osType"].(string)]
-	info.Remark = list.ServerInfoList[0]["remark"].(string)
 	info.LocalIp = list.ServerInfoList[0]["serverLocalIp"].(string)
 	info.HostName = list.ServerInfoList[0]["hostName"].(string)
 	return info, nil
