@@ -100,6 +100,7 @@ func Disport(macCode, opt string) error {
 	req.Headers["signNonce"] = util.RandomNum(10)
 	req.Params = nil
 
-	_, err = req.Do()
+	resp, err := req.Do()
+	fmt.Println(string(resp))
 	return err
 }

@@ -66,6 +66,9 @@ type RiskSearchResp struct {
 	ReboundshellCountInfoList    []map[string]interface{} `json:"reboundshellCountInfoList"`    //反弹shell数量列表
 	AbnormalAccountCountInfoList []map[string]interface{} `json:"abnormalAccountCountInfoList"` //异常账号数量列表
 	LogDeleteCountInfoList       []map[string]interface{} `json:"logDeleteCountInfoList"`       //日志异常删除
+	AbnormalLoginCountInfoList   []map[string]interface{} `json:"abnormalLoginCountInfoList"`   //异常登录
+	AbnormalProcessCountInfoList []map[string]interface{} `json:"abnormalProcessCountInfoList"` //异常进程
+	SystemCmdInfoList            []map[string]interface{} `json:"systemCmdInfoList"`            //命令篡改
 }
 
 type SystemDistributedResp struct {

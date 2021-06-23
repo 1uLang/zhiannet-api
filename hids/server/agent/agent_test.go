@@ -22,7 +22,7 @@ func init() {
 	}
 }
 func TestDisport(t *testing.T) {
-	err := Disport("48C57D8BFC8EE7BEB9ADA36845A6E051", "enable")
+	err := Disport("48C57D8BFC8EE7BEB9ADA36845A6E051", "disable")
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()
