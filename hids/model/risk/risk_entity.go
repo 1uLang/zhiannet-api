@@ -18,10 +18,10 @@ type SearchReq struct {
 }
 
 func (this *SearchReq) Check() (bool, error) {
-	if this.Level != 1 && this.Level != 2 && this.Level != 3 && this.Level != 4 {
+	if this.Level != 0 && this.Level != 1 && this.Level != 2 && this.Level != 3 && this.Level != 4 {
 		return false, fmt.Errorf("风险等级参数错误")
 	}
-	if this.ProcessStatus != 1 && this.ProcessStatus != 2 && this.ProcessStatus != 3 {
+	if this.ProcessStatus != 0 && this.ProcessStatus != 1 && this.ProcessStatus != 2 && this.ProcessStatus != 3 {
 		return false, fmt.Errorf("处理态度参数错误")
 	}
 	if this.WeakType != "" && this.WeakType != "0201" && this.WeakType != "0202" && this.WeakType != "0203" {
