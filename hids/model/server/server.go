@@ -47,9 +47,31 @@ func Info(serverIp string) (info InfoResp, err error) {
 		return info, fmt.Errorf("无该主机信息")
 	}
 	info.System = list.ServerInfoList[0]["systemKernel"].(string)
-	info.OsType = list.ServerInfoList[0]["osType"].(string)
+	info.OsType = osTypeName[list.ServerInfoList[0]["osType"].(string)]
 	info.Remark = list.ServerInfoList[0]["remark"].(string)
 	info.LocalIp = list.ServerInfoList[0]["serverLocalIp"].(string)
 	info.HostName = list.ServerInfoList[0]["hostName"].(string)
 	return info, nil
+}
+
+var osTypeName = map[string]string{
+	"1":  "Windows2003 ",
+	"2":  "Windows2008 ",
+	"3":  "Windows2016 ",
+	"4":  "Centos ",
+	"5":  "Ubuntu ",
+	"6":  "Debian ",
+	"7":  "OpenSUSE ",
+	"8":  "SUSE ",
+	"9":  "RedHat ",
+	"10": "Windows2012 ",
+	"11": "RedFlag ",
+	"12": "NeoKylin ",
+	"13": "WindowsVista ",
+	"14": "WIN7 ",
+	"15": "WIN8 ",
+	"16": "Windows10 ",
+	"17": "FreeBSD ",
+	"18": "Fedora ",
+	"19": "Scientific ",
 }
