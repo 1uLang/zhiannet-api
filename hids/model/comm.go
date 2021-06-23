@@ -20,7 +20,7 @@ func ParseResp(resp []byte, retObj ...interface{}) (map[string]interface{}, erro
 		return nil, nil
 	}
 	err := json.Unmarshal(resp, &ret)
-	fmt.Println(string(resp))
+
 	if err != nil {
 		return nil, err
 	}
