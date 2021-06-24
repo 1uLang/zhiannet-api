@@ -435,6 +435,7 @@ func process(args *ProcessReq, path string) error {
 		return err
 	}
 	_, err = model.ParseResp(resp)
+	fmt.Println(string(resp))
 	return err
 }
 
@@ -458,7 +459,7 @@ func ProcessConfigDefect(args *ProcessReq) error {
 	return process(args, _const.Risk_config_defect_process_api_url)
 }
 
-func detail(args *DetailReq, path string) (info DetailResp, err error) {
+func detailList(args *DetailReq, path string) (info DetailResp, err error) {
 	ok, err := args.Check()
 	if err != nil || !ok {
 		return info, err
@@ -488,11 +489,9 @@ func detail(args *DetailReq, path string) (info DetailResp, err error) {
 	return info, err
 }
 
-//SystemRiskDetail 系统漏洞详情
-func SystemRiskDetail(macCode, riskId string, state bool) (info map[string]interface{}, err error) {
-
+func detail(path, macCode, riskId string, state bool) (info map[string]interface{}, err error) {
 	if macCode == "" || riskId == "" {
-		return info, fmt.Errorf("参数错误：机器码和漏洞id不能为空")
+		return info, fmt.Errorf("参数错误：机器码和风险项id不能为空")
 	}
 
 	req, err := request.NewRequest()
@@ -500,7 +499,7 @@ func SystemRiskDetail(macCode, riskId string, state bool) (info map[string]inter
 		return info, err
 	}
 	req.Method = "get"
-	req.Path = _const.Risk_system_detail_api_url + "/" + macCode + "/" + riskId
+	req.Path = path + "/" + macCode + "/" + riskId
 	req.Headers["signNonce"] = util.RandomNum(10)
 	req.Params = map[string]interface{}{
 		"isProcessed": state,
@@ -514,62 +513,86 @@ func SystemRiskDetail(macCode, riskId string, state bool) (info map[string]inter
 	return info, err
 }
 
-//WeakDetail 弱口令详情
-func WeakDetail(args *DetailReq) (info DetailResp, err error) {
+//SystemRiskDetail 系统漏洞详情
+func SystemRiskDetail(macCode, riskId string, state bool) (info map[string]interface{}, err error) {
 
-	return detail(args, _const.Risk_weak_server_api_url)
+	return detail(_const.Risk_system_detail_api_url, macCode, riskId, state)
+}
+
+//WeakDetail 弱口令详情
+func WeakDetail(macCode, riskId string, state bool) (info map[string]interface{}, err error) {
+
+	return detail(_const.Risk_weak_detail_api_url, macCode, riskId, state)
 }
 
 //DangerAccountDetail 高危账号详情
-func DangerAccountDetail(args *DetailReq) (info DetailResp, err error) {
+func DangerAccountDetail(macCode, riskId string, state bool) (info map[string]interface{}, err error) {
 
-	return detail(args, _const.Risk_danger_account_detail_api_url)
+	return detail(_const.Risk_danger_account_detail_api_url, macCode, riskId, state)
 }
 
 //ConfigDefectDetail 配置缺陷详情
-func ConfigDefectDetail(args *DetailReq) (info DetailResp, err error) {
+func ConfigDefectDetail(macCode, riskId string, state bool) (info map[string]interface{}, err error) {
 
-	return detail(args, _const.Risk_config_defect_detail_api_url)
+	return detail(_const.Risk_config_defect_detail_api_url, macCode, riskId, state)
+}
+
+//WeakDetailList 弱口令详情列表
+func WeakDetailList(args *DetailReq) (info DetailResp, err error) {
+
+	return detailList(args, _const.Risk_weak_server_api_url)
+}
+
+//DangerAccountDetailList 高危账号详情列表
+func DangerAccountDetailList(args *DetailReq) (info DetailResp, err error) {
+
+	return detailList(args, _const.Risk_danger_account_detail_list_api_url)
+}
+
+//ConfigDefectDetailList 配置缺陷详情列表
+func ConfigDefectDetailList(args *DetailReq) (info DetailResp, err error) {
+
+	return detailList(args, _const.Risk_config_defect_detail_list_api_url)
 }
 
 //VirusDetailList 入侵威胁病毒木马详情列表
 func VirusDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detail(args, _const.Risk_Virus_detail_list_api_url)
+	return detailList(args, _const.Risk_Virus_detail_list_api_url)
 }
 
 //WebShellDetailList 入侵威胁网页后门详情列表
 func WebShellDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detail(args, _const.Risk_webshell_detail_list_api_url)
+	return detailList(args, _const.Risk_webshell_detail_list_api_url)
 }
 
 //ReboundDetailList 入侵威胁详情列表
 func ReboundDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detail(args, _const.Risk_reboundshell_detail_list_api_url)
+	return detailList(args, _const.Risk_reboundshell_detail_list_api_url)
 }
 
 //AbnormalAccountDetailList 入侵威胁异常账号详情列表
 func AbnormalAccountDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detail(args, _const.Risk_abnormal_account_detail_list_api_url)
+	return detailList(args, _const.Risk_abnormal_account_detail_list_api_url)
 }
 
 //LogDeleteDetailList 入侵威胁日志异常删除详情列表
 func LogDeleteDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detail(args, _const.Risk_log_delete_detail_list_api_url)
+	return detailList(args, _const.Risk_log_delete_detail_list_api_url)
 }
 
 //AbnormalLoginDetailList 入侵威胁异常登录详情列表
 func AbnormalLoginDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detail(args, _const.Risk_abnormal_login_detail_list_api_url)
+	return detailList(args, _const.Risk_abnormal_login_detail_list_api_url)
 }
 
 //AbnormalProcessDetailList 入侵威胁异常进程详情列表
 func AbnormalProcessDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detail(args, _const.Risk_abnormal_process_detail_list_api_url)
+	return detailList(args, _const.Risk_abnormal_process_detail_list_api_url)
 }
 
 //SystemCmdDetailList 入侵威胁命令篡改详情列表
 func SystemCmdDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detail(args, _const.Risk_system_cmd_detail_list_api_url)
+	return detailList(args, _const.Risk_system_cmd_detail_list_api_url)
 }
 
 //riskDetail 入侵威胁详情
