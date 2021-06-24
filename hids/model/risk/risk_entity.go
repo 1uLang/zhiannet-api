@@ -154,9 +154,9 @@ type DetailResp struct {
 	//弱口令列表
 	WeakInfoList []map[string]interface{} `json:"weakInfoList"`
 	//高危账号列表
-	DangerAccountList []map[string]interface{} `json:"dangerAccountList"`
+	DangerAccountList []map[string]interface{} `json:"dangerAccountInfoList"`
 	//配置缺陷列表
-	ConfigDefectList []map[string]interface{} `json:"configDefectList"`
+	ConfigDefectList []map[string]interface{} `json:"configDefectInfoList"`
 
 	//木马病毒列表
 	ServerVirusInfoList []map[string]interface{} `json:"serverVirusInfoList"`
