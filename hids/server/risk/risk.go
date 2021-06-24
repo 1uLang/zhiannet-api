@@ -26,15 +26,20 @@ func SystemDistributed(req *risk.SearchReq) (info risk.SystemDistributedResp, er
 func WeakList(req *risk.SearchReq) (info risk.SystemDistributedResp, err error) {
 	return risk.WeakList(req)
 }
+func WeakDetail(macCode, riskId string, state bool) (info map[string]interface{}, err error) {
+	return risk.WeakDetail(macCode, riskId, state)
+}
 func WeakDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
 	return risk.WeakDetailList(req)
 }
 func ProcessWeak(req *risk.ProcessReq) error {
 	return risk.ProcessWeak(req)
 }
-
 func DangerAccountList(req *risk.SearchReq) (info risk.SystemDistributedResp, err error) {
 	return risk.DangerAccountList(req)
+}
+func DangerAccountDetail(macCode, riskId string, state bool) (info map[string]interface{}, err error) {
+	return risk.DangerAccountDetail(macCode, riskId, state)
 }
 func DangerAccountDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
 	return risk.DangerAccountDetailList(req)
@@ -45,6 +50,9 @@ func ProcessDangerAccount(req *risk.ProcessReq) error {
 
 func ConfigDefectList(req *risk.SearchReq) (info risk.SystemDistributedResp, err error) {
 	return risk.ConfigDefectList(req)
+}
+func ConfigDefectDetail(macCode, riskId string, state bool) (info map[string]interface{}, err error) {
+	return risk.ConfigDefectDetail(macCode, riskId, state)
 }
 func ConfigDefectDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
 	return risk.ConfigDefectDetailList(req)
