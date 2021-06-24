@@ -37,7 +37,7 @@ type (
 	}
 )
 
-var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).SetTimeout(time.Second * 2).SetDebug(false)
+var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).SetTimeout(time.Second * 60).SetDebug(false)
 
 //获取日志
 func GetLogsList(req *LogReq, apiKey *request.ApiKey) (list *LogListResp, err error) {
@@ -74,7 +74,7 @@ func ClearLog(apiKey *request.ApiKey) (res bool, err error) {
 			Value: apiKey.Cookie,
 		}).
 		Post(fmt.Sprintf("https://%v:%v%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_CLEAR_LOGS_URL))
-	//fmt.Println(string(resp.Body()), err)
+	fmt.Println(string(resp.Body()), err)
 	clearRes := ClearLogResp{}
 	err = json.Unmarshal(resp.Body(), &clearRes)
 	if err != nil {
