@@ -21,17 +21,23 @@ const (
 
 	Risk_weak_server_api_url = "/sdapi/cloudeyes/risk/weak/server"
 
+	Risk_weak_detail_api_url = "/sdapi/cloudeyes/risk/weak/detail/"
+
 	Risk_weak_process_api_url = "/sdapi/cloudeyes/risk/weak/process"
 
 	Risk_danger_account_api_url = "/sdapi/cloudeyes/risk/danger-account/server-distributed/list"
 
-	Risk_danger_account_detail_api_url = "/sdapi/cloudeyes/risk/danger-account"
+	Risk_danger_account_detail_list_api_url = "/sdapi/cloudeyes/risk/danger-account"
+
+	Risk_danger_account_detail_api_url = "/sdapi/cloudeyes/risk/danger-account/detail"
 
 	Risk_danger_account_process_api_url = "/sdapi/cloudeyes/risk/danger-account/process"
 
 	Risk_config_defect_api_url = "/sdapi/cloudeyes/risk/config-defect/server-distributed/list"
 
-	Risk_config_defect_detail_api_url = "/sdapi/cloudeyes/risk/config-defect"
+	Risk_config_defect_detail_list_api_url = "/sdapi/cloudeyes/risk/config-defect"
+
+	Risk_config_defect_detail_api_url = "/sdapi/cloudeyes/risk/config-defect/detail"
 
 	Risk_config_defect_process_api_url = "/sdapi/cloudeyes/risk/config-defect/process"
 

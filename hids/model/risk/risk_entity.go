@@ -85,7 +85,7 @@ type ProcessReq struct {
 	Opt string `json:"opt"`
 	Req struct {
 		MacCode string   `json:"macCode"`
-		RiskIds []string `json:"riskIds"`
+		RiskIds []int    `json:"riskIds"`
 		ItemIds []string `json:"itemIds"`
 	}
 }

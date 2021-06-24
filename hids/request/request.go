@@ -113,7 +113,13 @@ func (this *request) sign() string {
 	stringSignTemp := ""
 	for _, k := range keyList {
 		v, isExist := this.Params[k]
-		value := fmt.Sprintf("[\"%v\"]", v)
+		value := ""
+		if k == "itemIds" || k == "riskIds" {
+			tmpbuf, _ := json.Marshal(v)
+			value = fmt.Sprintf("[\"%s\"]", string(tmpbuf))
+		} else {
+			value = fmt.Sprintf("[\"%v\"]", v)
+		}
 		if !isExist {
 			value = "\"" + this.Headers[k] + "\""
 		}

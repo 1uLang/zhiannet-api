@@ -90,3 +90,16 @@ func TestSystemRiskDetail(t *testing.T) {
 	}
 	fmt.Println(list)
 }
+
+func TestProcessRisk(t *testing.T) {
+
+	req := &risk.ProcessReq{Opt: "ignore"}
+	req.Req.RiskIds = []int{13258}
+	req.Req.ItemIds = []string{"4284860"}
+	req.Req.MacCode = "48C57D8BFC8EE7BEB9ADA36845A6E051"
+	err := ProcessRisk(req)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+}

@@ -26,8 +26,8 @@ func SystemDistributed(req *risk.SearchReq) (info risk.SystemDistributedResp, er
 func WeakList(req *risk.SearchReq) (info risk.SystemDistributedResp, err error) {
 	return risk.WeakList(req)
 }
-func WeakDetail(req *risk.DetailReq) (info risk.DetailResp, err error) {
-	return risk.WeakDetail(req)
+func WeakDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
+	return risk.WeakDetailList(req)
 }
 func ProcessWeak(req *risk.ProcessReq) error {
 	return risk.ProcessWeak(req)
@@ -36,8 +36,8 @@ func ProcessWeak(req *risk.ProcessReq) error {
 func DangerAccountList(req *risk.SearchReq) (info risk.SystemDistributedResp, err error) {
 	return risk.DangerAccountList(req)
 }
-func DangerAccountDetail(req *risk.DetailReq) (info risk.DetailResp, err error) {
-	return risk.DangerAccountDetail(req)
+func DangerAccountDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
+	return risk.DangerAccountDetailList(req)
 }
 func ProcessDangerAccount(req *risk.ProcessReq) error {
 	return risk.ProcessDangerAccount(req)
@@ -46,8 +46,8 @@ func ProcessDangerAccount(req *risk.ProcessReq) error {
 func ConfigDefectList(req *risk.SearchReq) (info risk.SystemDistributedResp, err error) {
 	return risk.ConfigDefectList(req)
 }
-func ConfigDefectDetail(req *risk.DetailReq) (info risk.DetailResp, err error) {
-	return risk.ConfigDefectDetail(req)
+func ConfigDefectDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
+	return risk.ConfigDefectDetailList(req)
 }
 func ProcessConfigDefect(req *risk.ProcessReq) error {
 	return risk.ProcessConfigDefect(req)
