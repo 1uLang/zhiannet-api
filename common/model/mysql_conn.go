@@ -9,6 +9,9 @@ import (
 
 var MysqlConn *gorm.DB
 
+func init() {
+	InitMysqlLink()
+}
 func InitMysqlLink() {
 	var err error
 	dsn := "root:mysql8@tcp(45.195.61.132:3306)/zhian-edges?charset=utf8mb4&parseTime=True&loc=Local"
