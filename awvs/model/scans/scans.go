@@ -52,10 +52,10 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 	resList := gjson.ParseBytes(resp)
 	list = map[string]interface{}{}
 	if resList.Get("scans").Exists() {
-		targets := []gjson.Result{}
+		targets := []interface{}{}
 		for _, v := range resList.Get("scans").Array() {
 			if _, ok := tarMap[v.Get("target_id").String()]; ok {
-				targets = append(targets, v)
+				targets = append(targets, v.Value())
 			}
 		}
 		list["scans"] = targets
