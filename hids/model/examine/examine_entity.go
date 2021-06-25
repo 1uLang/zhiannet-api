@@ -53,7 +53,7 @@ type SearchResp struct {
 	PageSize                    int                      `json:"pageSize"`
 	TotalData                   int                      `json:"totalData"`
 	TotalPage                   int                      `json:"totalPage"`
-	ServerExamineResultInfoList []map[string]interface{} `json:"serverExamineResultInfo"`
+	ServerExamineResultInfoList []map[string]interface{} `json:"serverExamineResultInfoList"`
 }
 
 type ScanReq struct {
