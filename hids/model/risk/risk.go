@@ -596,7 +596,7 @@ func SystemCmdDetailList(args *DetailReq) (info DetailResp, err error) {
 }
 
 //riskDetail 入侵威胁详情
-func riskDetail(macCode, id, path string) (map[string]interface{}, error) {
+func riskDetail(macCode, id, path string, isProcessed bool) (map[string]interface{}, error) {
 	req, err := request.NewRequest()
 	if err != nil {
 		return nil, err
@@ -604,7 +604,9 @@ func riskDetail(macCode, id, path string) (map[string]interface{}, error) {
 	req.Method = "get"
 	req.Path = fmt.Sprintf(path, macCode, id)
 	req.Headers["signNonce"] = util.RandomNum(10)
-	req.Params = nil
+	req.Params = map[string]interface{}{
+		"isProcessed": isProcessed,
+	}
 
 	resp, err := req.Do()
 	if err != nil {
@@ -617,43 +619,43 @@ func riskDetail(macCode, id, path string) (map[string]interface{}, error) {
 }
 
 //VirusDetail 入侵威胁病毒木马详情
-func VirusDetail(macCode, id string) (map[string]interface{}, error) {
-	return riskDetail(macCode, id, _const.Risk_Virus_detail_api_url)
+func VirusDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return riskDetail(macCode, id, _const.Risk_Virus_detail_api_url, isProcessed)
 }
 
 //WebShellDetail 入侵威胁网页后门详情
-func WebShellDetail(macCode, id string) (map[string]interface{}, error) {
-	return riskDetail(macCode, id, _const.Risk_webshell_detail_api_url)
+func WebShellDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return riskDetail(macCode, id, _const.Risk_webshell_detail_api_url, isProcessed)
 }
 
 //ReboundShellDetail 入侵威胁 反弹shell详情
-func ReboundShellDetail(macCode, id string) (map[string]interface{}, error) {
-	return riskDetail(macCode, id, _const.Risk_reboundshell_detail_api_url)
+func ReboundShellDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return riskDetail(macCode, id, _const.Risk_reboundshell_detail_api_url, isProcessed)
 }
 
 //AbnormalAccountDetail 入侵威胁 异常账号详情
-func AbnormalAccountDetail(macCode, id string) (map[string]interface{}, error) {
-	return riskDetail(macCode, id, _const.Risk_abnormal_account_detail_api_url)
+func AbnormalAccountDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return riskDetail(macCode, id, _const.Risk_abnormal_account_detail_api_url, isProcessed)
 }
 
 //LogDeleteDetail 入侵威胁 日志异常删除详情
-func LogDeleteDetail(macCode, id string) (map[string]interface{}, error) {
-	return riskDetail(macCode, id, _const.Risk_log_delete_detail_api_url)
+func LogDeleteDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return riskDetail(macCode, id, _const.Risk_log_delete_detail_api_url, isProcessed)
 }
 
 //AbnormalLoginDetail 入侵威胁 异常登录详情
-func AbnormalLoginDetail(macCode, id string) (map[string]interface{}, error) {
-	return riskDetail(macCode, id, _const.Risk_abnormal_login_detail_api_url)
+func AbnormalLoginDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return riskDetail(macCode, id, _const.Risk_abnormal_login_detail_api_url, isProcessed)
 }
 
 //AbnormalProcessDetail 入侵威胁 异常进程详情
-func AbnormalProcessDetail(macCode, id string) (map[string]interface{}, error) {
-	return riskDetail(macCode, id, _const.Risk_abnormal_process_detail_api_url)
+func AbnormalProcessDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return riskDetail(macCode, id, _const.Risk_abnormal_process_detail_api_url, isProcessed)
 }
 
 //SystemCmdDetail 入侵威胁 系统命令篡改详情
-func SystemCmdDetail(macCode, id string) (map[string]interface{}, error) {
-	return riskDetail(macCode, id, _const.Risk_system_cmd_detail_api_url)
+func SystemCmdDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return riskDetail(macCode, id, _const.Risk_system_cmd_detail_api_url, isProcessed)
 }
 
 //VirusProcess 入侵威胁 病毒木马处理

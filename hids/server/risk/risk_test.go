@@ -102,6 +102,19 @@ func TestDangerAccountDetailList(t *testing.T) {
 	}
 	fmt.Println(list)
 }
+func TestAbnormalProcessDetail(t *testing.T) {
+
+	req := &risk.DetailReq{}
+	req.MacCode = "48C57D8BFC8EE7BEB9ADA36845A6E051"
+	req.Req.UserName = "luobing"
+	req.Req.ProcessState = 2
+	list, err := AbnormalProcessDetail("BEEBC76C2D8D6C2C9F587A52EF5ACFEF", "395", false)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}
 func TestWeakDetailList(t *testing.T) {
 
 	req := &risk.DetailReq{}
