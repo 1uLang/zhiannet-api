@@ -66,8 +66,8 @@ func ProcessConfigDefect(req *risk.ProcessReq) error {
 func VirusList(req *risk.RiskSearchReq) (risk.RiskSearchResp, error) {
 	return risk.VirusList(req)
 }
-func VirusDetail(macCode, id string) (map[string]interface{}, error) {
-	return risk.VirusDetail(macCode, id)
+func VirusDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return risk.VirusDetail(macCode, id, isProcessed)
 }
 func VirusDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
 	return risk.VirusDetailList(req)
@@ -79,8 +79,8 @@ func ProcessVirus(req *risk.ProcessReq) error {
 func WebShellList(req *risk.RiskSearchReq) (risk.RiskSearchResp, error) {
 	return risk.WebShellList(req)
 }
-func WebShellDetail(macCode, id string) (map[string]interface{}, error) {
-	return risk.WebShellDetail(macCode, id)
+func WebShellDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return risk.WebShellDetail(macCode, id, isProcessed)
 }
 func WebShellDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
 	return risk.WebShellDetailList(req)
@@ -92,8 +92,8 @@ func ProcessWebShell(req *risk.ProcessReq) error {
 func ReboundShellList(req *risk.RiskSearchReq) (risk.RiskSearchResp, error) {
 	return risk.ReboundList(req)
 }
-func ReboundShellDetail(macCode, id string) (map[string]interface{}, error) {
-	return risk.ReboundShellDetail(macCode, id)
+func ReboundShellDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return risk.ReboundShellDetail(macCode, id, isProcessed)
 }
 func ReboundShellDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
 	return risk.ReboundDetailList(req)
@@ -104,8 +104,8 @@ func ProcessReboundShell(req *risk.ProcessReq) error {
 func AbnormalAccountList(req *risk.RiskSearchReq) (risk.RiskSearchResp, error) {
 	return risk.AbnormalAccountList(req)
 }
-func AbnormalAccountDetail(macCode, id string) (map[string]interface{}, error) {
-	return risk.AbnormalAccountDetail(macCode, id)
+func AbnormalAccountDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return risk.AbnormalAccountDetail(macCode, id, isProcessed)
 }
 func AbnormalAccountDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
 	return risk.AbnormalAccountDetailList(req)
@@ -117,8 +117,8 @@ func ProcessAbnormalAccount(req *risk.ProcessReq) error {
 func LogDeleteList(req *risk.RiskSearchReq) (risk.RiskSearchResp, error) {
 	return risk.LogDeleteList(req)
 }
-func LogDeleteDetail(macCode, id string) (map[string]interface{}, error) {
-	return risk.LogDeleteDetail(macCode, id)
+func LogDeleteDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return risk.LogDeleteDetail(macCode, id, isProcessed)
 }
 func LogDeleteDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
 	return risk.LogDeleteDetailList(req)
@@ -130,8 +130,8 @@ func ProcessLogDelete(req *risk.ProcessReq) error {
 func AbnormalLoginList(req *risk.RiskSearchReq) (risk.RiskSearchResp, error) {
 	return risk.AbnormalLoginList(req)
 }
-func AbnormalLoginDetail(macCode, id string) (map[string]interface{}, error) {
-	return risk.AbnormalLoginDetail(macCode, id)
+func AbnormalLoginDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return risk.AbnormalLoginDetail(macCode, id, isProcessed)
 }
 func AbnormalLoginDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
 	return risk.AbnormalLoginDetailList(req)
@@ -143,8 +143,8 @@ func ProcessAbnormalLogin(req *risk.ProcessReq) error {
 func AbnormalProcessList(req *risk.RiskSearchReq) (risk.RiskSearchResp, error) {
 	return risk.AbnormalProcessList(req)
 }
-func AbnormalProcessDetail(macCode, id string) (map[string]interface{}, error) {
-	return risk.AbnormalProcessDetail(macCode, id)
+func AbnormalProcessDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return risk.AbnormalProcessDetail(macCode, id, isProcessed)
 }
 func AbnormalProcessDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
 	return risk.AbnormalProcessDetailList(req)
@@ -156,8 +156,8 @@ func ProcessAbnormalProcess(req *risk.ProcessReq) error {
 func SystemCmdList(req *risk.RiskSearchReq) (risk.RiskSearchResp, error) {
 	return risk.SystemCmdList(req)
 }
-func SystemCmdDetail(macCode, id string) (map[string]interface{}, error) {
-	return risk.SystemCmdDetail(macCode, id)
+func SystemCmdDetail(macCode, id string, isProcessed bool) (map[string]interface{}, error) {
+	return risk.SystemCmdDetail(macCode, id, isProcessed)
 }
 func SystemCmdDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
 	return risk.SystemCmdDetailList(req)

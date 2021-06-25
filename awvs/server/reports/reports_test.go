@@ -23,28 +23,19 @@ func init() {
 	}
 }
 
-func TestList(t *testing.T) {
-	info, err := List(&reports.ListReq{
-		Limit: 1,
-		//C:     1,
-		UserId: 1,
-	})
+func TestCreate(t *testing.T) {
+	req := &reports.CreateResp{
+		Source: struct {
+			IDS  []string `json:"id_list"`
+			Type string   `json:"list_type"`
+		}{IDS: []string{"d15b7205-fb69-49d0-8743-e03440d1828f"}, Type: "scans"},
+		TemplateId: "11111111-1111-1111-1111-111111111112", //快速
+	}
+	info, err := Create(req)
 	if err != nil {
 		t.Error(err)
 		t.Fail()
 	} else {
 		fmt.Println(info)
 	}
-}
-
-func TestCreate(t *testing.T) {
-	res, err := Create(&reports.CreateResp{
-		Source: struct {
-			IDS  []string `json:"id_list"`
-			Type string   `json:"list_type"`
-		}{IDS: []string{"33c38a7f-9759-4202-87a5-b0e7cc6b5d0d", "dc7d58eb-6bec-4a75-8418-8c41036b9481"}, Type: "scans"},
-		TemplateId: "11111111-1111-1111-1111-111111111112", //快速
-	})
-	fmt.Println(res)
-	fmt.Println(err)
 }
