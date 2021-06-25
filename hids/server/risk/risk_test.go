@@ -60,6 +60,16 @@ func TestSystemDistributed(t *testing.T) {
 	}
 	fmt.Println(list)
 }
+func TestDangerAccountList(t *testing.T) {
+
+	req := &risk.SearchReq{UserName: "luobing"}
+	list, err := DangerAccountList(req)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}
 func TestWeakList(t *testing.T) {
 
 	req := &risk.SearchReq{UserName: "luobing", MacCode: "48C57D8BFC8EE7BEB9ADA36845A6E051"}
@@ -70,10 +80,62 @@ func TestWeakList(t *testing.T) {
 	}
 	fmt.Println(list)
 }
-func TestDangerAccountList(t *testing.T) {
+func TestConfigDefectDetail(t *testing.T) {
 
-	req := &risk.SearchReq{UserName: "luobing", MacCode: "48C57D8BFC8EE7BEB9ADA36845A6E051"}
-	list, err := DangerAccountList(req)
+	list, err := ConfigDefectDetail("48C57D8BFC8EE7BEB9ADA36845A6E051", "415", false)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}
+func TestDangerAccountDetailList(t *testing.T) {
+
+	req := &risk.DetailReq{}
+	req.MacCode = "48C57D8BFC8EE7BEB9ADA36845A6E051"
+	req.Req.UserName = "luobing"
+	req.Req.ProcessState = 2
+	list, err := DangerAccountDetailList(req)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}
+func TestWeakDetailList(t *testing.T) {
+
+	req := &risk.DetailReq{}
+	req.MacCode = "48C57D8BFC8EE7BEB9ADA36845A6E051"
+	req.Req.UserName = "luobing"
+	req.Req.ProcessState = 2
+	list, err := WeakDetailList(req)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}
+func TestConfigDefectDetailList(t *testing.T) {
+
+	req := &risk.DetailReq{}
+	req.MacCode = "48C57D8BFC8EE7BEB9ADA36845A6E051"
+	req.Req.UserName = "luobing"
+	req.Req.ProcessState = 2
+	list, err := ConfigDefectDetailList(req)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}
+
+func TestConfigDefectDetailList2(t *testing.T) {
+
+	req := &risk.DetailReq{}
+	req.MacCode = "48C57D8BFC8EE7BEB9ADA36845A6E051"
+	req.Req.UserName = "luobing"
+	req.Req.ProcessState = 1
+	list, err := ConfigDefectDetailList(req)
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()
