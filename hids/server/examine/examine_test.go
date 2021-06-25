@@ -24,7 +24,7 @@ func init() {
 	}
 }
 func TestList(t *testing.T) {
-	list, err := List(&examine.SearchReq{UserName: "luobing", Type: -1, State: -1, Score: -1})
+	list, err := List(&examine.SearchReq{UserName: "luobing", Type: -1, State: -1, Score: -1, ExamineItems: "02,03,11"})
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()

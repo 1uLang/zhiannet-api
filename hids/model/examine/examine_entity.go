@@ -7,6 +7,7 @@ type SearchReq struct {
 	PageSize     int      `json:"pageSize"`
 	UserName     string   `json:"userName,omitempty"`
 	ServerIp     string   `json:"serverIp,omitempty"`
+	MacCode      string   `json:"macCode,omitempty"`
 	State        int      `json:"state"`                  //体检状态：全部 -1、未体检 0、待体检 3、体检中 1、已完成 2
 	Score        int      `json:"score"`                  //体检分数 全部 -1、不健康(0-59) 0、亚健康(60-89) 1、健康(90-100) 2
 	Type         int      `json:"type"`                   //体检类型 全部 -1、非定时体检 1、定时体检2
