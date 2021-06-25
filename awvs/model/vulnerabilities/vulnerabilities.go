@@ -29,7 +29,7 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 	if err != nil {
 		return map[string]interface{}{}, err
 	}
-	if args.UserId == 0 {
+	if args.UserId == 0 && args.AdminUserId == 0 {
 		return list, err
 	}
 	//获取当前用户的targets ID
