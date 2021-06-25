@@ -130,7 +130,7 @@ type DetailReq struct {
 		Level        int    `json:"level,omitempty"`        //漏洞风险 特有字段
 		ProcessState int    `json:"processState,omitempty"` //漏洞风险 特有字段
 		IsProcessed  bool   `json:"isProcessed"`            //入侵危险 特有字段
-		State        int    `json:"state,omitempty"`        //入侵威胁 特有字段
+		State        int    `json:"state"`                  //入侵威胁 特有字段
 	}
 }
 
