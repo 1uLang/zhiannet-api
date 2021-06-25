@@ -4,7 +4,9 @@ import (
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/awvs/const"
 	"github.com/1uLang/zhiannet-api/awvs/model"
+	"github.com/1uLang/zhiannet-api/awvs/model/targets"
 	"github.com/1uLang/zhiannet-api/awvs/request"
+	"github.com/tidwall/gjson"
 )
 
 //List 扫描列表
@@ -25,7 +27,40 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return model.ParseResp(resp)
+	list, err = model.ParseResp(resp)
+	if err != nil {
+		return nil, err
+	}
+	if args.UserId == 0 {
+		return list, err
+	}
+	//获取当前用户的targets ID
+	scanList, total, err := targets.GetList(&targets.AddrListReq{
+		UserId:      args.UserId,
+		AdminUserId: args.AdminUserId,
+		PageSize:    999,
+		PageNum:     1,
+	})
+
+	if total == 0 || err != nil {
+		return map[string]interface{}{}, err
+	}
+	tarMap := map[string]int{}
+	for _, v := range scanList {
+		tarMap[v.TargetId] = 0
+	}
+	resList := gjson.ParseBytes(resp)
+	list = map[string]interface{}{}
+	if resList.Get("scans").Exists() {
+		targets := []gjson.Result{}
+		for _, v := range resList.Get("scans").Array() {
+			if _, ok := tarMap[v.Get("target_id").String()]; ok {
+				targets = append(targets, v)
+			}
+		}
+		list["scans"] = targets
+	}
+	return list, err
 }
 
 //Add 创建扫描

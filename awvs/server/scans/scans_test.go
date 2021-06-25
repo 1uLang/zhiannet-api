@@ -26,7 +26,8 @@ func init() {
 func TestList(t *testing.T) {
 	info, err := List(&scans.ListReq{
 		Limit: 10,
-		C:     19,
+		C:     1,
+		//UserId: 1,
 	})
 	if err != nil {
 		t.Error(err)

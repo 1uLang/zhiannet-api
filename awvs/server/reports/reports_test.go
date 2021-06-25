@@ -1,8 +1,8 @@
-package vulnerabilities
+package reports
 
 import (
 	"fmt"
-	"github.com/1uLang/zhiannet-api/awvs/model/vulnerabilities"
+	"github.com/1uLang/zhiannet-api/awvs/model/reports"
 	"github.com/1uLang/zhiannet-api/awvs/request"
 	"github.com/1uLang/zhiannet-api/awvs/server"
 	"testing"
@@ -24,9 +24,9 @@ func init() {
 }
 
 func TestList(t *testing.T) {
-	info, err := List(&vulnerabilities.ListReq{
-		Limit: 2,
-		//Query: "target_id:8e9bbffd-dcbd-4608-a06c-71dfe9441b3f",
+	info, err := List(&reports.ListReq{
+		Limit: 1,
+		//C:     1,
 		UserId: 1,
 	})
 	if err != nil {
@@ -35,4 +35,16 @@ func TestList(t *testing.T) {
 	} else {
 		fmt.Println(info)
 	}
+}
+
+func TestCreate(t *testing.T) {
+	res, err := Create(&reports.CreateResp{
+		Source: struct {
+			IDS  []string `json:"id_list"`
+			Type string   `json:"list_type"`
+		}{IDS: []string{"33c38a7f-9759-4202-87a5-b0e7cc6b5d0d", "dc7d58eb-6bec-4a75-8418-8c41036b9481"}, Type: "scans"},
+		TemplateId: "11111111-1111-1111-1111-111111111112", //快速
+	})
+	fmt.Println(res)
+	fmt.Println(err)
 }

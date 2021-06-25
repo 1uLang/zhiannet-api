@@ -5,6 +5,8 @@ import (
 	_const "github.com/1uLang/zhiannet-api/awvs/const"
 	"github.com/1uLang/zhiannet-api/awvs/model"
 	"github.com/1uLang/zhiannet-api/awvs/request"
+	"github.com/tidwall/gjson"
+	"time"
 )
 
 //List 	目标列表
@@ -22,7 +24,40 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return model.ParseResp(resp)
+	list, err = model.ParseResp(resp)
+	if err != nil {
+		return nil, err
+	}
+	if args.UserId == 0 {
+		return list, err
+	}
+	//获取数据库 当前用户的扫描用户
+	targetList, total, err := GetList(&AddrListReq{
+		UserId:      args.UserId,
+		AdminUserId: args.AdminUserId,
+		PageSize:    999,
+		PageNum:     1,
+	})
+	if total == 0 || err != nil {
+		return map[string]interface{}{}, err
+	}
+	tarMap := map[string]int{}
+	for _, v := range targetList {
+		tarMap[v.TargetId] = 0
+	}
+	resList := gjson.ParseBytes(resp)
+	list = map[string]interface{}{}
+	if resList.Get("targets").Exists() {
+		targets := []gjson.Result{}
+		for _, v := range resList.Get("targets").Array() {
+			if _, ok := tarMap[v.Get("target_id").String()]; ok {
+				targets = append(targets, v)
+			}
+		}
+		list["targets"] = targets
+	}
+
+	return list, err
 }
 
 //Add 添加目标
@@ -49,7 +84,16 @@ func Add(args *AddReq) (target_id string, err error) {
 	if err != nil {
 		return "", err
 	}
-	return ret["target_id"].(string), nil
+	//TODO 暂不处理入库失败
+	//入库
+	target_id = fmt.Sprintf("%v", ret["target_id"])
+	AddAddr(&WebscanAddr{
+		UserId:      args.UserId,
+		AdminUserId: args.AdminUserId,
+		TargetId:    target_id,
+		CreateTime:  int(time.Now().Unix()),
+	})
+	return target_id, nil
 }
 
 //Delete 删除目标
@@ -69,6 +113,10 @@ func Delete(target_id string) error {
 	}
 	ret, err := model.ParseResp(resp)
 	fmt.Println(ret)
+	if err == nil {
+		//删除数据库中的数据
+		DeleteByTargetIds([]string{target_id})
+	}
 	return err
 }
 

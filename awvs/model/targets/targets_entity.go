@@ -3,16 +3,20 @@ package targets
 import "fmt"
 
 type ListReq struct {
-	Limit int    `json:"l,omitempty"` //限制条数
-	C     int    `json:"c,omitempty"` //偏移量
-	Query string `json:"q,omitempty"` //筛选器
+	Limit       int    `json:"l,omitempty"` //限制条数
+	C           int    `json:"c,omitempty"` //偏移量
+	Query       string `json:"q,omitempty"` //筛选器
+	UserId      uint64 `json:"user_id"`
+	AdminUserId uint64 `json:"admin_user_id"`
 }
 type UpdateReq struct {
 	Criticality int    `json:"criticality"` //危险程度，30,20,10,0 默认 10
 	Description string `json:"description"` //描述
 }
 type AddReq struct {
-	Address string `json:"address"` //地址
+	Address     string `json:"address"` //地址
+	UserId      uint64 `json:"user_id"`
+	AdminUserId uint64 `json:"admin_user_id"`
 	UpdateReq
 }
 
