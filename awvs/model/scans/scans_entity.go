@@ -3,8 +3,10 @@ package scans
 import "fmt"
 
 type ListReq struct {
-	Limit int `json:"l,omitempty"` //限制条数
-	C     int `json:"c,omitempty"` //偏移量
+	Limit       int    `json:"l,omitempty"` //限制条数
+	C           int    `json:"c,omitempty"` //偏移量
+	UserId      uint64 `json:"user_id"`
+	AdminUserId uint64 `json:"admin_user_id"`
 }
 
 type AddReq struct {

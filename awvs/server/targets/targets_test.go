@@ -25,7 +25,8 @@ func init() {
 
 func TestList(t *testing.T) {
 	info, err := List(&targets.ListReq{
-		Limit: 20,
+		Limit:  20,
+		UserId: 1,
 	})
 	if err != nil {
 		t.Error(err)

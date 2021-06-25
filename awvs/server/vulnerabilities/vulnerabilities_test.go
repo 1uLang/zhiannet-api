@@ -25,8 +25,9 @@ func init() {
 
 func TestList(t *testing.T) {
 	info, err := List(&vulnerabilities.ListReq{
-		Limit: 20,
-		Query: "target_id:b51265ab-9d1c-43c1-8196-a8e36549352f",
+		Limit: 2,
+		//Query: "target_id:8e9bbffd-dcbd-4608-a06c-71dfe9441b3f",
+		UserId: 1,
 	})
 	if err != nil {
 		t.Error(err)
