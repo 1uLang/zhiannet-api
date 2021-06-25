@@ -116,7 +116,7 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 	if err != nil || hostList == nil {
 		return
 	}
-	lists = make([]*HostListResp, len(hostList)+1)
+	lists = make([]*HostListResp, len(hostList))
 	all := &HostListResp{
 		Addr: "all",
 	}
@@ -161,9 +161,8 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 				}
 			}
 		}
-		lists[k+1] = l
+		lists[k] = l
 	}
-	lists[0] = all
 	return
 }
 

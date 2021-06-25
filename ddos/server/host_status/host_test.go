@@ -43,7 +43,7 @@ func Test_host_list(t *testing.T) {
 //添加ip
 func Test_add_addr(t *testing.T) {
 	InitDB()
-	list, err := AddAddr(&ddos_host_ip.AddHost{NodeId: 1, Addr: "182.150.0.128"})
+	list, err := AddAddr(&ddos_host_ip.AddHost{NodeId: 11, Addr: "118.112.240.13", UserId: 1})
 	fmt.Println(list)
 	fmt.Println(err)
 }

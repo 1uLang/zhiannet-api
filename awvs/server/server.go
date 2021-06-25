@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/1uLang/zhiannet-api/awvs/model"
 	"github.com/1uLang/zhiannet-api/awvs/request"
 )
 
@@ -25,4 +26,8 @@ func SetAPIKeys(req *request.APIKeys) error {
 	} else {
 		return fmt.Errorf("参数错误")
 	}
+}
+
+func GetWebScan() (resp *model.WebScanResp, err error) {
+	return model.GetWebScanInfo()
 }

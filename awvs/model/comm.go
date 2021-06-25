@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 )
 
 func ToMap(obj interface{}) map[string]interface{} {
@@ -36,4 +37,30 @@ func ParseResp(resp []byte) (map[string]interface{}, error) {
 		return nil, fmt.Errorf(ret["error"].(string))
 	}
 	return ret, nil
+}
+
+type (
+	WebScanResp struct {
+		Addr string `json:"addr"`
+		Key  string `json:"key"`
+	}
+)
+
+//获取漏扫节点配置信息
+func GetWebScanInfo() (resp *WebScanResp, err error) {
+	var list []*subassemblynode.Subassemblynode
+	list, _, err = subassemblynode.GetList(&subassemblynode.NodeReq{
+		Type:     4, //漏扫节点
+		State:    "1",
+		PageNum:  1,
+		PageSize: 1,
+	})
+	if err != nil || len(list) == 0 {
+		return resp, fmt.Errorf("获取漏扫节点错误")
+	}
+	resp = &WebScanResp{
+		Addr: list[0].Addr,
+		Key:  list[0].Key,
+	}
+	return resp, err
 }
