@@ -122,7 +122,7 @@ func InfoMatch(data io.Reader) (info *Nat1To1InfoResp, err error) {
 				DataOther: dataOther,
 			}
 			//添加时  把（单个主机网络）目标置空
-			if dataOther && !par.Selected && par.Value == "any" {
+			if dataOther && !par.Selected && (par.Value == "lan" || par.Value == "wan") {
 				par.Value = ""
 			}
 			dst = append(dst, par)
