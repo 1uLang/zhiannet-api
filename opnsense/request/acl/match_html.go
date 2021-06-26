@@ -1,7 +1,6 @@
 package acl
 
 import (
-	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"io"
 	"strings"
@@ -40,7 +39,7 @@ func ListMatch(Interface string, data io.Reader) (list []*AclListResp, err error
 		info.DstPort = s.Find("td").Eq(6).Text()
 		//描述
 		info.Descr = s.Find("td").Eq(13).First().Text()
-		fmt.Println("decr ====", info.Descr)
+		//fmt.Println("decr ====", info.Descr)
 		//策略
 		switch {
 		case s.Find("td").Eq(1).Find("i").Eq(0).Is(".fa-play"):
@@ -151,7 +150,7 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 				DataOther: dataOther,
 			}
 			//添加时  把（单个主机网络）目标置空
-			if dataOther && !par.Selected && par.Value == "any" {
+			if dataOther && !par.Selected && par.Value == "lan" {
 				par.Value = ""
 			}
 			src = append(src, par)
