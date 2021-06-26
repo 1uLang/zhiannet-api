@@ -60,10 +60,10 @@ type ScanReq struct {
 	MacCode   []string `json:"macCodes"`  //机器码集合
 	ScanItems []string `json:"scanItems"` //体检项
 
-	//ScanConfig struct {
-	//	ConfigName     string `json:"configName"`
-	//	ConfigContent string `json:"configContent"`
-	//} `json:"scan_config"`
+	ScanConfig struct {
+		VirusPath    string `json:"virusPath,omitempty"`
+		WebShellPath string `json:"webShellPath,omitempty"`
+	} `json:"scanConfig,omitempty"`
 }
 
 func (this *ScanReq) Check() (bool, error) {
