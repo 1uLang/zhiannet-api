@@ -115,6 +115,20 @@ func TestAbnormalProcessDetail(t *testing.T) {
 	}
 	fmt.Println(list)
 }
+func TestAbnormalProcessDetailList(t *testing.T) {
+
+	req := &risk.DetailReq{}
+	req.MacCode = "BEEBC76C2D8D6C2C9F587A52EF5ACFEF"
+	req.Req.UserName = "cysct56"
+	req.Req.State = 1
+	req.Req.IsProcessed = true
+	list, err := WebShellDetailList(req)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}
 func TestWeakDetailList(t *testing.T) {
 
 	req := &risk.DetailReq{}

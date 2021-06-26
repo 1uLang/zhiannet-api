@@ -48,3 +48,17 @@ func TestDetail(t *testing.T) {
 	}
 	fmt.Println(list)
 }
+
+func TestTemplateList(t *testing.T) {
+
+	list, err := TemplateList(&baseline.TemplateSearchReq{
+		UserName: "luobing",
+		PageSize: 100,
+		PageNo:   1,
+	})
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}
