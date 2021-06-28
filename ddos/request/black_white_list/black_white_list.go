@@ -1,17 +1,15 @@
 package black_white_list
 
 import (
-	"crypto/tls"
 	"encoding/xml"
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/ddos/const"
 	"github.com/1uLang/zhiannet-api/ddos/request"
-	"github.com/go-resty/resty/v2"
 	"net/http"
 	"strings"
 )
 
-var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+//var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 
 type (
 	BWListReq struct { //黑白名单请求参数
@@ -48,8 +46,8 @@ type (
 
 //黑白名单列表
 func BWList(req *BWListReq, loginReq *request.LoginReq, retry bool) (res *StatusBwlist, err error) {
-	// Create a Resty Client
-	//client := resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_BWLIST_URL, loginReq)
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -58,8 +56,8 @@ func BWList(req *BWListReq, loginReq *request.LoginReq, retry bool) (res *Status
 		"param_submit_type": "select",                    //查询
 		"param_page":        fmt.Sprintf("%v", req.Page), //分页
 		"param_address":     req.Addr,                    //单个IP查询
-	}).
-		Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_BWLIST_URL)
+	}).Post(url)
+	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_BWLIST_URL)
 
 	fmt.Println(string(resp.Body()), err)
 
@@ -87,6 +85,8 @@ func AddBW(req *EditBWReq, loginReq *request.LoginReq, retry bool) (res *Success
 			addr = req.Addr[0]
 		}
 	}
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_BWLIST_URL, loginReq)
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -94,8 +94,8 @@ func AddBW(req *EditBWReq, loginReq *request.LoginReq, retry bool) (res *Success
 		}).SetFormData(map[string]string{
 		"param_submit_type": "submit", //添加
 		"param_address":     addr,     //单个IP
-	}).
-		Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_BWLIST_URL)
+	}).Post(url)
+	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_BWLIST_URL)
 
 	fmt.Println(string(resp.Body()), err)
 
@@ -109,6 +109,8 @@ func AddBW(req *EditBWReq, loginReq *request.LoginReq, retry bool) (res *Success
 //删除黑白名单
 func DeleteBW(req *EditBWReq, loginReq *request.LoginReq, retry bool) (res *Success, err error) {
 	addr := strings.Join(req.Addr, ",")
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_BWLIST_URL, loginReq)
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -116,8 +118,8 @@ func DeleteBW(req *EditBWReq, loginReq *request.LoginReq, retry bool) (res *Succ
 		}).SetFormData(map[string]string{
 		"param_submit_type": "delete", //删除
 		"param_address":     addr,     //单个IP
-	}).
-		Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_BWLIST_URL)
+	}).Post(url)
+	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_BWLIST_URL)
 
 	fmt.Println(string(resp.Body()), err)
 

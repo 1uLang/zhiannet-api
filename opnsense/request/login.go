@@ -9,16 +9,21 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/go-resty/resty/v2"
 	"github.com/tidwall/gjson"
+	"strings"
+	"time"
 )
 
-var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).SetDebug(false)
+var Client = resty.New().SetDebug(false).SetTimeout(time.Second * 60)
 
 //登陆获取cookie
 func Login(req *ApiKey) (CookieMap map[string]string, err error) {
+	url := fmt.Sprintf("http://%v", UrlRemoveHttp(req.Addr))
+	Client = GetHttpClient(req)
+	url = CheckHttpUrl(url, req)
 	CookieMap = make(map[string]string)
 	// https://182.150.0.109:5443/
 	//访问登陆页 获取登陆需要的唯一凭证 key-value
-	index, err := client.R().Get("https://" + req.Addr + ":" + req.Port)
+	index, err := Client.R().Get(url)
 	if err != nil {
 		return CookieMap, err
 	}
@@ -42,7 +47,7 @@ func Login(req *ApiKey) (CookieMap map[string]string, err error) {
 	key, _ = input.Attr("name")
 	value, _ = input.Attr("value")
 	//登陆 返回cookies
-	resp, err := client.R().
+	resp, err := Client.R().
 		SetHeader("Content-Type", "application/x-www-form-urlencoded").
 		SetFormData(map[string]string{
 			"login":       "1",
@@ -50,7 +55,7 @@ func Login(req *ApiKey) (CookieMap map[string]string, err error) {
 			"passwordfld": req.Password,
 			key:           value,
 		}).
-		Post("https://" + req.Addr + ":" + req.Port)
+		Post(url)
 	//fmt.Println(resp.StatusCode())
 	//fmt.Println(string(resp.Body()))
 	//fmt.Println("key=",name,"value=",value)
@@ -94,4 +99,29 @@ func GetCookie(req *ApiKey) (cookie, x_csrftoken string, err error) {
 func SetCookie(req *ApiKey) (err error) {
 	req.Cookie, req.XCsrfToken, err = GetCookie(req)
 	return err
+}
+
+//去掉url地址中的 https 和http
+func UrlRemoveHttp(url string) string {
+	//url = strings.Replace(url, "https://","", -1)
+	//url = strings.Replace(url, "http://","", -1)
+	url = strings.TrimLeft(url, "https://")
+	url = strings.TrimLeft(url, "http://")
+	return url
+}
+
+//获取请求客户端
+func GetHttpClient(req *ApiKey) *resty.Client {
+	if req.IsSsl {
+		Client = Client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	}
+	return Client
+}
+
+//处理请求地址  http还是https
+func CheckHttpUrl(url string, api *ApiKey) string {
+	if api.IsSsl {
+		url = strings.Replace(url, "http://", "https://", 1)
+	}
+	return url
 }

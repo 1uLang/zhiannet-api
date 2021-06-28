@@ -2,11 +2,9 @@ package acl
 
 import (
 	"bytes"
-	"crypto/tls"
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/opnsense/const"
 	"github.com/1uLang/zhiannet-api/opnsense/request"
-	"github.com/go-resty/resty/v2"
 	"net/http"
 )
 
@@ -58,18 +56,21 @@ type (
 	}
 )
 
-var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+//var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 
 //获取acl列表
 func GetAclList(Interface string, apiKey *request.ApiKey) (list []*AclListResp, err error) {
+	url := fmt.Sprintf("http://%v%v?if=%v", apiKey.Addr, _const.OPNSENSE_ACL_LIST_URL, Interface)
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
 		SetCookie(&http.Cookie{
 			Name:  "PHPSESSID",
 			Value: apiKey.Cookie,
-		}).
-		Get(fmt.Sprintf("https://%v:%v%v?if=%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_ACL_LIST_URL, Interface))
+		}).Get(url)
+	//Get(fmt.Sprintf("https://%v:%v%v?if=%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_ACL_LIST_URL, Interface))
 	//fmt.Println((resp.StatusCode()), err)
 	if resp.StatusCode() == 200 {
 		return ListMatch(Interface, bytes.NewReader(resp.Body()))
@@ -80,14 +81,17 @@ func GetAclList(Interface string, apiKey *request.ApiKey) (list []*AclListResp, 
 
 //获取acl 详情
 func GetAclInfo(req *AclInfoReq, apiKey *request.ApiKey) (info *AclInfoResp, err error) {
+	url := fmt.Sprintf("http://%v%v?id=%v", apiKey.Addr, _const.OPNSENSE_ACL_INFO_URL, req.ID)
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
 		SetCookie(&http.Cookie{
 			Name:  "PHPSESSID",
 			Value: apiKey.Cookie,
-		}).
-		Get(fmt.Sprintf("https://%v:%v%v?id=%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_ACL_INFO_URL, req.ID))
+		}).Get(url)
+	//Get(fmt.Sprintf("https://%v:%v%v?id=%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_ACL_INFO_URL, req.ID))
 	//fmt.Println((resp.StatusCode()), err)
 	if resp.StatusCode() == 200 {
 		return InfoMatch(bytes.NewReader(resp.Body()))
@@ -98,6 +102,9 @@ func GetAclInfo(req *AclInfoReq, apiKey *request.ApiKey) (info *AclInfoResp, err
 
 //添加acl
 func AddAcl(req map[string]string, apiKey *request.ApiKey) (res []string, err error) {
+	url := fmt.Sprintf("http://%v%v", apiKey.Addr, _const.OPNSENSE_ACL_INFO_URL)
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -105,8 +112,8 @@ func AddAcl(req map[string]string, apiKey *request.ApiKey) (res []string, err er
 			Name:  "PHPSESSID",
 			Value: apiKey.Cookie,
 		}).
-		SetFormData(req).
-		Post(fmt.Sprintf("https://%v:%v%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_ACL_INFO_URL))
+		SetFormData(req).Post(url)
+	//Post(fmt.Sprintf("https://%v:%v%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_ACL_INFO_URL))
 	//fmt.Println((resp.StatusCode()), err)
 	//fmt.Println(resp.Body())
 	if resp.StatusCode() == 200 {
@@ -118,6 +125,9 @@ func AddAcl(req map[string]string, apiKey *request.ApiKey) (res []string, err er
 }
 
 func EditAcl(req map[string]string, apiKey *request.ApiKey) (tips []string, err error) {
+	url := fmt.Sprintf("http://%v%v?if=%v&id=%v", apiKey.Addr, _const.OPNSENSE_ACL_INFO_URL, req["interface"], req["id"])
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -125,8 +135,8 @@ func EditAcl(req map[string]string, apiKey *request.ApiKey) (tips []string, err 
 			Name:  "PHPSESSID",
 			Value: apiKey.Cookie,
 		}).
-		SetFormData(req).
-		Post(fmt.Sprintf("https://%v:%v%v?if=%v&id=%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_ACL_INFO_URL, req["interface"], req["id"]))
+		SetFormData(req).Post(url)
+	//Post(fmt.Sprintf("https://%v:%v%v?if=%v&id=%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_ACL_INFO_URL, req["interface"], req["id"]))
 	//fmt.Println((resp.StatusCode()), err)
 	//fmt.Println(resp.Body())
 	if resp.StatusCode() == 200 {
@@ -139,6 +149,9 @@ func EditAcl(req map[string]string, apiKey *request.ApiKey) (tips []string, err 
 
 //启动 停止
 func StartUpAcl(id, Interface string, apiKey *request.ApiKey) (res bool, err error) {
+	url := fmt.Sprintf("http://%v%v", apiKey.Addr, _const.OPNSENSE_ACL_LIST_URL)
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -149,8 +162,8 @@ func StartUpAcl(id, Interface string, apiKey *request.ApiKey) (res bool, err err
 		SetFormData(map[string]string{
 			"id":  id,
 			"act": "toggle",
-		}).
-		Post(fmt.Sprintf("https://%v:%v%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_ACL_LIST_URL))
+		}).Post(url)
+	//Post(fmt.Sprintf("https://%v:%v%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_ACL_LIST_URL))
 	if resp.StatusCode() == 200 {
 		res = true
 		Apply(Interface, apiKey)
@@ -160,6 +173,9 @@ func StartUpAcl(id, Interface string, apiKey *request.ApiKey) (res bool, err err
 
 //删除
 func DelAcl(id, Interface string, apiKey *request.ApiKey) (res bool, err error) {
+	url := fmt.Sprintf("http://%v%v?if=%v", apiKey.Addr, _const.OPNSENSE_ACL_LIST_URL, Interface)
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -170,8 +186,8 @@ func DelAcl(id, Interface string, apiKey *request.ApiKey) (res bool, err error) 
 		SetFormData(map[string]string{
 			"id":  id,
 			"act": "del",
-		}).
-		Post(fmt.Sprintf("https://%v:%v%v?if=%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_ACL_LIST_URL, Interface))
+		}).Post(url)
+	//Post(fmt.Sprintf("https://%v:%v%v?if=%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_ACL_LIST_URL, Interface))
 	if resp.StatusCode() == 200 {
 		res = true
 		Apply(Interface, apiKey)
@@ -181,6 +197,9 @@ func DelAcl(id, Interface string, apiKey *request.ApiKey) (res bool, err error) 
 
 //应用修改
 func Apply(Interface string, apiKey *request.ApiKey) (res bool, err error) {
+	url := fmt.Sprintf("http://%v%v?if=%v", apiKey.Addr, _const.OPNSENSE_ACL_LIST_URL, Interface)
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -190,8 +209,8 @@ func Apply(Interface string, apiKey *request.ApiKey) (res bool, err error) {
 		}).
 		SetFormData(map[string]string{
 			"act": "apply",
-		}).
-		Post(fmt.Sprintf("https://%v:%v%v?if=%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_ACL_LIST_URL, Interface))
+		}).Post(url)
+	//Post(fmt.Sprintf("https://%v:%v%v?if=%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_ACL_LIST_URL, Interface))
 
 	if resp.StatusCode() == 200 {
 		res = true

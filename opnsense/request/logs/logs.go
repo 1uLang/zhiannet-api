@@ -1,14 +1,11 @@
 package logs
 
 import (
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/opnsense/const"
 	"github.com/1uLang/zhiannet-api/opnsense/request"
-	"github.com/go-resty/resty/v2"
 	"net/http"
-	"time"
 )
 
 type (
@@ -37,10 +34,13 @@ type (
 	}
 )
 
-var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).SetTimeout(time.Second * 60).SetDebug(false)
+//var client = resty.New().SetTimeout(time.Second * 60).SetDebug(false)
 
 //获取日志
 func GetLogsList(req *LogReq, apiKey *request.ApiKey) (list *LogListResp, err error) {
+	url := fmt.Sprintf("http://%v%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_LOGS_URL)
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		SetHeader("Content-Type", "application/x-www-form-urlencoded").
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -55,7 +55,7 @@ func GetLogsList(req *LogReq, apiKey *request.ApiKey) (list *LogListResp, err er
 	}).
 		//Get("https://182.150.0.109:5443/firewall_nat_edit.php")
 		//Get("https://182.150.0.109:5443/api/diagnostics/log/core/suricata")
-		Post(fmt.Sprintf("https://%v:%v%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_LOGS_URL))
+		Post(url)
 	//fmt.Println("logs query list == ",string(resp.Body()), err)
 	err = json.Unmarshal(resp.Body(), &list)
 	if err != nil {
@@ -66,6 +66,9 @@ func GetLogsList(req *LogReq, apiKey *request.ApiKey) (list *LogListResp, err er
 
 //清除所有日志
 func ClearLog(apiKey *request.ApiKey) (res bool, err error) {
+	url := fmt.Sprintf("http://%v%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_CLEAR_LOGS_URL)
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -73,8 +76,8 @@ func ClearLog(apiKey *request.ApiKey) (res bool, err error) {
 			Name:  "PHPSESSID",
 			Value: apiKey.Cookie,
 		}).
-		Post(fmt.Sprintf("https://%v:%v%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_CLEAR_LOGS_URL))
-	fmt.Println(string(resp.Body()), err)
+		Post(url)
+	//fmt.Println(string(resp.Body()), err)
 	clearRes := ClearLogResp{}
 	err = json.Unmarshal(resp.Body(), &clearRes)
 	if err != nil {

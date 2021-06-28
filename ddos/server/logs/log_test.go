@@ -16,7 +16,7 @@ func InitDB() {
 func Test_attack_log_list(t *testing.T) {
 	InitDB()
 	list, err := GetAttackLogList(&AttackLogReq{
-		NodeId: 1,
+		NodeId: 6,
 		Addr:   "182.150.0.37",
 	})
 	fmt.Println(list)

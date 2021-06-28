@@ -1,12 +1,10 @@
 package global_status
 
 import (
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/opnsense/const"
 	"github.com/1uLang/zhiannet-api/opnsense/request"
-	"github.com/go-resty/resty/v2"
 	"net/http"
 	"time"
 )
@@ -90,20 +88,21 @@ type (
 	}
 )
 
-var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+//var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 
 //全局
 func GetGlobal(apiKey *request.ApiKey) (res *GlobalStatus, err error) {
-	//https://182.150.0.109:5443/widgets/api/get.php?load=system%2Cinterfaces&_=1623836610177
-	//PHPSESSID=f8eea58ee17da3ce16ba39bf17312346
+	url := "http://" + apiKey.Addr + _const.OPNSENSE_GLOBAL_STATUS_URL + fmt.Sprintf("%v", time.Now().Unix())
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		SetHeader("Content-Type", "application/x-www-form-urlencoded").
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
 		SetCookie(&http.Cookie{
 			Name:  "PHPSESSID",
 			Value: apiKey.Cookie,
-		}).
-		Get("https://" + apiKey.Addr + ":" + apiKey.Port + _const.OPNSENSE_GLOBAL_STATUS_URL + fmt.Sprintf("%v", time.Now().Unix()))
+		}).Get(url)
+	//Get("https://" + apiKey.Addr + ":" + apiKey.Port + _const.OPNSENSE_GLOBAL_STATUS_URL + fmt.Sprintf("%v", time.Now().Unix()))
 	if err != nil {
 		//fmt.Println(err)
 		return res, err

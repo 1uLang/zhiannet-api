@@ -44,7 +44,8 @@ type (
 //攻击日志列表
 func TrafficLogList(req *TrafficLogReq, loginReq *request.LoginReq, retry bool) (res *LogsReportFlow, err error) {
 	// Create a Resty Client
-	//client := resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_LOGS_REPORT_FLOW_URL, loginReq)
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -53,8 +54,8 @@ func TrafficLogList(req *TrafficLogReq, loginReq *request.LoginReq, retry bool) 
 		"param_submit_type": "", //查询
 		"param_level":       fmt.Sprintf("%v", req.Level),
 		"param_address":     req.Addr, //单个IP查询
-	}).
-		Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_LOGS_REPORT_FLOW_URL)
+	}).Post(url)
+	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_LOGS_REPORT_FLOW_URL)
 
 	fmt.Println(string(resp.Body()), err)
 

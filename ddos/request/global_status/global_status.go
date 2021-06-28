@@ -1,12 +1,10 @@
 package global_status
 
 import (
-	"crypto/tls"
 	"encoding/xml"
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/ddos/const"
 	"github.com/1uLang/zhiannet-api/ddos/request"
-	"github.com/go-resty/resty/v2"
 	"io/ioutil"
 	"net/http"
 )
@@ -56,18 +54,20 @@ type (
 	}
 )
 
-var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+//var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 
 //获取全局统计
 func GetStatusGlobal(loginReq *request.LoginReq, retry bool) (res *StatusGlobal, err error) {
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_GLOBAL_URL, loginReq)
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
 			Value: request.GetCookie(loginReq),
 		}).SetQueryParams(map[string]string{
 		//"param_submit_type": "add-host", //
-	}).
-		Get("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_GLOBAL_URL)
+	}).Get(url)
+	//Get("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_GLOBAL_URL)
 	fmt.Println(string(resp.Body()), err)
 	if err != nil {
 		//fmt.Println(err)
@@ -82,14 +82,16 @@ func GetStatusGlobal(loginReq *request.LoginReq, retry bool) (res *StatusGlobal,
 
 //获取负载信息-(小时|天|月)
 func GetLoad(loginReq *request.LoginReq, retry bool) (res *StatusHealth, err error) {
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_HEALTH_URL, loginReq)
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
 			Value: request.GetCookie(loginReq),
 		}).SetQueryParams(map[string]string{
 		//"param_submit_type": "add-host", //
-	}).
-		Get("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_HEALTH_URL)
+	}).Get(url)
+	//Get("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_HEALTH_URL)
 	fmt.Println(string(resp.Body()), err)
 	if err != nil {
 		//fmt.Println(err)
@@ -100,15 +102,17 @@ func GetLoad(loginReq *request.LoginReq, retry bool) (res *StatusHealth, err err
 }
 
 func GlobalImg(loginReq *request.LoginReq, retry bool) (res []byte, err error) {
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+"/cgi-bin/rateview.cgi?width=958&height=120&level=2&scale=0.25&rand=0.6897267381111953", loginReq)
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
 			Value: request.GetCookie(loginReq),
 		}).SetQueryParams(map[string]string{
 		//"param_submit_type": "add-host", //
-	}).
-		Get("https://182.131.30.171:28443/cgi-bin/rateview.cgi?width=958&height=120&level=2&scale=0.25&rand=0.6897267381111953")
-	fmt.Println("err ===", err)
+	}).Get(url)
+	//Get("https://182.131.30.171:28443/cgi-bin/rateview.cgi?width=958&height=120&level=2&scale=0.25&rand=0.6897267381111953")
+	//fmt.Println("err ===", err)
 	//fmt.Println(string(resp.Body()), err)
 	res, err = ioutil.ReadAll(resp.RawBody())
 	if err != nil {

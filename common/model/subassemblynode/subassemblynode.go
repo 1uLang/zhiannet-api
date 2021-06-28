@@ -7,16 +7,17 @@ import (
 
 type (
 	Subassemblynode struct {
-		Id     uint64 `json:"id" gorm:"column:id"`         // 节点id
-		Name   string `json:"name" gorm:"column:name"`     // 节点名称
-		Addr   string `json:"addr" gorm:"column:addr"`     // 节点地址
-		Port   int64  `json:"port" gorm:"column:port"`     // 节点端口
-		Type   int    `json:"type" gorm:"column:type"`     // 节点类型：ddos、下一代防火墙、云WAF
-		Idc    int    `json:"idc" gorm:"column:idc"`       // 数据中心
-		State  int    `json:"state" gorm:"column:state"`   // 启用、禁用
-		Status int    `json:"status" gorm:"column:status"` // 删除
-		Key    string `json:"key" gorm:"column:key"`       // api key
-		Secret string `json:"secret" gorm:"column:secret"` // api secret
+		Id       uint64 `json:"id" gorm:"column:id"`               // 节点id
+		Name     string `json:"name" gorm:"column:name"`           // 节点名称
+		Addr     string `json:"addr" gorm:"column:addr"`           // 节点地址
+		Port     int64  `json:"port" gorm:"column:port"`           // 节点端口
+		Type     int    `json:"type" gorm:"column:type"`           // 节点类型：ddos、下一代防火墙、云WAF
+		Idc      int    `json:"idc" gorm:"column:idc"`             // 数据中心
+		State    int    `json:"state" gorm:"column:state"`         // 启用、禁用
+		IsDelete int    `json:"is_delete" gorm:"column:is_delete"` // 删除
+		IsSsl    int    `json:"is_ssl" gorm:"column:is_ssl"`       // 是否使用ssl协议 https访问
+		Key      string `json:"key" gorm:"column:key"`             // api key
+		Secret   string `json:"secret" gorm:"column:secret"`       // api secret
 	}
 	NodeReq struct {
 		Type     int    `json:"idc" gorm:"column:idc"`     // 数据中心
@@ -29,7 +30,7 @@ type (
 //获取节点
 func GetList(req *NodeReq) (list []*Subassemblynode, total int64, err error) {
 	//从数据库获取
-	model := model.MysqlConn.Model(&Subassemblynode{}).Where("status=?", 0)
+	model := model.MysqlConn.Model(&Subassemblynode{}).Where("is_delete=?", 0)
 	if req != nil {
 		if req.State != "" {
 			model = model.Where("state=?", req.State)
@@ -89,7 +90,7 @@ func Edit(req *Subassemblynode, id uint64) (rows int64, err error) {
 		return
 	}
 	entity.Name = req.Name
-	entity.Status = req.Status
+	entity.IsDelete = req.IsDelete
 	entity.Addr = req.Addr
 	entity.Port = req.Port
 	entity.Type = req.Type
@@ -97,6 +98,7 @@ func Edit(req *Subassemblynode, id uint64) (rows int64, err error) {
 	entity.State = req.State
 	entity.Key = req.Key
 	entity.Secret = req.Secret
+	entity.IsSsl = req.IsSsl
 	res := model.MysqlConn.Model(&Subassemblynode{}).Where("id=?", id).Save(&entity)
 	if res.Error != nil {
 		err = res.Error
@@ -108,7 +110,7 @@ func Edit(req *Subassemblynode, id uint64) (rows int64, err error) {
 
 //删除菜单
 func DeleteByIds(ids []uint64) (err error) {
-	res := model.MysqlConn.Model(&Subassemblynode{}).Where("id in (?)", ids).Update("status", 1)
+	res := model.MysqlConn.Model(&Subassemblynode{}).Where("id in (?)", ids).Update("is_delete", 1)
 	return res.Error
 }
 

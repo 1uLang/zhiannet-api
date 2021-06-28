@@ -1,17 +1,15 @@
 package logs
 
 import (
-	"crypto/tls"
 	"encoding/xml"
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/ddos/const"
 	"github.com/1uLang/zhiannet-api/ddos/request"
-	"github.com/go-resty/resty/v2"
 	"net/http"
 	"time"
 )
 
-var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+//var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 
 type (
 	AttackLogReq struct { //黑白名单请求参数
@@ -58,7 +56,8 @@ type (
 //攻击日志列表
 func AttackLogList(req *AttackLogReq, loginReq *request.LoginReq, retry bool) (res *LogsReportAttack, err error) {
 	// Create a Resty Client
-	//client := resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_LOGS_REPORT_ATTACK_URL, loginReq)
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -70,8 +69,8 @@ func AttackLogList(req *AttackLogReq, loginReq *request.LoginReq, retry bool) (r
 		"param_address":     req.Addr,                                    //单个IP查询
 		"param_flags":       req.AttackType,                              //类型
 		"param_status":      fmt.Sprintf("%v", req.Status),               //状态
-	}).
-		Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_LOGS_REPORT_ATTACK_URL)
+	}).Post(url)
+	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_LOGS_REPORT_ATTACK_URL)
 
 	fmt.Println(string(resp.Body()), err)
 

@@ -1,17 +1,15 @@
 package host_status
 
 import (
-	"crypto/tls"
 	"encoding/xml"
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/ddos/const"
 	"github.com/1uLang/zhiannet-api/ddos/request"
-	"github.com/go-resty/resty/v2"
 	"net/http"
 	"strings"
 )
 
-var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+//var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 
 type (
 	HostReq struct { //获取主机信息请求参数
@@ -175,39 +173,41 @@ type (
 	}
 )
 
-//主机状态API
-func HostStatus(req *HostReq, retry bool) (res *StatusFBlink, err error) {
-	// Create a Resty Client
-	resp, err := client.R().
-		SetCookie(&http.Cookie{
-			Name:  "sid",
-			Value: request.Cookie,
-		}).
-		Get(_const.DDOS_HOST + _const.DDOS_HOST_STATUS_URL)
-	fmt.Println(string(resp.Body()), err)
-
-	res = &StatusFBlink{}
-	err = xml.Unmarshal(resp.Body(), res)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	if len(res.FBlink) == 0 { //可能登陆信息过期
-		failure := &request.Failure{}
-		xml.Unmarshal(resp.Body(), &failure)
-		if retry && failure.Info == _const.FAILURE_INFO {
-			return HostStatus(req, false)
-		}
-	}
-
-	fmt.Println(res)
-	return res, err
-}
+//
+////主机状态API
+//func HostStatus(req *HostReq, retry bool) (res *StatusFBlink, err error) {
+//	// Create a Resty Client
+//	resp, err := client.R().
+//		SetCookie(&http.Cookie{
+//			Name:  "sid",
+//			Value: request.Cookie,
+//		}).
+//		Get(_const.DDOS_HOST + _const.DDOS_HOST_STATUS_URL)
+//	fmt.Println(string(resp.Body()), err)
+//
+//	res = &StatusFBlink{}
+//	err = xml.Unmarshal(resp.Body(), res)
+//	if err != nil {
+//		fmt.Println(err)
+//		return
+//	}
+//	if len(res.FBlink) == 0 { //可能登陆信息过期
+//		failure := &request.Failure{}
+//		xml.Unmarshal(resp.Body(), &failure)
+//		if retry && failure.Info == _const.FAILURE_INFO {
+//			return HostStatus(req, false)
+//		}
+//	}
+//
+//	fmt.Println(res)
+//	return res, err
+//}
 
 //主机列表
 func HostList(req *HostReq, loginReq *request.LoginReq, retry bool) (res []*StatusHost, err error) {
 	// Create a Resty Client
-	//client := resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_HOST_STATUS_URL, loginReq)
 	for _, v := range req.Addr {
 		resp, err := client.R().
 			SetCookie(&http.Cookie{
@@ -216,10 +216,10 @@ func HostList(req *HostReq, loginReq *request.LoginReq, retry bool) (res []*Stat
 			}).SetFormData(map[string]string{
 			"param_submit_type": "query-host", //查询
 			"param_netaddr":     v,            //单个IP查询
-		}).
-			Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_HOST_STATUS_URL)
-		fmt.Println("get cookie", request.GetCookie(loginReq))
-		fmt.Println(string(resp.Body()), err)
+		}).Post(url)
+		//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_HOST_STATUS_URL)
+		//fmt.Println("get cookie", request.GetCookie(loginReq))
+		//fmt.Println(string(resp.Body()), err)
 
 		apiRes := &StatusHost{}
 		err = xml.Unmarshal(resp.Body(), apiRes)
@@ -244,7 +244,8 @@ func HostList(req *HostReq, loginReq *request.LoginReq, retry bool) (res []*Stat
 //参数2 节点登陆信息
 //参数3 是否重试
 func AddAddr(ip string, loginReq *request.LoginReq, retry bool) (err error) {
-	//client := resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_HOST_STATUS_URL, loginReq)
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -252,8 +253,8 @@ func AddAddr(ip string, loginReq *request.LoginReq, retry bool) (err error) {
 		}).SetFormData(map[string]string{
 		"param_submit_type": "add-host", //添加
 		"param_netaddr":     ip,         //单个IP查询
-	}).
-		Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_HOST_STATUS_URL)
+	}).Post(url)
+	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_HOST_STATUS_URL)
 	//fmt.Println("add addr res = ===",string(resp.Body()), err)
 
 	if err != nil {
@@ -273,7 +274,8 @@ func AddAddr(ip string, loginReq *request.LoginReq, retry bool) (err error) {
 //参数2 节点登陆信息
 //参数3 是否重试
 func HostShieldList(req *ShieldListReq, loginReq *request.LoginReq, retry bool) (list *StatusFblink, err error) {
-
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_FBLINK_URL, loginReq)
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -282,9 +284,9 @@ func HostShieldList(req *ShieldListReq, loginReq *request.LoginReq, retry bool) 
 		"param_submit_type": "select",                    //添加
 		"param_filter":      req.Addr,                    //单个IP查询
 		"param_page":        fmt.Sprintf("%v", req.Page), //页数
-	}).
-		Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_FBLINK_URL)
-	fmt.Println("add addr res = ===", string(resp.Body()), err)
+	}).Post(url)
+	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_FBLINK_URL)
+	//fmt.Println("add addr res = ===", string(resp.Body()), err)
 
 	if err != nil {
 		//fmt.Println(err)
@@ -303,6 +305,8 @@ func HostShieldList(req *ShieldListReq, loginReq *request.LoginReq, retry bool) 
 //参数2 节点登陆信息
 //参数3 是否重试
 func ReleaseShield(req *ReleaseShieldReq, loginReq *request.LoginReq, retry bool) (info *Success, err error) {
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_FBLINK_URL, loginReq)
 	filter := strings.Join(req.Addr, ",")
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
@@ -311,9 +315,9 @@ func ReleaseShield(req *ReleaseShieldReq, loginReq *request.LoginReq, retry bool
 		}).SetFormData(map[string]string{
 		"param_submit_type": "reset", //重置
 		"param_filter":      filter,  //ip
-	}).
-		Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_FBLINK_URL)
-	fmt.Println("add addr res = ===", string(resp.Body()), err)
+	}).Post(url)
+	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_FBLINK_URL)
+	//fmt.Println("add addr res = ===", string(resp.Body()), err)
 
 	if err != nil {
 		//fmt.Println(err)
@@ -332,7 +336,8 @@ func ReleaseShield(req *ReleaseShieldReq, loginReq *request.LoginReq, retry bool
 //参数2 节点登陆信息
 //参数3 是否重试
 func LinkList(req *LinkListReq, loginReq *request.LoginReq, retry bool) (list *StatusLink, err error) {
-
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_LINK_URL, loginReq)
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -343,9 +348,9 @@ func LinkList(req *LinkListReq, loginReq *request.LoginReq, retry bool) (list *S
 		"param_filter":      req.Addr,                    //ip
 		"link_conn_in":      "on",                        //入链接
 		"link_conn_out":     "on",                        //出链接
-	}).
-		Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_LINK_URL)
-	fmt.Println("add addr res = ===", string(resp.Body()), err)
+	}).Post(url)
+	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_LINK_URL)
+	//fmt.Println("add addr res = ===", string(resp.Body()), err)
 
 	if err != nil {
 		//fmt.Println(err)
@@ -368,15 +373,17 @@ func GetHostInfo(req *HostReq, loginReq *request.LoginReq, retry bool) (res *Sta
 	if len(req.Addr) > 0 {
 		addr = req.Addr[0]
 	}
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_HOSTSET_URL, loginReq)
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
 			Value: request.GetCookie(loginReq),
 		}).SetQueryParams(map[string]string{
 		"hostaddr": addr, //ip
-	}).
-		Get("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_HOSTSET_URL)
-	fmt.Println("add addr res = ===", string(resp.Body()), err)
+	}).Get(url)
+	//Get("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_HOSTSET_URL)
+	//fmt.Println("add addr res = ===", string(resp.Body()), err)
 
 	if err != nil {
 		//fmt.Println(err)
@@ -407,6 +414,8 @@ func SetHost(req *HostSetReq, loginReq *request.LoginReq, retry bool) (res *Succ
 	if !req.Ignore {
 		param_ignore = ""
 	}
+	client := request.GetHttpClient(loginReq)
+	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_HOSTSET_URL, loginReq)
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -441,9 +450,9 @@ func SetHost(req *HostSetReq, loginReq *request.LoginReq, retry bool) (res *Succ
 		"param_plugin_udp_1":           UdpPluginCheck("1", info),
 		"param_plugin_udp_4":           UdpPluginCheck("4", info),
 		"param_plugin_udp_5":           UdpPluginCheck("5", info),
-	}).
-		Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_HOSTSET_URL)
-	fmt.Println("add addr res = ===", string(resp.Body()), err)
+	}).Post(url)
+	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_HOSTSET_URL)
+	//fmt.Println("add addr res = ===", string(resp.Body()), err)
 
 	if err != nil {
 		//fmt.Println(err)

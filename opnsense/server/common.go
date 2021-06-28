@@ -25,6 +25,7 @@ func GetLoginInfo(req NodeReq) (logReq *request.ApiKey, err error) {
 		Password: nodeInfo.Secret,
 		Addr:     nodeInfo.Addr,
 		Port:     fmt.Sprintf("%v", nodeInfo.Port),
+		IsSsl:    nodeInfo.IsSsl == 1,
 	}
 	return
 }

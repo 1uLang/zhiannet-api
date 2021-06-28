@@ -1,12 +1,10 @@
 package ips
 
 import (
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/opnsense/const"
 	"github.com/1uLang/zhiannet-api/opnsense/request"
-	"github.com/go-resty/resty/v2"
 	"net/http"
 	"strings"
 )
@@ -63,10 +61,13 @@ type (
 	}
 )
 
-var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}) //.SetTimeout(time.Second * 2)
+//var client = resty.New() //.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).SetTimeout(time.Second * 2)
 
 //获取ips规则列表
 func GetIpsList(req *IpsReq, apiKey *request.ApiKey) (list *IpsListResp, err error) {
+	url := fmt.Sprintf("http://%v%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_IPS_LIST_URL)
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -79,7 +80,7 @@ func GetIpsList(req *IpsReq, apiKey *request.ApiKey) (list *IpsListResp, err err
 			"rowCount":     req.RowCount,
 			"searchPhrase": req.SearchPhrase,
 		}).
-		Post(fmt.Sprintf("https://%v:%v%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_IPS_LIST_URL))
+		Post(url)
 	//fmt.Println(string(resp.Body()), err)
 	err = json.Unmarshal(resp.Body(), &list)
 	if err != nil {
@@ -90,6 +91,9 @@ func GetIpsList(req *IpsReq, apiKey *request.ApiKey) (list *IpsListResp, err err
 
 //编辑 启用｜停用 规则
 func EditIps(req *EditIpsReq, apiKey *request.ApiKey) (res bool, err error) {
+	url := fmt.Sprintf("http://%v%v/%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_IPS_EDIT_URL, req.Sid)
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -97,7 +101,7 @@ func EditIps(req *EditIpsReq, apiKey *request.ApiKey) (res bool, err error) {
 			Name:  "PHPSESSID",
 			Value: apiKey.Cookie,
 		}).
-		Post(fmt.Sprintf("https://%v:%v%v/%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_IPS_EDIT_URL, req.Sid))
+		Post(url)
 	//fmt.Println(string(resp.Body()), err)
 	editRes := EditResp{}
 	err = json.Unmarshal(resp.Body(), &editRes)
@@ -110,6 +114,10 @@ func EditIps(req *EditIpsReq, apiKey *request.ApiKey) (res bool, err error) {
 
 //删除 规则
 func DelIps(req *DelIpsReq, apiKey *request.ApiKey) (res bool, err error) {
+	url := fmt.Sprintf("http://%v%v", request.UrlRemoveHttp(apiKey.Addr),
+		fmt.Sprintf(_const.OPNSENSE_IPS_DEL_URL, strings.Join(req.Sid, ",")))
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -117,8 +125,7 @@ func DelIps(req *DelIpsReq, apiKey *request.ApiKey) (res bool, err error) {
 			Name:  "PHPSESSID",
 			Value: apiKey.Cookie,
 		}).
-		Post(fmt.Sprintf("https://%v:%v%v", apiKey.Addr, apiKey.Port,
-			fmt.Sprintf(_const.OPNSENSE_IPS_DEL_URL, strings.Join(req.Sid, ","))))
+		Post(url)
 	//fmt.Println(string(resp.Body()), err)
 	editRes := EditResp{}
 	err = json.Unmarshal(resp.Body(), &editRes)
@@ -131,6 +138,9 @@ func DelIps(req *DelIpsReq, apiKey *request.ApiKey) (res bool, err error) {
 
 //编辑 启用｜停用 规则
 func ApplyIps(apiKey *request.ApiKey) (res bool, err error) {
+	url := fmt.Sprintf("http://%v%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_IPS_APPLY_URL)
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -138,8 +148,8 @@ func ApplyIps(apiKey *request.ApiKey) (res bool, err error) {
 			Name:  "PHPSESSID",
 			Value: apiKey.Cookie,
 		}).
-		Post(fmt.Sprintf("https://%v:%v%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_IPS_APPLY_URL))
-	fmt.Println(resp.StatusCode(), string(resp.Body()), err)
+		Post(url)
+	//fmt.Println(resp.StatusCode(), string(resp.Body()), err)
 	editRes := ApplyResp{}
 	err = json.Unmarshal(resp.Body(), &editRes)
 	if err != nil {
@@ -150,6 +160,9 @@ func ApplyIps(apiKey *request.ApiKey) (res bool, err error) {
 
 //修改操作方法
 func EditActionIps(req *EditActionIpsReq, apiKey *request.ApiKey) (res bool, err error) {
+	url := fmt.Sprintf("http://%v%v/%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_IPS_ACTIOB_URL, req.Sid)
+	client := request.GetHttpClient(apiKey)
+	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -160,7 +173,7 @@ func EditActionIps(req *EditActionIpsReq, apiKey *request.ApiKey) (res bool, err
 		SetFormData(map[string]string{
 			"action": req.Action,
 		}).
-		Post(fmt.Sprintf("https://%v:%v%v/%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_IPS_ACTIOB_URL, req.Sid))
+		Post(url)
 	//fmt.Println(string(resp.Body()), err)
 	editRes := EditResp{}
 	err = json.Unmarshal(resp.Body(), &editRes)
