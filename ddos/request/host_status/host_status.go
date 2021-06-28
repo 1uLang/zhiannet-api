@@ -218,7 +218,7 @@ func HostList(req *HostReq, loginReq *request.LoginReq, retry bool) (res []*Stat
 			"param_netaddr":     v,            //单个IP查询
 		}).
 			Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_HOST_STATUS_URL)
-
+		fmt.Println("get cookie", request.GetCookie(loginReq))
 		fmt.Println(string(resp.Body()), err)
 
 		apiRes := &StatusHost{}

@@ -77,7 +77,7 @@ func Login(req *LoginReq) (string, error) {
 
 func GetCookie(req *LoginReq) (cookie string) {
 
-	key := fmt.Sprintf("ddos-cookie-%v:%v", req.Addr, req.Port)
+	key := fmt.Sprintf("xpppppddos-cookie-%v:%v", req.Addr, req.Port)
 	//cache.CheckCache(key, Login(req), 3600, true)
 	res, err := cache.GetCache(key)
 	if err != nil {

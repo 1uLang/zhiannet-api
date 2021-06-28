@@ -38,14 +38,15 @@ func ListMatch(Interface string, data io.Reader) (list []*AclListResp, err error
 		info.Dst = s.Find("td").Eq(5).Text()
 		info.DstPort = s.Find("td").Eq(6).Text()
 		//描述
-		info.Descr = s.Find("td").Eq(13).Text()
+		info.Descr = s.Find("td").Eq(13).First().Text()
+		//fmt.Println("decr ====", info.Descr)
 		//策略
 		switch {
-		case s.Find("td").Eq(1).Find("i").Eq(1).Is(".fa-play"):
+		case s.Find("td").Eq(1).Find("i").Eq(0).Is(".fa-play"):
 			info.Type = "通过"
-		case s.Find("td").Eq(1).Find("i").Eq(1).Is(".fa-times"):
+		case s.Find("td").Eq(1).Find("i").Eq(0).Is(".fa-times"):
 			info.Type = "阻止"
-		case s.Find("td").Eq(1).Find("i").Eq(1).Is(".fa-times-circle"):
+		case s.Find("td").Eq(1).Find("i").Eq(0).Is(".fa-times-circle"):
 			info.Type = "拒绝"
 		}
 
@@ -148,6 +149,10 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 				Value:     strings.TrimSpace(value),
 				DataOther: dataOther,
 			}
+			//添加时  把（单个主机网络）目标置空
+			if dataOther && !par.Selected {
+				par.Value = ""
+			}
 			src = append(src, par)
 			//fmt.Println(par)
 		})
@@ -182,6 +187,10 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 				Name:      strings.TrimSpace(sel.Text()),
 				Value:     strings.TrimSpace(value),
 				DataOther: dataOther,
+			}
+			//添加时  把（单个主机网络）目标置空
+			if dataOther && !par.Selected {
+				par.Value = ""
 			}
 			dst = append(dst, par)
 			//fmt.Println(par)
