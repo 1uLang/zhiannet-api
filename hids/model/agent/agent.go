@@ -95,10 +95,13 @@ func Disport(macCode, opt string) error {
 	if err != nil {
 		return err
 	}
-	req.Method = "get"
+	req.Method = "post"
 	req.Path = fmt.Sprintf(_const.Agent_dispose_api_uil, macCode, opt)
 	req.Headers["signNonce"] = util.RandomNum(10)
-	req.Params = nil
+	req.Params = map[string]interface{}{
+		"opt":     opt,
+		"macCode": macCode,
+	}
 
 	resp, err := req.Do()
 	fmt.Println(string(resp))

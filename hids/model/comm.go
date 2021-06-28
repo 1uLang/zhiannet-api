@@ -26,9 +26,10 @@ func ParseResp(resp []byte, retObj ...interface{}) (map[string]interface{}, erro
 	}
 
 	reqCode, isExist := ret["reqCode"]
+
 	if isExist {
 		if reqCode == 400 {
-			return nil, fmt.Errorf("%v", ret["msg"])
+			return nil, fmt.Errorf("%s", ret["msg"])
 		}
 		if ret["returnCode"] != "1" {
 			return nil, fmt.Errorf("%v", ret["returnMsg"])
