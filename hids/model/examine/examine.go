@@ -49,7 +49,7 @@ func List(args *SearchReq, online ...bool) (list SearchResp, err error) {
 }
 
 //ScanServerNow 立即体检
-func ScanServerNow(args *ScanReq) (err error) {
+func ScanServerNow(args *ScanReq) error {
 
 	ok, err := args.Check()
 	if err != nil || !ok {

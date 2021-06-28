@@ -24,7 +24,7 @@ func init() {
 	}
 }
 func TestList(t *testing.T) {
-	list, err := List(&examine.SearchReq{UserName: "luobing", Type: -1, State: -1, Score: -1, ExamineItems: "02,03,11"})
+	list, err := List(&examine.SearchReq{UserName: "luobing", Type: -1, State: -1, Score: -1, ExamineItems: []string{"02,03,11"}})
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()
@@ -38,4 +38,14 @@ func TestDetails(t *testing.T) {
 		t.Fail()
 	}
 	fmt.Println(info)
+}
+func TestScanServerNow(t *testing.T) {
+
+	req := &examine.ScanReq{MacCode: []string{"48C57D8BFC8EE7BEB9ADA36845A6E051"}, ScanItems: []string{"02"}}
+	err := ScanServerNow(req)
+	fmt.Println(err)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
 }

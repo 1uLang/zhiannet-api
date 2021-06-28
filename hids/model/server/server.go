@@ -38,8 +38,8 @@ func List(args *SearchReq) (list SearchResp, err error) {
 }
 
 //Info 主机信息
-func Info(serverIp string) (info map[string]interface{}, err error) {
-	list, err := List(&SearchReq{ServerIp: serverIp})
+func Info(serverIp, userName string) (info map[string]interface{}, err error) {
+	list, err := List(&SearchReq{ServerIp: serverIp, UserName: userName})
 	if err != nil {
 		return info, err
 	}

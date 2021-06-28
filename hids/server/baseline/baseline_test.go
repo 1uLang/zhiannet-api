@@ -26,9 +26,9 @@ func init() {
 
 func TestList(t *testing.T) {
 
-	list, err := Detail(&baseline.DetailReq{
-		MacCode:  "48C57D8BFC8EE7BEB9ADA36845A6E051",
-		PageSize: 161,
+	list, err := List(&baseline.SearchReq{
+		UserName: "LUSIR2",
+		PageSize: 11,
 	})
 	if err != nil {
 		t.Errorf(err.Error())
