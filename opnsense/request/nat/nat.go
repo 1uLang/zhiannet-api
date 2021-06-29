@@ -51,9 +51,8 @@ var client = resty.New() //.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: t
 
 //获取nat 1：1列表
 func GetNat1To1List(apiKey *request.ApiKey) (list []*Nat1To1ListResp, err error) {
-	url := fmt.Sprintf("http://%v%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_NAT_1TO1_LIST_URL)
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_NAT_1TO1_LIST_URL)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -72,9 +71,8 @@ func GetNat1To1List(apiKey *request.ApiKey) (list []*Nat1To1ListResp, err error)
 
 //获取nat 1：1 详情
 func GetNat1To1Info(req *Nat1To1InfoReq, apiKey *request.ApiKey) (info *Nat1To1InfoResp, err error) {
-	url := fmt.Sprintf("http://%v%v?id=%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_NAT_1TO1_INFO_URL, req.Id)
+	url := fmt.Sprintf("%v%v?id=%v", apiKey.Addr, _const.OPNSENSE_NAT_1TO1_INFO_URL, req.Id)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -93,9 +91,8 @@ func GetNat1To1Info(req *Nat1To1InfoReq, apiKey *request.ApiKey) (info *Nat1To1I
 
 //添加 nat 1：1
 func AddNat1To1(req map[string]string, reqCateMap map[string][]string, apiKey *request.ApiKey) (res []string, err error) {
-	url := fmt.Sprintf("http://%v%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_NAT_1TO1_INFO_URL)
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_NAT_1TO1_INFO_URL)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -117,9 +114,8 @@ func AddNat1To1(req map[string]string, reqCateMap map[string][]string, apiKey *r
 
 //修改 nat 1：1
 func EditNat1To1(req map[string]string, reqCateMap map[string][]string, apiKey *request.ApiKey) (res []string, err error) {
-	urls := fmt.Sprintf("http://%v%v?id=%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_NAT_1TO1_INFO_URL, req["id"])
+	urls := fmt.Sprintf("%v%v?id=%v", apiKey.Addr, _const.OPNSENSE_NAT_1TO1_INFO_URL, req["id"])
 	client := request.GetHttpClient(apiKey)
-	urls = request.CheckHttpUrl(urls, apiKey)
 	cates := url.Values{}
 	if cate, ok := reqCateMap["category"]; ok {
 		cates["category"] = cate
@@ -147,9 +143,8 @@ func EditNat1To1(req map[string]string, reqCateMap map[string][]string, apiKey *
 
 //启动 停止
 func StartUpNat1To1(id string, apiKey *request.ApiKey) (res bool, err error) {
-	url := fmt.Sprintf("http://%v%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_NAT_1TO1_STATUS_URL)
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_NAT_1TO1_STATUS_URL)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -171,9 +166,8 @@ func StartUpNat1To1(id string, apiKey *request.ApiKey) (res bool, err error) {
 
 //删除nat 1：1
 func DelNat1To1(id string, apiKey *request.ApiKey) (res bool, err error) {
-	url := fmt.Sprintf("http://%v:%v%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_NAT_1TO1_STATUS_URL)
+	url := fmt.Sprintf("%v:%v%v", apiKey.Addr, _const.OPNSENSE_NAT_1TO1_STATUS_URL)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -195,9 +189,8 @@ func DelNat1To1(id string, apiKey *request.ApiKey) (res bool, err error) {
 
 //应用修改
 func Apply(apiKey *request.ApiKey) (res bool, err error) {
-	url := fmt.Sprintf("http://%v%v", apiKey.Addr, _const.OPNSENSE_NAT_1TO1_STATUS_URL)
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_NAT_1TO1_STATUS_URL)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).

@@ -9,7 +9,6 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/go-resty/resty/v2"
 	"github.com/sirupsen/logrus"
-	"strings"
 	"time"
 )
 
@@ -44,8 +43,7 @@ func Login(req *LoginReq) (string, error) {
 	var err error
 	// https://182.131.30.171:28443/cgi-bin/login.cgi
 	client := GetHttpClient(req)
-	url := "http://" + UrlRemoveHttp(req.Addr) + _const.DDOS_LOGIN_URL
-	url = CheckHttpUrl(url, req)
+	url := req.Addr + _const.DDOS_LOGIN_URL
 	resp, err := client.R().
 		SetHeader("Content-Type", "multipart/form-data; boundary=<calculated when request is sent>").
 		SetFormData(map[string]string{
@@ -98,14 +96,14 @@ func GetCookie(req *LoginReq) (cookie string) {
 	return
 }
 
-//去掉url地址中的 https 和http
-func UrlRemoveHttp(url string) string {
-	//url = strings.Replace(url, "https://","", -1)
-	//url = strings.Replace(url, "http://","", -1)
-	url = strings.TrimLeft(url, "https://")
-	url = strings.TrimLeft(url, "http://")
-	return url
-}
+////去掉url地址中的 https 和http
+//func UrlRemoveHttp(url string) string {
+//	//url = strings.Replace(url, "https://","", -1)
+//	//url = strings.Replace(url, "http://","", -1)
+//	url = strings.TrimLeft(url, "https://")
+//	url = strings.TrimLeft(url, "http://")
+//	return url
+//}
 
 //获取请求客户端
 func GetHttpClient(req *LoginReq) *resty.Client {
@@ -115,10 +113,10 @@ func GetHttpClient(req *LoginReq) *resty.Client {
 	return Client
 }
 
-//处理请求地址  http还是https
-func CheckHttpUrl(url string, api *LoginReq) string {
-	if api.IsSsl {
-		url = strings.Replace(url, "http://", "https://", 1)
-	}
-	return url
-}
+////处理请求地址  http还是https
+//func CheckHttpUrl(url string, api *LoginReq) string {
+//	if api.IsSsl {
+//		url = strings.Replace(url, "http://", "https://", 1)
+//	}
+//	return url
+//}

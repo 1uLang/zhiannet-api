@@ -57,7 +57,7 @@ type (
 func AttackLogList(req *AttackLogReq, loginReq *request.LoginReq, retry bool) (res *LogsReportAttack, err error) {
 	// Create a Resty Client
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_LOGS_REPORT_ATTACK_URL, loginReq)
+	url := loginReq.Addr + _const.DDOS_LOGS_REPORT_ATTACK_URL
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",

@@ -59,7 +59,7 @@ type (
 //获取全局统计
 func GetStatusGlobal(loginReq *request.LoginReq, retry bool) (res *StatusGlobal, err error) {
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_GLOBAL_URL, loginReq)
+	url := loginReq.Addr + _const.DDOS_STATUS_GLOBAL_URL
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -83,7 +83,7 @@ func GetStatusGlobal(loginReq *request.LoginReq, retry bool) (res *StatusGlobal,
 //获取负载信息-(小时|天|月)
 func GetLoad(loginReq *request.LoginReq, retry bool) (res *StatusHealth, err error) {
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_HEALTH_URL, loginReq)
+	url := loginReq.Addr + _const.DDOS_STATUS_HEALTH_URL
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -103,7 +103,7 @@ func GetLoad(loginReq *request.LoginReq, retry bool) (res *StatusHealth, err err
 
 func GlobalImg(loginReq *request.LoginReq, retry bool) (res []byte, err error) {
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+"/cgi-bin/rateview.cgi?width=958&height=120&level=2&scale=0.25&rand=0.6897267381111953", loginReq)
+	url := loginReq.Addr + "/cgi-bin/rateview.cgi?width=958&height=120&level=2&scale=0.25&rand=0.6897267381111953"
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",

@@ -38,9 +38,8 @@ type (
 
 //获取日志
 func GetLogsList(req *LogReq, apiKey *request.ApiKey) (list *LogListResp, err error) {
-	url := fmt.Sprintf("http://%v%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_LOGS_URL)
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_LOGS_URL)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		SetHeader("Content-Type", "application/x-www-form-urlencoded").
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -66,9 +65,8 @@ func GetLogsList(req *LogReq, apiKey *request.ApiKey) (list *LogListResp, err er
 
 //清除所有日志
 func ClearLog(apiKey *request.ApiKey) (res bool, err error) {
-	url := fmt.Sprintf("http://%v%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_CLEAR_LOGS_URL)
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_CLEAR_LOGS_URL)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).

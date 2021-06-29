@@ -45,7 +45,7 @@ type (
 func TrafficLogList(req *TrafficLogReq, loginReq *request.LoginReq, retry bool) (res *LogsReportFlow, err error) {
 	// Create a Resty Client
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_LOGS_REPORT_FLOW_URL, loginReq)
+	url := loginReq.Addr + _const.DDOS_LOGS_REPORT_FLOW_URL
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",

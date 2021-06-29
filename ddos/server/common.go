@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/ddos/request"
+	"github.com/1uLang/zhiannet-api/utils"
 )
 
 type (
@@ -27,5 +28,6 @@ func GetLoginInfo(req NodeReq) (logReq *request.LoginReq, err error) {
 		Port:     fmt.Sprintf("%v", nodeInfo.Port),
 		IsSsl:    nodeInfo.IsSsl == 1,
 	}
+	logReq.Addr = utils.CheckHttpUrl(logReq.Addr, nodeInfo.IsSsl == 1)
 	return
 }

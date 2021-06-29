@@ -29,7 +29,7 @@ func Test_traffic_log_list(t *testing.T) {
 
 	InitDB()
 	list, err := GetTrafficLogList(&TrafficLogReq{
-		NodeId: 1,
+		NodeId: 6,
 		Addr:   "182.150.0.37",
 		Level:  3,
 	})

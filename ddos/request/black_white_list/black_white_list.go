@@ -47,7 +47,7 @@ type (
 //黑白名单列表
 func BWList(req *BWListReq, loginReq *request.LoginReq, retry bool) (res *StatusBwlist, err error) {
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_BWLIST_URL, loginReq)
+	url := loginReq.Addr + _const.DDOS_STATUS_BWLIST_URL
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -86,7 +86,7 @@ func AddBW(req *EditBWReq, loginReq *request.LoginReq, retry bool) (res *Success
 		}
 	}
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_BWLIST_URL, loginReq)
+	url := loginReq.Addr + _const.DDOS_STATUS_BWLIST_URL
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -110,7 +110,7 @@ func AddBW(req *EditBWReq, loginReq *request.LoginReq, retry bool) (res *Success
 func DeleteBW(req *EditBWReq, loginReq *request.LoginReq, retry bool) (res *Success, err error) {
 	addr := strings.Join(req.Addr, ",")
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_BWLIST_URL, loginReq)
+	url := loginReq.Addr + _const.DDOS_STATUS_BWLIST_URL
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",

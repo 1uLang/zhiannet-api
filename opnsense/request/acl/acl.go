@@ -60,9 +60,8 @@ type (
 
 //获取acl列表
 func GetAclList(Interface string, apiKey *request.ApiKey) (list []*AclListResp, err error) {
-	url := fmt.Sprintf("http://%v%v?if=%v", apiKey.Addr, _const.OPNSENSE_ACL_LIST_URL, Interface)
+	url := fmt.Sprintf("%v%v?if=%v", apiKey.Addr, _const.OPNSENSE_ACL_LIST_URL, Interface)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -81,9 +80,8 @@ func GetAclList(Interface string, apiKey *request.ApiKey) (list []*AclListResp, 
 
 //获取acl 详情
 func GetAclInfo(req *AclInfoReq, apiKey *request.ApiKey) (info *AclInfoResp, err error) {
-	url := fmt.Sprintf("http://%v%v?id=%v", apiKey.Addr, _const.OPNSENSE_ACL_INFO_URL, req.ID)
+	url := fmt.Sprintf("%v%v?id=%v", apiKey.Addr, _const.OPNSENSE_ACL_INFO_URL, req.ID)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -102,9 +100,8 @@ func GetAclInfo(req *AclInfoReq, apiKey *request.ApiKey) (info *AclInfoResp, err
 
 //添加acl
 func AddAcl(req map[string]string, apiKey *request.ApiKey) (res []string, err error) {
-	url := fmt.Sprintf("http://%v%v", apiKey.Addr, _const.OPNSENSE_ACL_INFO_URL)
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_ACL_INFO_URL)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -125,9 +122,8 @@ func AddAcl(req map[string]string, apiKey *request.ApiKey) (res []string, err er
 }
 
 func EditAcl(req map[string]string, apiKey *request.ApiKey) (tips []string, err error) {
-	url := fmt.Sprintf("http://%v%v?if=%v&id=%v", apiKey.Addr, _const.OPNSENSE_ACL_INFO_URL, req["interface"], req["id"])
+	url := fmt.Sprintf("%v%v?if=%v&id=%v", apiKey.Addr, _const.OPNSENSE_ACL_INFO_URL, req["interface"], req["id"])
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -149,9 +145,8 @@ func EditAcl(req map[string]string, apiKey *request.ApiKey) (tips []string, err 
 
 //启动 停止
 func StartUpAcl(id, Interface string, apiKey *request.ApiKey) (res bool, err error) {
-	url := fmt.Sprintf("http://%v%v", apiKey.Addr, _const.OPNSENSE_ACL_LIST_URL)
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_ACL_LIST_URL)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -173,9 +168,8 @@ func StartUpAcl(id, Interface string, apiKey *request.ApiKey) (res bool, err err
 
 //删除
 func DelAcl(id, Interface string, apiKey *request.ApiKey) (res bool, err error) {
-	url := fmt.Sprintf("http://%v%v?if=%v", apiKey.Addr, _const.OPNSENSE_ACL_LIST_URL, Interface)
+	url := fmt.Sprintf("%v%v?if=%v", apiKey.Addr, _const.OPNSENSE_ACL_LIST_URL, Interface)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -197,9 +191,8 @@ func DelAcl(id, Interface string, apiKey *request.ApiKey) (res bool, err error) 
 
 //应用修改
 func Apply(Interface string, apiKey *request.ApiKey) (res bool, err error) {
-	url := fmt.Sprintf("http://%v%v?if=%v", apiKey.Addr, _const.OPNSENSE_ACL_LIST_URL, Interface)
+	url := fmt.Sprintf("%v%v?if=%v", apiKey.Addr, _const.OPNSENSE_ACL_LIST_URL, Interface)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).

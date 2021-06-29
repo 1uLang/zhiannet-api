@@ -92,9 +92,8 @@ type (
 
 //全局
 func GetGlobal(apiKey *request.ApiKey) (res *GlobalStatus, err error) {
-	url := "http://" + apiKey.Addr + _const.OPNSENSE_GLOBAL_STATUS_URL + fmt.Sprintf("%v", time.Now().Unix())
+	url := apiKey.Addr + _const.OPNSENSE_GLOBAL_STATUS_URL + fmt.Sprintf("%v", time.Now().Unix())
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		SetHeader("Content-Type", "application/x-www-form-urlencoded").
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).

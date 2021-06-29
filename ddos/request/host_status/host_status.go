@@ -207,7 +207,7 @@ type (
 func HostList(req *HostReq, loginReq *request.LoginReq, retry bool) (res []*StatusHost, err error) {
 	// Create a Resty Client
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_HOST_STATUS_URL, loginReq)
+	url := loginReq.Addr + _const.DDOS_HOST_STATUS_URL
 	for _, v := range req.Addr {
 		resp, err := client.R().
 			SetCookie(&http.Cookie{
@@ -245,7 +245,7 @@ func HostList(req *HostReq, loginReq *request.LoginReq, retry bool) (res []*Stat
 //参数3 是否重试
 func AddAddr(ip string, loginReq *request.LoginReq, retry bool) (err error) {
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_HOST_STATUS_URL, loginReq)
+	url := loginReq.Addr + _const.DDOS_HOST_STATUS_URL
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -275,7 +275,7 @@ func AddAddr(ip string, loginReq *request.LoginReq, retry bool) (err error) {
 //参数3 是否重试
 func HostShieldList(req *ShieldListReq, loginReq *request.LoginReq, retry bool) (list *StatusFblink, err error) {
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_FBLINK_URL, loginReq)
+	url := loginReq.Addr + _const.DDOS_STATUS_FBLINK_URL
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -306,7 +306,7 @@ func HostShieldList(req *ShieldListReq, loginReq *request.LoginReq, retry bool) 
 //参数3 是否重试
 func ReleaseShield(req *ReleaseShieldReq, loginReq *request.LoginReq, retry bool) (info *Success, err error) {
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_FBLINK_URL, loginReq)
+	url := loginReq.Addr + _const.DDOS_STATUS_FBLINK_URL
 	filter := strings.Join(req.Addr, ",")
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
@@ -337,7 +337,7 @@ func ReleaseShield(req *ReleaseShieldReq, loginReq *request.LoginReq, retry bool
 //参数3 是否重试
 func LinkList(req *LinkListReq, loginReq *request.LoginReq, retry bool) (list *StatusLink, err error) {
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_LINK_URL, loginReq)
+	url := loginReq.Addr + _const.DDOS_STATUS_LINK_URL
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -374,7 +374,7 @@ func GetHostInfo(req *HostReq, loginReq *request.LoginReq, retry bool) (res *Sta
 		addr = req.Addr[0]
 	}
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_HOSTSET_URL, loginReq)
+	url := loginReq.Addr + _const.DDOS_STATUS_HOSTSET_URL
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",
@@ -415,7 +415,7 @@ func SetHost(req *HostSetReq, loginReq *request.LoginReq, retry bool) (res *Succ
 		param_ignore = ""
 	}
 	client := request.GetHttpClient(loginReq)
-	url := request.CheckHttpUrl("http://"+loginReq.Addr+_const.DDOS_STATUS_HOSTSET_URL, loginReq)
+	url := loginReq.Addr + _const.DDOS_STATUS_HOSTSET_URL
 	resp, err := client.R().
 		SetCookie(&http.Cookie{
 			Name:  "sid",

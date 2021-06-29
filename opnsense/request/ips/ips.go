@@ -65,9 +65,8 @@ type (
 
 //获取ips规则列表
 func GetIpsList(req *IpsReq, apiKey *request.ApiKey) (list *IpsListResp, err error) {
-	url := fmt.Sprintf("http://%v%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_IPS_LIST_URL)
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_IPS_LIST_URL)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -91,9 +90,8 @@ func GetIpsList(req *IpsReq, apiKey *request.ApiKey) (list *IpsListResp, err err
 
 //编辑 启用｜停用 规则
 func EditIps(req *EditIpsReq, apiKey *request.ApiKey) (res bool, err error) {
-	url := fmt.Sprintf("http://%v%v/%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_IPS_EDIT_URL, req.Sid)
+	url := fmt.Sprintf("%v%v/%v", apiKey.Addr, _const.OPNSENSE_IPS_EDIT_URL, req.Sid)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -114,10 +112,9 @@ func EditIps(req *EditIpsReq, apiKey *request.ApiKey) (res bool, err error) {
 
 //删除 规则
 func DelIps(req *DelIpsReq, apiKey *request.ApiKey) (res bool, err error) {
-	url := fmt.Sprintf("http://%v%v", request.UrlRemoveHttp(apiKey.Addr),
+	url := fmt.Sprintf("%v%v", apiKey.Addr,
 		fmt.Sprintf(_const.OPNSENSE_IPS_DEL_URL, strings.Join(req.Sid, ",")))
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -138,9 +135,8 @@ func DelIps(req *DelIpsReq, apiKey *request.ApiKey) (res bool, err error) {
 
 //编辑 启用｜停用 规则
 func ApplyIps(apiKey *request.ApiKey) (res bool, err error) {
-	url := fmt.Sprintf("http://%v%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_IPS_APPLY_URL)
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_IPS_APPLY_URL)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
@@ -160,9 +156,8 @@ func ApplyIps(apiKey *request.ApiKey) (res bool, err error) {
 
 //修改操作方法
 func EditActionIps(req *EditActionIpsReq, apiKey *request.ApiKey) (res bool, err error) {
-	url := fmt.Sprintf("http://%v%v/%v", request.UrlRemoveHttp(apiKey.Addr), _const.OPNSENSE_IPS_ACTIOB_URL, req.Sid)
+	url := fmt.Sprintf("%v%v/%v", apiKey.Addr, _const.OPNSENSE_IPS_ACTIOB_URL, req.Sid)
 	client := request.GetHttpClient(apiKey)
-	url = request.CheckHttpUrl(url, apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
