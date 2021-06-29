@@ -49,7 +49,7 @@ func Test_add_addr(t *testing.T) {
 //屏蔽列表
 func Test_get_host_shield_list(t *testing.T) {
 	InitDB()
-	req := &ShieldReq{NodeId: 1, Addr: "118.112.240.127", Page: 1}
+	req := &ShieldReq{NodeId: 11, Addr: "118.112.250.80", Page: 1}
 	list, err := GetHostShieldList(req)
 	fmt.Println(list)
 	fmt.Println(err)
@@ -58,7 +58,7 @@ func Test_get_host_shield_list(t *testing.T) {
 //释放屏蔽列表
 func Test_ReleaseShield(t *testing.T) {
 	InitDB()
-	req := &ReleaseShieldReq{NodeId: 1, Addr: []string{"118.112.250.80v6.118"}}
+	req := &ReleaseShieldReq{NodeId: 11, Addr: []string{"118.112.250"}}
 	err := ReleaseShield(req)
 	fmt.Println(err)
 }

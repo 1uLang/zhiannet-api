@@ -280,11 +280,14 @@ func HostShieldList(req *ShieldListReq, loginReq *request.LoginReq, retry bool) 
 		SetCookie(&http.Cookie{
 			Name:  "sid",
 			Value: request.GetCookie(loginReq),
-		}).SetFormData(map[string]string{
-		"param_submit_type": "select",                    //添加
-		"param_filter":      req.Addr,                    //单个IP查询
-		"param_page":        fmt.Sprintf("%v", req.Page), //页数
-	}).Post(url)
+		}).SetFormData(
+		map[string]string{
+			"param_submit_type": "select",                    //添加
+			"param_filter":      req.Addr,                    //单个IP查询
+			"param_page":        fmt.Sprintf("%v", req.Page), //页数
+		},
+	).
+		Post(url)
 	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_FBLINK_URL)
 	//fmt.Println("add addr res = ===", string(resp.Body()), err)
 

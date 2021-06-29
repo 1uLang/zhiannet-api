@@ -137,6 +137,12 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 		l := &HostListResp{
 			Addr: v.Netaddr,
 			//UserName: "",
+		} //获取用户信息
+		if userId, ok := userMap[v.Netaddr]; ok {
+			if username, ok := userList[userId]; ok {
+				l.UserName = username.Username
+			}
+
 		}
 		if len(v.Host) > 0 {
 			for _, y := range v.Host {
@@ -144,13 +150,7 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 					if id, ok := hostMap[y.Address]; ok { //ddos_host_id表的ID
 						l.HostId = id
 					}
-					//获取用户信息
-					if userId, ok := userMap[y.Address]; ok {
-						if username, ok := userList[userId]; ok {
-							l.UserName = username.Username
-						}
 
-					}
 					l.BandwidthIn, _ = strconv.ParseFloat(y.InputBps, 64)
 					l.BandwidthOut, _ = strconv.ParseFloat(y.OutputBps, 64)
 					l.RateSyn, _ = strconv.ParseFloat(y.SynRate, 64)
