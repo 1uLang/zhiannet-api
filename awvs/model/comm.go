@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
+	"github.com/1uLang/zhiannet-api/utils"
 )
 
 func ToMap(obj interface{}) map[string]interface{} {
@@ -58,9 +59,11 @@ func GetWebScanInfo() (resp *WebScanResp, err error) {
 	if err != nil || len(list) == 0 {
 		return resp, fmt.Errorf("获取漏扫节点错误")
 	}
+	info := list[0]
+	addr := utils.CheckHttpUrl(info.Addr, info.IsSsl == 1)
 	resp = &WebScanResp{
-		Addr: list[0].Addr,
-		Key:  list[0].Key,
+		Addr: addr,
+		Key:  info.Key,
 	}
 	return resp, err
 }
