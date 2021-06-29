@@ -2,6 +2,7 @@ package host_status
 
 import (
 	"fmt"
+	"github.com/1uLang/zhiannet-api/common/model/edge_users"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/ddos/model/ddos_host_ip"
 	"github.com/1uLang/zhiannet-api/ddos/request"
@@ -57,6 +58,7 @@ type (
 		TcpConnIn    float64 `json:"tcp_conn_in"`   //tcp in 连接数
 		TcpConnOut   float64 `json:"tcp_conn_out"`  //tcp out 连接数
 		UdpConn      float64 `json:"udp_conn"`      //udp  连接数
+		UserName     string  `json:"user_name"`     //用户名
 	}
 )
 
@@ -102,10 +104,14 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 		return
 	}
 	hostMap := make(map[string]uint64, len(list))
+	userMap := make(map[string]uint64, 0)
 	apiReq := &host_status.HostReq{}
 	for _, v := range list {
+		//对应IP地址
 		apiReq.Addr = append(apiReq.Addr, v.Addr)
 		hostMap[v.Addr] = v.Id
+		//对应用户ID
+		userMap[v.Addr] = v.UserId
 	}
 	//获取节点信息
 	logReq, err := server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
@@ -117,18 +123,33 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 		return
 	}
 	lists = make([]*HostListResp, len(hostList))
-	all := &HostListResp{
-		Addr: "all",
+	//all := &HostListResp{
+	//	Addr: "all",
+	//}
+
+	//使用uid 获取用户信息
+	userList, _, err := GetUserInfoByUid(userMap)
+	if err != nil {
+		return
 	}
+
 	for k, v := range hostList { //所有ip的数据
 		l := &HostListResp{
 			Addr: v.Netaddr,
+			//UserName: "",
 		}
 		if len(v.Host) > 0 {
 			for _, y := range v.Host {
 				if y.Address == l.Addr { //当前IP的数据
 					if id, ok := hostMap[y.Address]; ok { //ddos_host_id表的ID
 						l.HostId = id
+					}
+					//获取用户信息
+					if userId, ok := userMap[y.Address]; ok {
+						if username, ok := userList[userId]; ok {
+							l.UserName = username.Username
+						}
+
 					}
 					l.BandwidthIn, _ = strconv.ParseFloat(y.InputBps, 64)
 					l.BandwidthOut, _ = strconv.ParseFloat(y.OutputBps, 64)
@@ -145,25 +166,37 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 					l.UdpConn, _ = strconv.ParseFloat(y.UdpConn, 64)
 
 					//相关host数据合计
-					all.BandwidthIn += l.BandwidthIn
-					all.BandwidthOut += l.BandwidthOut
-					all.RateSyn += l.RateSyn
-					all.RateAck += l.RateAck
-					all.RateUdp += l.RateUdp
-					all.RateIcmp += l.RateIcmp
-					all.RateFrag += l.RateFrag
-					all.RateNonip += l.RateNonip
-					all.RateNewTcp += l.RateNewTcp
-					all.RateNewUdp += l.RateNewUdp
-					all.TcpConnIn += l.TcpConnIn
-					all.TcpConnOut += l.TcpConnOut
-					all.UdpConn += l.UdpConn
+					//all.BandwidthIn += l.BandwidthIn
+					//all.BandwidthOut += l.BandwidthOut
+					//all.RateSyn += l.RateSyn
+					//all.RateAck += l.RateAck
+					//all.RateUdp += l.RateUdp
+					//all.RateIcmp += l.RateIcmp
+					//all.RateFrag += l.RateFrag
+					//all.RateNonip += l.RateNonip
+					//all.RateNewTcp += l.RateNewTcp
+					//all.RateNewUdp += l.RateNewUdp
+					//all.TcpConnIn += l.TcpConnIn
+					//all.TcpConnOut += l.TcpConnOut
+					//all.UdpConn += l.UdpConn
 				}
 			}
 		}
 		lists[k] = l
 	}
 	return
+}
+
+//通过userid  获取用户信息
+func GetUserInfoByUid(req map[string]uint64) (list map[uint64]*edge_users.EdgeUsers, total int64, err error) {
+	if len(req) == 0 {
+		return
+	}
+	uids := make([]uint64, 0)
+	for _, v := range req {
+		uids = append(uids, v)
+	}
+	return edge_users.GetListByUid(uids)
 }
 
 //添加高仿IP
