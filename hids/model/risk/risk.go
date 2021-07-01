@@ -479,7 +479,7 @@ func detailList(args *DetailReq, path string) (info DetailResp, err error) {
 	req.Method = "get"
 	req.Path = path + "/" + args.MacCode + "/detail/list"
 	req.Headers["signNonce"] = util.RandomNum(10)
-	req.Params = model.ToMap(args)
+	req.Params = model.ToMap(args.Req)
 
 	resp, err := req.Do()
 	if err != nil {

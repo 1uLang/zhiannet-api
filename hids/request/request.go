@@ -114,12 +114,17 @@ func (this *request) sign() string {
 	for _, k := range keyList {
 		v, isExist := this.Params[k]
 		value := ""
-		if k == "itemIds" || k == "riskIds" {
+		if this.Method == "POST" {
+			//if k == "itemIds" || k == "riskIds" {
 			tmpbuf, _ := json.Marshal(v)
-			value = fmt.Sprintf("[\"%s\"]", string(tmpbuf))
+			value = fmt.Sprintf("%s", string(tmpbuf))
+			//} else {
+			//	value = fmt.Sprintf("[\"%v\"]", v)
+			//}
 		} else {
 			value = fmt.Sprintf("[\"%v\"]", v)
 		}
+
 		if !isExist {
 			value = "\"" + this.Headers[k] + "\""
 		}
@@ -204,6 +209,7 @@ func (this *request) Do2() (respBody []byte, err error) {
 	if strings.ToUpper(this.Method) != "GET" {
 		buf, _ := json.Marshal(this.Params)
 		body = bytes.NewReader(buf)
+		fmt.Println(string(buf))
 	}
 	req, err := http.NewRequest(this.Method, this.url+this.Path, body)
 	if err != nil {
@@ -249,6 +255,7 @@ func (this *request) Do() (respBody []byte, err error) {
 	if strings.ToUpper(this.Method) != "GET" {
 		buf, _ := json.Marshal(this.Params)
 		body = bytes.NewReader(buf)
+		fmt.Println(string(buf))
 	}
 	req, err := http.NewRequest(this.Method, this.url+this.Path, body)
 	if err != nil {
