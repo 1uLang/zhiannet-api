@@ -63,7 +63,10 @@ func GetHidsInfo() (resp *HidsResp, err error) {
 		PageSize: 1,
 	})
 	if err != nil || len(list) == 0 {
-		return resp, fmt.Errorf("获取漏扫节点错误")
+		return resp, fmt.Errorf("获取主机防护节点失败：%v", err)
+	}
+	if len(list) == 0 {
+		return resp, fmt.Errorf("当前未配置主机防护节点")
 	}
 	info := list[0]
 	addr := utils.CheckHttpUrl(info.Addr, info.IsSsl == 1)
