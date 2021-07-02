@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/cache"
 	_const "github.com/1uLang/zhiannet-api/ddos/const"
-	"github.com/go-redis/redis/v8"
 	"github.com/go-resty/resty/v2"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -81,29 +80,19 @@ func Login(req *LoginReq) (string, error) {
 }
 
 func GetCookie(req *LoginReq) (cookie string) {
-
-	key := fmt.Sprintf("xpppppddos-cookie-%v:%v", req.Addr, req.Port)
+	var err error
+	key := fmt.Sprintf("ddos-cookie-%v:%v", req.Addr, req.Name)
 	//cache.CheckCache(key, Login(req), 3600, true)
-	res, err := cache.GetCache(key)
+	var resp interface{}
+	resp, err = cache.CheckCache(key, func() (interface{}, error) {
+		return Login(req)
+	}, 600, true)
 	if err != nil {
-		if err == redis.Nil {
-			cookie, _ = Login(req)
-			cache.SetCache(key, cookie, 3600)
-		}
 		return
 	}
-	cookie = fmt.Sprintf("%v", res)
+	cookie = fmt.Sprintf("%v", resp)
 	return
 }
-
-////去掉url地址中的 https 和http
-//func UrlRemoveHttp(url string) string {
-//	//url = strings.Replace(url, "https://","", -1)
-//	//url = strings.Replace(url, "http://","", -1)
-//	url = strings.TrimLeft(url, "https://")
-//	url = strings.TrimLeft(url, "http://")
-//	return url
-//}
 
 //获取请求客户端
 func GetHttpClient(req *LoginReq) *resty.Client {
@@ -112,11 +101,3 @@ func GetHttpClient(req *LoginReq) *resty.Client {
 	}
 	return Client
 }
-
-////处理请求地址  http还是https
-//func CheckHttpUrl(url string, api *LoginReq) string {
-//	if api.IsSsl {
-//		url = strings.Replace(url, "http://", "https://", 1)
-//	}
-//	return url
-//}
