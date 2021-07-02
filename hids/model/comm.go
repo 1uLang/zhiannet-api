@@ -62,8 +62,8 @@ func GetHidsInfo() (resp *HidsResp, err error) {
 		PageNum:  1,
 		PageSize: 1,
 	})
-	if err != nil || len(list) == 0 {
-		return resp, fmt.Errorf("获取主机防护节点失败：%v", err)
+	if err != nil {
+		return resp, err
 	}
 	if len(list) == 0 {
 		return resp, fmt.Errorf("当前未配置主机防护节点")
