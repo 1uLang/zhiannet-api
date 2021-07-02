@@ -7,8 +7,8 @@ import (
 
 //按照协议 取对应地址
 func CheckHttpUrl(url string, isSsl bool) string {
-	url = strings.TrimLeft(url, "https://")
-	url = strings.TrimLeft(url, "http://")
+	url = strings.TrimPrefix(url, "https://")
+	url = strings.TrimPrefix(url, "http://")
 	if isSsl {
 		url = fmt.Sprintf("https://%v", url)
 	} else {
