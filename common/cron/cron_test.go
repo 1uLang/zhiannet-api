@@ -13,7 +13,7 @@ func init() {
 }
 func Test_cron(t *testing.T) {
 	//PortPing()
-	//InitCron()
+	InitCron()
 
 	time.Sleep(time.Minute * 30)
 }
