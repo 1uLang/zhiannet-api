@@ -37,6 +37,8 @@ func InitClient() (err error) {
 	var yamlFile []byte
 	conf := new(RdbConfig)
 	yamlFile, err = ioutil.ReadFile("./build/configs/api_db.yaml")
+	//yamlFile, err = ioutil.ReadFile("/Users/dp/zhian/zhiannet-edge-line/EdgeAdmin/build/configs/api_db.yaml")
+
 	if err != nil {
 		panic(fmt.Errorf("zhiannet package redis link yamlFile.Get err #%v ", err))
 	}

@@ -56,6 +56,24 @@ func GetList(req *NodeReq) (list []*Subassemblynode, total int64, err error) {
 	return
 }
 
+//获取数量
+//获取节点
+func GetNum(req *NodeReq) (total int64, err error) {
+	//从数据库获取
+	model := model.MysqlConn.Model(&Subassemblynode{}).Where("is_delete=?", 0)
+	if req != nil {
+		if req.State != "" {
+			model = model.Where("state=?", req.State)
+		}
+		if req.Type > 0 {
+			model = model.Where("type=?", req.Type)
+		}
+	}
+	err = model.Count(&total).Error
+
+	return
+}
+
 //检查name 是否存在
 func CheckMenuNameUnique(name string, id uint64) bool {
 	model := model.MysqlConn.Model(&Subassemblynode{}).Where("name=?", name)
