@@ -23,3 +23,9 @@ func Test_del(t *testing.T) {
 	err := DeleteByTargetIds([]string{"target_id"})
 	fmt.Println(err)
 }
+
+func Test_get_num(t *testing.T) {
+	total, err := GetNum(nil)
+	fmt.Println(total)
+	fmt.Println(err)
+}

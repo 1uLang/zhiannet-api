@@ -30,3 +30,9 @@ func Update(target_id string, req *targets.UpdateReq) (err error) {
 func SetLogin(target_id string, req *targets.SetLoginReq) (err error) {
 	return targets.SetLogin(target_id, req)
 }
+
+//获取扫描目标数量
+func GetTargetsNum(req *targets.AddrListReq) (total int64, err error) {
+
+	return targets.GetNum(req)
+}

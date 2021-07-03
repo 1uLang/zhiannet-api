@@ -57,6 +57,26 @@ func GetList(req *AddrListReq) (list []*WebscanAddr, total int64, err error) {
 	return
 }
 
+//获取数量
+func GetNum(req *AddrListReq) (total int64, err error) {
+	//从数据库获取
+	model := model.MysqlConn.Model(&WebscanAddr{}).Where("is_delete=?", 0)
+	if req != nil {
+		if req.UserId > 0 {
+			model = model.Where("user_id=?", req.UserId)
+		}
+		if req.AdminUserId > 0 {
+			model = model.Where("admin_user_id=?", req.AdminUserId)
+		}
+		if req.TargetId != "" {
+			model = model.Where("target_id=?", req.TargetId)
+		}
+	}
+	err = model.Count(&total).Error
+
+	return
+}
+
 //添加数据
 func AddAddr(req *WebscanAddr) (insertId uint64, err error) {
 	if req == nil {
