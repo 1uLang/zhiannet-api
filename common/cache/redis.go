@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	yaml "gopkg.in/yaml.v2"
+	"io/ioutil"
 	"time"
 
 	"github.com/tidwall/gjson"
@@ -17,23 +19,46 @@ var (
 	lockG = &singleflight.Group{}
 )
 
+type (
+	RdbConfig struct {
+		Redis struct {
+			Addr     string `yaml:"addr"`
+			Password string `yaml:"password"`
+		} `yaml:"redis"`
+	}
+)
+
 func init() {
 	InitClient()
 }
 
 // 初始化连接
 func InitClient() (err error) {
+	var yamlFile []byte
+	conf := new(RdbConfig)
+	yamlFile, err = ioutil.ReadFile("./build/configs/api_db.yaml")
+	if err != nil {
+		panic(fmt.Errorf("zhiannet package redis link yamlFile.Get err #%v ", err))
+	}
+	err = yaml.Unmarshal(yamlFile, &conf)
+
+	if err != nil {
+		panic(fmt.Errorf("zhiannet package redis link yaml.Unmarshal err %v", err))
+	}
 	Rdb = redis.NewClient(&redis.Options{
-		Addr:     "45.195.61.132:6379",
-		Password: "1232345342675", // no password set
-		DB:       0,               // use default DB
-		PoolSize: 100,             // 连接池大小
+		Addr:     conf.Redis.Addr,     //"45.195.61.132:6379",
+		Password: conf.Redis.Password, //"1232345342675", // no password set
+		DB:       0,                   // use default DB
+		PoolSize: 100,                 // 连接池大小
 	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	_, err = Rdb.Ping(ctx).Result()
+	if err != nil {
+		panic(fmt.Errorf("zhiannet-api package link redis err %v", err))
+	}
 	return err
 }
 
