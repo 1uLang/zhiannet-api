@@ -3,9 +3,11 @@ package logs
 //攻击日志
 import (
 	"fmt"
+	"github.com/1uLang/zhiannet-api/ddos/model/ddos_host_ip"
 	"github.com/1uLang/zhiannet-api/ddos/request"
 	"github.com/1uLang/zhiannet-api/ddos/request/logs"
 	"github.com/1uLang/zhiannet-api/ddos/server"
+	host_status_server "github.com/1uLang/zhiannet-api/ddos/server/host_status"
 	"time"
 )
 
@@ -46,14 +48,33 @@ func GetAttackLogList(req *AttackLogReq) (list *logs.LogsReportAttack, err error
 		req.EndTime, _ = time.Parse("2006-01-02", timeStr)
 		req.EndTime = req.EndTime.Add(-time.Second)
 	}
-	list, err = logs.AttackLogList(&logs.AttackLogReq{
+	nodes, _, err := host_status_server.GetHostList(&ddos_host_ip.HostReq{NodeId: req.NodeId, PageNum: 1, PageSize: 9999})
+	if err != nil {
+		return nil, err
+	}
+	list = &logs.LogsReportAttack{}
+
+	args := &logs.AttackLogReq{
 		Addr:       req.Addr,
 		AttackType: req.AttackType,
 		StartTime:  req.StartTime,
 		EndTime:    req.EndTime,
 		Status:     req.Status,
-	},
-		logReq, true)
+	}
+	nodeSet := make(map[string]bool, 0)
+
+	for _, v := range nodes {
+		nodeSet[v.Addr] = true
+	}
+	for addr := range nodeSet {
+		args.Addr = addr
+		ls, err := logs.AttackLogList(args, logReq, true)
+		if err != nil {
+			return nil, err
+		}
+		list.Report = append(list.Report, ls.Report...)
+	}
+
 	return
 
 }
