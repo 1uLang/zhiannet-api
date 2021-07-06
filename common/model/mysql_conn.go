@@ -32,7 +32,7 @@ type (
 )
 
 func init() {
-	InitMysqlLink()
+	//InitMysqlLink()
 }
 func InitMysqlLink() {
 	var err error
