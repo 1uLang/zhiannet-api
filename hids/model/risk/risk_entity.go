@@ -61,7 +61,7 @@ type SearchResp struct {
 
 type RiskSearchResp struct {
 	searchResp
-	VirusCountInfoList           []map[string]interface{} `json:"virusCountInfoList"`           //木马病毒列表
+	VirusCountInfoList           []map[string]interface{} `json:"virusInfoList"`                //木马病毒列表
 	WebshellCountInfoList        []map[string]interface{} `json:"webshellCountInfoList"`        //网页后门列表
 	ReboundshellCountInfoList    []map[string]interface{} `json:"reboundshellCountInfoList"`    //反弹shell数量列表
 	AbnormalAccountCountInfoList []map[string]interface{} `json:"abnormalAccountCountInfoList"` //异常账号数量列表
