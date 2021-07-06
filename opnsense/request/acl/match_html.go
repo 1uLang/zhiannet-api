@@ -6,6 +6,9 @@ import (
 	"strings"
 )
 
+var descr_prefix = string([]byte{10, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32})
+var descr_suffix = string([]byte{32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 10})
+
 //匹配列表数据
 func ListMatch(Interface string, data io.Reader) (list []*AclListResp, err error) {
 	var doc *goquery.Document
@@ -39,7 +42,15 @@ func ListMatch(Interface string, data io.Reader) (list []*AclListResp, err error
 		info.DstPort = s.Find("td").Eq(6).Text()
 		//描述
 		info.Descr = s.Find("td").Eq(13).First().Text()
-		//fmt.Println("decr ====", info.Descr)
+		info.Descr = strings.TrimPrefix(info.Descr, descr_prefix)
+		suffixIdx := strings.Index(info.Descr, descr_suffix)
+
+		if suffixIdx <= 0 {
+			info.Descr = ""
+		} else {
+			info.Descr = info.Descr[:suffixIdx]
+		}
+
 		//策略
 		switch {
 		case s.Find("td").Eq(1).Find("i").Eq(0).Is(".fa-play"):
