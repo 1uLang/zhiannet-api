@@ -160,7 +160,7 @@ type DetailResp struct {
 	ConfigDefectList []map[string]interface{} `json:"configDefectInfoList"`
 
 	//木马病毒列表
-	ServerVirusInfoList []map[string]interface{} `json:"serverVirusInfoList"`
+	ServerVirusInfoList []map[string]interface{} `json:"virusInfoList"`
 	//网页后门列表
 	WebshellInfoLis []map[string]interface{} `json:"webshellInfoLis"`
 	//反弹shell列表
