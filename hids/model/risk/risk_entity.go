@@ -34,7 +34,7 @@ type RiskSearchReq struct {
 	searchReq
 	UserName    string `json:"userName,omitempty"`
 	ServerIp    string `json:"serverIp,omitempty"`
-	IsProcessed bool   `json:"isProcessed,omitempty"` //待处理 false，已处理 true
+	//IsProcessed bool   `json:"isProcessed,omitempty"` //待处理 false，已处理 true
 	OnLine      bool   `json:"onLine,omitempty"`      //待处理 false，已处理 true	针对异常登录
 	State       int    `json:"state,omitempty"`       //未处理 已关闭 0 、 1、7
 }
