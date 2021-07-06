@@ -1,16 +1,66 @@
 package host_status
 
 import (
+	"context"
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/cache"
 	"github.com/1uLang/zhiannet-api/common/model"
 	"github.com/1uLang/zhiannet-api/ddos/model/ddos_host_ip"
+	"github.com/go-redis/redis/v8"
+	gmysql "gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 	"testing"
+	"time"
 )
 
 func InitDB() {
 	model.InitMysqlLink()
 	cache.InitClient()
+}
+func InitTestDB() {
+
+	var err error
+	dsn := "root:mysql8@tcp(45.195.61.132:3306)/zhian-edges?charset=utf8mb4&parseTime=True&loc=Local"
+	model.MysqlConn, err = gorm.Open(gmysql.Open(dsn), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix:   "",   //表前缀
+			SingularTable: true, //表名复数形式
+		},
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
+	if err != nil {
+		panic(fmt.Errorf("zhiannet-api package link mysql err %v", err))
+	}
+
+	dsn = "root:mysql8@tcp(45.195.61.132:3306)/gfast_open_test?charset=utf8mb4&parseTime=True&loc=Local"
+	model.AuditMysqlConn, err = gorm.Open(gmysql.Open(dsn), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix:   "",   //表前缀
+			SingularTable: true, //表名复数形式
+		},
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
+	if err != nil {
+		panic("审计系统 mysql link err ")
+	}
+
+	cache.Rdb = redis.NewClient(&redis.Options{
+		Addr:     "45.195.61.132:6379",
+		Password: "1232345342675", // no password set
+		DB:       0,               // use default DB
+		PoolSize: 100,             // 连接池大小
+	})
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err = cache.Rdb.Ping(ctx).Result()
+	if err != nil {
+		panic(fmt.Errorf("zhiannet-api package link redis err %v", err))
+	}
+
 }
 func Test_ddos_list(t *testing.T) {
 	model.InitMysqlLink()
@@ -31,8 +81,8 @@ func Test_host_status(t *testing.T) {
 
 //主机列表
 func Test_host_list(t *testing.T) {
-	InitDB()
-	list, total, err := GetHostList(&ddos_host_ip.HostReq{NodeId: 11})
+	InitTestDB()
+	list, total, err := GetHostList(&ddos_host_ip.HostReq{NodeId: 1})
 	fmt.Println(list)
 	fmt.Println(total)
 	fmt.Println(err)
@@ -43,6 +93,13 @@ func Test_add_addr(t *testing.T) {
 	InitDB()
 	list, err := AddAddr(&ddos_host_ip.AddHost{NodeId: 11, Addr: "118.112.240.13", UserId: 1})
 	fmt.Println(list)
+	fmt.Println(err)
+}
+func TestDeleteAddr(t *testing.T) {
+	InitTestDB()
+
+	err := DeleteAddr([]uint64{31})
+
 	fmt.Println(err)
 }
 

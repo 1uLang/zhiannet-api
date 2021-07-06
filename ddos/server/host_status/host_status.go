@@ -126,7 +126,6 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 	//all := &HostListResp{
 	//	Addr: "all",
 	//}
-
 	//使用uid 获取用户信息
 	userList, _, err := GetUserInfoByUid(userMap)
 	if err != nil {
@@ -142,14 +141,13 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 			if username, ok := userList[userId]; ok {
 				l.UserName = username.Username
 			}
-
+		}
+		if id, ok := hostMap[v.Netaddr]; ok { //ddos_host_id表的ID
+			l.HostId = id
 		}
 		if len(v.Host) > 0 {
 			for _, y := range v.Host {
 				if y.Address == l.Addr { //当前IP的数据
-					if id, ok := hostMap[y.Address]; ok { //ddos_host_id表的ID
-						l.HostId = id
-					}
 
 					l.BandwidthIn, _ = strconv.ParseFloat(y.InputBps, 64)
 					l.BandwidthOut, _ = strconv.ParseFloat(y.OutputBps, 64)
@@ -220,6 +218,11 @@ func AddAddr(req *ddos_host_ip.AddHost) (id uint64, err error) {
 		ddos_host_ip.DeleteByIds([]uint64{id})
 	}
 	return
+}
+
+//删除高防IP
+func DeleteAddr(host_ids []uint64) error {
+	return ddos_host_ip.DeleteByIds(host_ids)
 }
 
 //ip详情-屏蔽列表
