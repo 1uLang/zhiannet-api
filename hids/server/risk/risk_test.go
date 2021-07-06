@@ -39,10 +39,17 @@ func TestRiskList(t *testing.T) {
 }
 func TestVirusList(t *testing.T) {
 
-	list, err := VirusList(&risk.RiskSearchReq{
-		//UserName:    "LUSIR2",
-		//IsProcessed: false, //待处理
-	})
+	req := &risk.DetailReq{
+		MacCode: "48C57D8BFC8EE7BEB9ADA36845A6E051",
+	}
+
+	//req.Req.IsProcessed = true
+	//req.Req.State = 1
+	list, err := VirusDetailList(req)
+
+	//UserName:    "luobing",
+	//IsProcessed: false, //待处理
+
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()
@@ -115,14 +122,26 @@ func TestAbnormalProcessDetail(t *testing.T) {
 	}
 	fmt.Println(list)
 }
-func TestAbnormalProcessDetailList(t *testing.T) {
+func TestWebShellDetailList(t *testing.T) {
 
 	req := &risk.DetailReq{}
 	req.MacCode = "BEEBC76C2D8D6C2C9F587A52EF5ACFEF"
 	req.Req.UserName = "cysct56"
-	req.Req.State = 1
-	req.Req.IsProcessed = true
+	//req.Req.State = 1
+	//req.Req.IsProcessed = true
 	list, err := WebShellDetailList(req)
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+	fmt.Println(list)
+}
+func TestWebShellList(t *testing.T) {
+
+	req := &risk.RiskSearchReq{}
+	req.UserName = "luobing"
+	//req.Req.IsProcessed = true
+	list, err := WebShellList(req)
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()
