@@ -41,7 +41,7 @@ const (
 
 	Risk_config_defect_process_api_url = "/sdapi/cloudeyes/risk/config-defect/process"
 
-	Risk_Virus_api_url = "/sdapi/cloudeyes/invade/virus/info/list"
+	Risk_Virus_api_url = "/sdapi/cloudeyes/invade/virus/server-count/list"
 
 	Risk_Virus_detail_list_api_url = "/sdapi/cloudeyes/invade/virus/server"
 
