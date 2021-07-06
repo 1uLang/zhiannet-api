@@ -166,7 +166,7 @@ func StartUpNat1To1(id string, apiKey *request.ApiKey) (res bool, err error) {
 
 //删除nat 1：1
 func DelNat1To1(id string, apiKey *request.ApiKey) (res bool, err error) {
-	url := fmt.Sprintf("%v:%v%v", apiKey.Addr, _const.OPNSENSE_NAT_1TO1_STATUS_URL)
+	url := fmt.Sprintf("%v:%v", apiKey.Addr, _const.OPNSENSE_NAT_1TO1_STATUS_URL)
 	client := request.GetHttpClient(apiKey)
 	resp, err := client.R().
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
@@ -179,6 +179,9 @@ func DelNat1To1(id string, apiKey *request.ApiKey) (res bool, err error) {
 			"id":     id,
 			"action": "del",
 		}).Post(url)
+	if err != nil {
+		return false, err
+	}
 	//Post(fmt.Sprintf("https://%v:%v%v", apiKey.Addr, apiKey.Port, _const.OPNSENSE_NAT_1TO1_STATUS_URL))
 	if resp.StatusCode() == 200 {
 		res = true
