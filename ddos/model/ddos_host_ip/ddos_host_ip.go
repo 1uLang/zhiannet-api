@@ -79,8 +79,7 @@ func Add(req *AddHost) (insertId uint64, err error) {
 	}
 
 	var num int64
-
-	model.MysqlConn.Model(&DdosHostIp{}).Where("addr=?", req.Addr).Count(&num)
+	model.MysqlConn.Model(&DdosHostIp{}).Where("addr=? and node_id = ?", req.Addr, req.NodeId).Count(&num)
 
 	if num > 0 {
 		err = fmt.Errorf("该高防IP已添加")
