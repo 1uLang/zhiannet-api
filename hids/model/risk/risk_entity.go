@@ -124,7 +124,7 @@ func (this *ProcessReq) Check() (bool, error) {
 type DetailReq struct {
 	MacCode string `json:"macCode"`
 	Req     struct {
-		UserName     string `json:"userName"`
+		UserName     string `json:"userName,omitempty"`
 		PageNo       int    `json:"pageNo"`
 		PageSize     int    `json:"pageSize"`
 		Level        int    `json:"level,omitempty"`        //漏洞风险 特有字段
