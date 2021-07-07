@@ -225,3 +225,26 @@ func Abort(scan_id string) error {
 	_, err = model.ParseResp(resp)
 	return err
 }
+
+func Vulnerabilities(args *VulnerabilitiesReq) (map[string]interface{}, error) {
+
+	ok, err := args.Check()
+	if err != nil || !ok {
+		return nil, fmt.Errorf("参数错误：%v", err)
+	}
+
+	req, err := request.NewRequest()
+	if err != nil {
+		return nil, err
+	}
+
+	req.Method = "get"
+	req.Url += _const.Scans_api_url + "/" + args.ScanId + "/results/" + args.ScanSessionId + "/vulnerabilities/" + args.VulId
+	req.Params = nil
+
+	resp, err := req.Do()
+	if err != nil {
+		return nil, err
+	}
+	return model.ParseResp(resp)
+}

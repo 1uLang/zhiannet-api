@@ -36,3 +36,18 @@ func TestList(t *testing.T) {
 		fmt.Println(info)
 	}
 }
+
+func TestVulnerabilities(t *testing.T) {
+	info, err := Vulnerabilities(&scans.VulnerabilitiesReq{
+		ScanId:        "86a50d76-5ef4-40e6-a88c-44086d1f9a7e",
+		ScanSessionId: "8158bb38-c1a5-4f41-b956-7fc5fb984c40",
+		VulId:         "2612438631037535816",
+	})
+
+	if err != nil {
+		t.Error(err)
+		t.Fail()
+	} else {
+		fmt.Println(info)
+	}
+}
