@@ -215,7 +215,7 @@ func Abort(scan_id string) error {
 		return err
 	}
 
-	req.Method = "get"
+	req.Method = "post"
 	req.Url += _const.Scans_api_url + "/" + scan_id + "/abort"
 
 	resp, err := req.Do()
