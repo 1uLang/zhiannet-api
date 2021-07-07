@@ -37,3 +37,7 @@ func Delete(scan_id string) (err error) {
 func Statistics(scan_id, scan_session_id string) (map[string]interface{}, error) {
 	return scans.Statistics(scan_id, scan_session_id)
 }
+
+func Vulnerabilities(req *scans.VulnerabilitiesReq)(map[string]interface{},error)  {
+	return scans.Vulnerabilities(req)
+}

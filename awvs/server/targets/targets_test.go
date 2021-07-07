@@ -35,3 +35,15 @@ func TestList(t *testing.T) {
 		fmt.Println(info)
 	}
 }
+func TestAdd(t *testing.T) {
+	_,err := Add(&targets.AddReq{
+		Address:     "asdasdasdas",
+		UserId:      0,
+		AdminUserId: 0,
+		UpdateReq:   targets.UpdateReq{},
+	})
+	if err != nil {
+		t.Errorf(err.Error())
+		t.Fail()
+	}
+}
