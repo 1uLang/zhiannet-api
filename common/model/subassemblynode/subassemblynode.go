@@ -30,7 +30,7 @@ type (
 //获取节点
 func GetList(req *NodeReq) (list []*Subassemblynode, total int64, err error) {
 	//从数据库获取
-	model := model.MysqlConn.Model(&Subassemblynode{}).Where("is_delete=?", 0)
+	model := model.MysqlConn.Model(&Subassemblynode{}).Where("is_delete=?", 0).Order("state DESC,type ASC")
 	if req != nil {
 		if req.State != "" {
 			model = model.Where("state=?", req.State)
