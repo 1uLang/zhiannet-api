@@ -42,6 +42,11 @@ type (
 		URL    string `xml:"url"`
 		Params string `xml:"params"`
 	}
+	Failure struct {
+		Info   string `xml:"info"`
+		URL    string `xml:"url"`
+		Params string `xml:"params"`
+	}
 )
 
 //黑白名单列表
@@ -102,6 +107,9 @@ func AddBW(req *EditBWReq, loginReq *request.LoginReq, retry bool) (res *Success
 	err = xml.Unmarshal(resp.Body(), &res)
 	if err != nil {
 		fmt.Println(err)
+	}
+	if res.Delay == "" {//说明错误
+		return res,fmt.Errorf("地址错误，请输入正确的黑白名单地址")
 	}
 	return res, err
 }
