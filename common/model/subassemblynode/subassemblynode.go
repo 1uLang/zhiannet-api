@@ -114,8 +114,12 @@ func Edit(req *Subassemblynode, id uint64) (rows int64, err error) {
 	entity.Type = req.Type
 	entity.Idc = req.Idc
 	entity.State = req.State
-	entity.Key = req.Key
-	entity.Secret = req.Secret
+	if req.Key != "" {
+		entity.Key = req.Key
+	}
+	if req.Secret != "" {
+		entity.Secret = req.Secret
+	}
 	entity.IsSsl = req.IsSsl
 	res := model.MysqlConn.Model(&Subassemblynode{}).Where("id=?", id).Save(&entity)
 	if res.Error != nil {
