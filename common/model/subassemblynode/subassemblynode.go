@@ -91,7 +91,7 @@ func Add(req *Subassemblynode) (insertId uint64, err error) {
 		err = fmt.Errorf("参数错误")
 		return
 	}
-	if CheckMenuNameUnique(req.Name,0){
+	if !CheckMenuNameUnique(req.Name,0){
 		err = fmt.Errorf("组件名称已存在")
 		return
 	}
@@ -107,7 +107,7 @@ func Add(req *Subassemblynode) (insertId uint64, err error) {
 func Edit(req *Subassemblynode, id uint64) (rows int64, err error) {
 	var entity Subassemblynode
 
-	if CheckMenuNameUnique(req.Name,id){
+	if !CheckMenuNameUnique(req.Name,id){
 		err = fmt.Errorf("组件名称已存在")
 		return
 	}
