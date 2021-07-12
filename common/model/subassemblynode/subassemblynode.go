@@ -91,7 +91,10 @@ func Add(req *Subassemblynode) (insertId uint64, err error) {
 		err = fmt.Errorf("参数错误")
 		return
 	}
-
+	if CheckMenuNameUnique(req.Name,0){
+		err = fmt.Errorf("组件名称已存在")
+		return
+	}
 	res := model.MysqlConn.Create(&req)
 	if res.Error != nil {
 		return 0, res.Error
@@ -103,6 +106,12 @@ func Add(req *Subassemblynode) (insertId uint64, err error) {
 //修改菜单操作
 func Edit(req *Subassemblynode, id uint64) (rows int64, err error) {
 	var entity Subassemblynode
+
+	if CheckMenuNameUnique(req.Name,id){
+		err = fmt.Errorf("组件名称已存在")
+		return
+	}
+
 	err = model.MysqlConn.Where("id=?", id).Find(&entity).Error
 	if err != nil {
 		return
