@@ -76,7 +76,7 @@ func GetNum(req *NodeReq) (total int64, err error) {
 
 //检查name 是否存在
 func CheckMenuNameUnique(name string, id uint64) bool {
-	model := model.MysqlConn.Model(&Subassemblynode{}).Where("name=?", name)
+	model := model.MysqlConn.Model(&Subassemblynode{}).Where("name=?", name).Where("is_delete=",0)
 	if id != 0 {
 		model = model.Where("id!=?", id)
 	}
@@ -102,6 +102,7 @@ func Add(req *Subassemblynode) (insertId uint64, err error) {
 	insertId = req.Id
 	return
 }
+
 
 //修改菜单操作
 func Edit(req *Subassemblynode, id uint64) (rows int64, err error) {
