@@ -63,9 +63,7 @@ func Add(args *AddReq) (uint64, error) {
 	}
 
 	//ret[orgId] 新增机构id
-	fmt.Println(ret)
 	args.OrgId, _ = util.Interface2Int(ret["data"].(map[string]interface{})["orgId"])
-	fmt.Println(ret["data"],args.OrgId)
 	//新增用户
 	req.Method = "post"
 	req.Path = _const.AddUser_api_url
