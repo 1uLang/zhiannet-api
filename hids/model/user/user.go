@@ -18,7 +18,8 @@ func Add(args *AddReq) (uint64, error) {
 		return 0, fmt.Errorf("获取数据失败：%v", err)
 	}
 	if list.TotalData > 0 {
-		return 0, fmt.Errorf("账号已存在")
+		fmt.Println("该账号已存在")
+		return 0, nil
 	}
 
 	//参数判断
@@ -57,9 +58,14 @@ func Add(args *AddReq) (uint64, error) {
 	}
 	//id, _ := strconv.ParseUint(fmt.Sprintf("%v", ret["orgId"]), 10, 64)
 
-	//ret[orgId] 新增机构id
-	args.OrgId, _ = util.Interface2Int(ret["orgId"])
+	if ret["returnCode"].(string) != "1"{
+		return 0,fmt.Errorf(ret["returnMsg"].(string))
+	}
 
+	//ret[orgId] 新增机构id
+	fmt.Println(ret)
+	args.OrgId, _ = util.Interface2Int(ret["data"].(map[string]interface{})["orgId"])
+	fmt.Println(ret["data"],args.OrgId)
 	//新增用户
 	req.Method = "post"
 	req.Path = _const.AddUser_api_url
