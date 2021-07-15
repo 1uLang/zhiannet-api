@@ -44,7 +44,7 @@ func Add(args *AddReq) (uint64, error) {
 		"wafCount":    1,
 		"ygCount":     1,
 		//TODO:后续 设置设置改机构的具体到期时间
-		"expireTime": time.Now().Add(1 * time.Hour).Format("2006-01-02 15:04:05"),
+		"expireTime": time.Now().AddDate(1, 0, 0).Format("2006-01-02 15:04:05"),
 	}
 
 	resp, err := req.Do2()
@@ -58,8 +58,8 @@ func Add(args *AddReq) (uint64, error) {
 	}
 	//id, _ := strconv.ParseUint(fmt.Sprintf("%v", ret["orgId"]), 10, 64)
 
-	if ret["returnCode"].(string) != "1"{
-		return 0,fmt.Errorf(ret["returnMsg"].(string))
+	if ret["returnCode"].(string) != "1" {
+		return 0, fmt.Errorf(ret["returnMsg"].(string))
 	}
 
 	//ret[orgId] 新增机构id
