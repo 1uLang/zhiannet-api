@@ -29,7 +29,7 @@ type (
 )
 
 func init() {
-	InitClient()
+	//InitClient()
 }
 
 // 初始化连接
