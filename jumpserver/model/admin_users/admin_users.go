@@ -70,7 +70,7 @@ func Create(req *request.Request, args *CreateReq) (map[string]interface{}, erro
 	if err != nil {
 		return nil, err
 	}
-	err = AddAdminUser(&AdminUser{
+	_, err = AddAdminUser(&AdminUser{
 		UserId:      args.UserId,
 		AdminUserId: args.AdminUserId,
 		AdUser:      info["id"].(string),
