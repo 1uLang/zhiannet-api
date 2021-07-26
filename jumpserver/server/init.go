@@ -13,20 +13,6 @@ type Request struct {
 
 var req *Request
 
-func (this *Request) UpdateToken(username, password string) (err error) {
-	err = request.InitToken(username, password)
-	if err != nil {
-		return
-	}
-	req.Users.req, err = request.NewRequest()
-	if err != nil {
-		return
-	}
-	req.Assets.req = req.Users.req
-	req.AdminUser.req = req.Users.req
-	return nil
-}
-
 //NewServerRequest 初始化 服务器url 当前用户的username,password
 func NewServerRequest(url, username, password string) (*Request, error) {
 
