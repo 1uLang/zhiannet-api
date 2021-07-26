@@ -1,6 +1,8 @@
 package audit_user
 
-import "github.com/1uLang/zhiannet-api/common/model"
+import (
+	"github.com/1uLang/zhiannet-api/common/model"
+)
 
 type (
 	// 用户表
@@ -37,7 +39,7 @@ func GetInfo(req *AuditReq) (info *User, err error) {
 		return info, err
 	}
 	//从数据库获取
-	model := model.MysqlConn.Model(&User{}).Where("id=?", req.UserId)
+	model := model.AuditMysqlConn.Model(&User{}).Where("id=?", req.UserId)
 	err = model.First(&info).Error
 
 	return info, err

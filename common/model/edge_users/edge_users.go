@@ -52,7 +52,7 @@ func GetList(req *ListReq) (list []*EdgeUsers, total int64, err error) {
 
 func GetListByUid(req []uint64) (resMap map[uint64]*EdgeUsers, total int64, err error) {
 	//从数据库获取
-	model := model.MysqlConn.Table("edgeUsers").Where("Ison=?", 1)
+	model := model.MysqlConn.Table("edgeUsers").Where("isOn=?", 1)
 	if len(req) == 0 {
 		return
 	}
