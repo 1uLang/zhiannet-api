@@ -64,7 +64,7 @@ func TrafficLogList(req *TrafficLogReq, loginReq *request.LoginReq, retry bool) 
 		fmt.Println(err)
 	}
 	//if len(apiRes.Host) == 0 { //可能登陆信息过期
-	//	failure := &request.Failure{}
+	//	failure := &audit_db.Failure{}
 	//	xml.Unmarshal(resp.Body(), &failure)
 	//	if retry && failure.Info == _const.FAILURE_INFO {
 	//		return HostList(req, loginReq, false)

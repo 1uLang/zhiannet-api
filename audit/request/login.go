@@ -9,6 +9,7 @@ import (
 	"github.com/1uLang/zhiannet-api/audit/model/audit_user_relation"
 	"github.com/1uLang/zhiannet-api/common/cache"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
+	"github.com/1uLang/zhiannet-api/utils"
 	"github.com/go-resty/resty/v2"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -22,6 +23,9 @@ type (
 		Port     string
 		IsSsl    bool
 		Token    string
+
+		ReqType     string      //请求方式
+		QueryParams interface{} //请求参数
 	}
 	LoginRes struct {
 		Code int    `json:"code"`
@@ -31,6 +35,11 @@ type (
 			Token string `json:"token"`
 		} `json:"data"`
 	}
+
+	UserReq struct { //节点
+		UserId      uint64 `json:"user_id"`
+		AdminUserId uint64 `json:"admin_user_id"`
+	}
 )
 
 var Client = resty.New().SetDebug(false).SetTimeout(time.Second * 60)
@@ -38,7 +47,7 @@ var Client = resty.New().SetDebug(false).SetTimeout(time.Second * 60)
 //登陆获取token
 func Login(req *LoginReq) (token string, err error) {
 	client := GetHttpClient(req)
-	url := req.Addr + _const.AUDIT_LOGIN_URL
+	url := utils.CheckHttpUrl(req.Addr+_const.AUDIT_LOGIN_URL, req.IsSsl)
 	resp, err := client.R().
 		SetHeader("Content-Type", "application/json").
 		SetFormData(map[string]string{
@@ -66,11 +75,7 @@ func Login(req *LoginReq) (token string, err error) {
 	return token, err
 }
 
-func GetToken(audit *audit_user_relation.AuditReq) (Token string, err error) {
-	var req *LoginReq
-	//audit := &audit_user_relation.AuditReq{
-	//	AdminUserId: 1,
-	//}
+func GetLoginInfo(audit *UserReq) (logReq *LoginReq, err error) {
 	nodes, _, err := subassemblynode.GetList(&subassemblynode.NodeReq{
 		State:    "1",
 		Type:     6,
@@ -79,12 +84,12 @@ func GetToken(audit *audit_user_relation.AuditReq) (Token string, err error) {
 	})
 	if err != nil || len(nodes) == 0 {
 		err = fmt.Errorf("获取审计系统节点信息失败")
-		return Token, err
+		return logReq, err
 	}
 	node := nodes[0]
 
 	if audit.AdminUserId == 1 { //等保云 超级管理员
-		req = &LoginReq{
+		logReq = &LoginReq{
 			Name:     node.Key,
 			Password: node.Secret,
 			Addr:     node.Addr,
@@ -92,36 +97,39 @@ func GetToken(audit *audit_user_relation.AuditReq) (Token string, err error) {
 		}
 	} else {
 		//等保平台 其他用户
-		req = &LoginReq{
+		logReq = &LoginReq{
 			//Name: node.Key,
 			//Password: node.Secret,
 			Addr:  node.Addr,
 			IsSsl: node.IsSsl == 1,
 		}
 		//获取关联的审计平台用户
-		auditInfo, err := audit_user_relation.GetInfo(audit)
+		auditInfo, err := audit_user_relation.GetInfo(&audit_user_relation.AuditReq{
+			AdminUserId: audit.AdminUserId,
+			UserId:      audit.UserId,
+		})
 		if err != nil {
 			err = fmt.Errorf("账号错误")
 		}
 		info, err := audit_user.GetInfo(&audit_user.AuditReq{UserId: auditInfo.AuditUserid})
 		if err != nil {
 			err = fmt.Errorf("获取用户信息错误")
-			return Token, err
+			return logReq, err
 		}
-		req.Name = info.UserName
-		req.Password = info.Pwd
+		logReq.Name = info.UserName
+		logReq.Password = info.Pwd
 	}
 
-	key := fmt.Sprintf("audit-token-%v:%v", req.Addr, req.Name)
+	key := fmt.Sprintf("audit-get-token-%v:%v", logReq.Addr, logReq.Name)
 
 	var resp interface{}
 	resp, err = cache.CheckCache(key, func() (interface{}, error) {
-		return Login(req)
-	}, 60, true)
+		return Login(logReq)
+	}, 600, true)
 	if err != nil {
 		return
 	}
-	Token = fmt.Sprintf("%v", resp)
+	logReq.Token = fmt.Sprintf("%v", resp)
 	return
 }
 

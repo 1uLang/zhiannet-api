@@ -180,7 +180,7 @@ type (
 //	resp, err := client.R().
 //		SetCookie(&http.Cookie{
 //			Name:  "sid",
-//			Value: request.Cookie,
+//			Value: audit_db.Cookie,
 //		}).
 //		Get(_const.DDOS_HOST + _const.DDOS_HOST_STATUS_URL)
 //	fmt.Println(string(resp.Body()), err)
@@ -192,7 +192,7 @@ type (
 //		return
 //	}
 //	if len(res.FBlink) == 0 { //可能登陆信息过期
-//		failure := &request.Failure{}
+//		failure := &audit_db.Failure{}
 //		xml.Unmarshal(resp.Body(), &failure)
 //		if retry && failure.Info == _const.FAILURE_INFO {
 //			return HostStatus(req, false)
@@ -218,7 +218,7 @@ func HostList(req *HostReq, loginReq *request.LoginReq, retry bool) (res []*Stat
 			"param_netaddr":     v,            //单个IP查询
 		}).Post(url)
 		//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_HOST_STATUS_URL)
-		//fmt.Println("get cookie", request.GetCookie(loginReq))
+		//fmt.Println("get cookie", audit_db.GetCookie(loginReq))
 		//fmt.Println(string(resp.Body()), err)
 
 		apiRes := &StatusHost{}
@@ -229,7 +229,7 @@ func HostList(req *HostReq, loginReq *request.LoginReq, retry bool) (res []*Stat
 		}
 		res = append(res, apiRes)
 		//if len(apiRes.Host) == 0 { //可能登陆信息过期
-		//	failure := &request.Failure{}
+		//	failure := &audit_db.Failure{}
 		//	xml.Unmarshal(resp.Body(), &failure)
 		//	if retry && failure.Info == _const.FAILURE_INFO {
 		//		return HostList(req, loginReq, false)

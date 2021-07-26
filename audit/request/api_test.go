@@ -2,14 +2,13 @@ package request
 
 import (
 	"fmt"
-	"github.com/1uLang/zhiannet-api/audit/model/audit_user_relation"
 	"testing"
 	"time"
 )
 
 func Test_ApiLogin(t *testing.T) {
 
-	cook, err := GetToken(&audit_user_relation.AuditReq{
+	cook, err := GetLoginInfo(&UserReq{
 		AdminUserId: 1,
 	})
 	fmt.Println("res=", cook, err)

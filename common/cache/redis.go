@@ -28,24 +28,29 @@ type (
 	}
 )
 
-func init() {
-	//InitClient()
-}
+var ApiDbPath = "./build/configs/api_db.yaml"
+
+//func init() {
+//InitClient()
+//}
 
 // 初始化连接
 func InitClient() (err error) {
 	var yamlFile []byte
 	conf := new(RdbConfig)
-	yamlFile, err = ioutil.ReadFile("./build/configs/api_db.yaml")
+	yamlFile, err = ioutil.ReadFile(ApiDbPath)
+	//yamlFile, err = ioutil.ReadFile("./build/configs/api_db.yaml")
 	//yamlFile, err = ioutil.ReadFile("/Users/dp/zhian/zhiannet-edge-line/EdgeAdmin/build/configs/api_db.yaml")
 
 	if err != nil {
-		panic(fmt.Errorf("zhiannet package redis link yamlFile.Get err #%v ", err))
+		return err
+		//panic(fmt.Errorf("zhiannet package redis link yamlFile.Get err #%v ", err))
 	}
 	err = yaml.Unmarshal(yamlFile, &conf)
 
 	if err != nil {
-		panic(fmt.Errorf("zhiannet package redis link yaml.Unmarshal err %v", err))
+		//panic(fmt.Errorf("zhiannet package redis link yaml.Unmarshal err %v", err))
+		return err
 	}
 	Rdb = redis.NewClient(&redis.Options{
 		Addr:     conf.Redis.Addr,     //"45.195.61.132:6379",
@@ -129,7 +134,7 @@ func SetCache(key string, data interface{}, duration uint32) (err error) {
 }
 
 func getA() (a interface{}, err error) {
-	fmt.Println("request a")
+	fmt.Println("audit_db a")
 	time.Sleep(time.Second * 3)
 	return "a", nil
 }

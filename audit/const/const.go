@@ -1,20 +1,37 @@
 package _const
 
 const (
-	USERNAME     = "cdadmin"
-	PASSWORD     = "A16pBIzVJOwHSC#Q"
-	FAILURE_INFO = "Invalid user or password mismatch, or automatically logged out"
+	AUDIT_HOST         = "https://182.131.30.171:28443"
+	AUDIT_LOGIN_URL    = "/sysLogin/login"                 //登陆
+	AUDIT_RESOURCE_URL = "/system/monitor/server/resource" //全局统计
 
-	AUDIT_HOST                  = "https://182.131.30.171:28443"
-	AUDIT_LOGIN_URL             = "/sysLogin/login"                 //登陆
-	DDOS_STATUS_GLOBAL_URL      = "/cgi-bin/status_global.cgi"      //全局统计
-	DDOS_STATUS_HEALTH_URL      = "/cgi-bin/status_health.cgi"      //负载
-	DDOS_HOST_STATUS_URL        = "/cgi-bin/status_host.cgi"        //主机状体 主机列表
-	DDOS_STATUS_FBLINK_URL      = "/cgi-bin/status_fblink.cgi"      //屏蔽列表
-	DDOS_STATUS_LINK_URL        = "/cgi-bin/status_link.cgi"        //链接列表
-	DDOS_STATUS_HOSTSET_URL     = "/cgi-bin/status_hostset.cgi"     //主机设置
-	DDOS_STATUS_BWLIST_URL      = "/cgi-bin/status_bwlist.cgi"      //黑白名单
-	DDOS_LOGS_REPORT_ATTACK_URL = "/cgi-bin/logs_report_attack.cgi" //攻击日志列表
-	DDOS_LOGS_REPORT_FLOW_URL   = "/cgi-bin/logs_report_flow.cgi"   //流量日志列表
-	DDOS_LOGS_REPORT_LINK_URL   = "/cgi-bin/logs_report_link.cgi"   //连接日志列表
+	//数据库
+	AUDIT_DB_LIST         = "/system/audit/dbList"       //数据库列表
+	AUDIT_ADD_DB          = "/system/audit/addDB"        //添加
+	AUDIT_EDIT_DB         = "/system/audit/editNameDB"   //修改
+	AUDIT_DEL_DB          = "/system/audit/deleteDB"     //链接列表
+	AUDIT_AUTH_EMAIL      = "/system/audit/authUser"     //添加授权
+	AUDIT_AUTH_EMAIL_LIST = "/system/audit/authUserList" //授权列表
+	AUDIT_DB_LOG_LIST     = "/system/audit/logList"      //日志列表
+
+	//主机
+	AUDIT_HOST_LIST     = "/system/audit/hostList"     //主机列表
+	AUDIT_ADD_HOST      = "/system/audit/addHost"      //添加
+	AUDIT_EDIT_HOST     = "/system/audit/editNameHost" //修改
+	AUDIT_DEL_HOST      = "/system/audit/deleteHost"   //链接列表
+	AUDIT_HOST_LOG_LIST = "/system/audit/hostLogList"  //日志列表
+
+	//应用
+	AUDIT_APP_LIST     = "/system/audit/appList"     //主机列表
+	AUDIT_ADD_APP      = "/system/audit/addApp"      //添加
+	AUDIT_EDIT_APP     = "/system/audit/editNameApp" //修改
+	AUDIT_DEL_APP      = "/system/audit/deleteApp"   //链接列表
+	AUDIT_APP_LOG_LIST = "/system/audit/appLogList"  //日志列表
+
+	//报表
+	AUDIT_FROM_LIST = "/system/audit/fromList"    //主机列表
+	AUDIT_ADD_FROM  = "/system/audit/addFrom"     //添加
+	AUDIT_EDIT_FROM = "/system/audit/editFrom"    //修改
+	AUDIT_DEL_FROM  = "/system/audit/deleteFrom"  //删除
+	AUDIT_GET_FROM  = "/system/audit/getFromInfo" //获取详情
 )

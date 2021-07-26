@@ -71,7 +71,7 @@ func BWList(req *BWListReq, loginReq *request.LoginReq, retry bool) (res *Status
 		fmt.Println(err)
 	}
 	//if len(apiRes.Host) == 0 { //可能登陆信息过期
-	//	failure := &request.Failure{}
+	//	failure := &audit_db.Failure{}
 	//	xml.Unmarshal(resp.Body(), &failure)
 	//	if retry && failure.Info == _const.FAILURE_INFO {
 	//		return HostList(req, loginReq, false)
@@ -108,8 +108,8 @@ func AddBW(req *EditBWReq, loginReq *request.LoginReq, retry bool) (res *Success
 	if err != nil {
 		fmt.Println(err)
 	}
-	if res.Delay == "" {//说明错误
-		return res,fmt.Errorf("地址错误，请输入正确的黑白名单地址")
+	if res.Delay == "" { //说明错误
+		return res, fmt.Errorf("地址错误，请输入正确的黑白名单地址")
 	}
 	return res, err
 }

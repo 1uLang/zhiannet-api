@@ -226,11 +226,11 @@ func (this *request) Do2() (respBody []byte, err error) {
 		}
 		req.URL.RawQuery = q.Encode()
 	}
-	fmt.Println("http request :" + req.URL.String())
+	fmt.Println("http audit_db :" + req.URL.String())
 	for k, v := range this.Headers {
 		req.Header.Add(k, v)
 	}
-	fmt.Println("request info : \n", this.ToString())
+	fmt.Println("audit_db info : \n", this.ToString())
 	//请求
 	resp, err := client.Do(req)
 	if err != nil {
@@ -272,7 +272,7 @@ func (this *request) Do() (respBody []byte, err error) {
 		}
 		req.URL.RawQuery = q.Encode()
 	}
-	fmt.Println("http request :" + req.URL.String())
+	fmt.Println("http audit_db :" + req.URL.String())
 	//毫秒时间戳
 	this.Headers["time"] = fmt.Sprintf("%d", time.Now().UnixNano()/1e6)
 	//签名
@@ -280,7 +280,7 @@ func (this *request) Do() (respBody []byte, err error) {
 	for k, v := range this.Headers {
 		req.Header.Add(k, v)
 	}
-	fmt.Println("request info : \n", this.ToString())
+	fmt.Println("audit_db info : \n", this.ToString())
 	//请求
 	resp, err := client.Do(req)
 	if err != nil {

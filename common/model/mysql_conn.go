@@ -31,22 +31,27 @@ type (
 	}
 )
 
-func init() {
-	InitMysqlLink()
-}
+var ApiDbPath = "./build/configs/api_db.yaml"
+
+//func init() {
+//	InitMysqlLink()
+//}
 func InitMysqlLink() {
 	var err error
 	var yamlFile []byte
 	conf := new(DBConfig)
-	yamlFile, err = ioutil.ReadFile("./build/configs/api_db.yaml")
+	yamlFile, err = ioutil.ReadFile(ApiDbPath)
+	//yamlFile, err = ioutil.ReadFile("./build/configs/api_db.yaml")
 	//yamlFile, err = ioutil.ReadFile("/Users/dp/zhian/zhiannet-edge-line/EdgeAdmin/build/configs/api_db.yaml")
 	if err != nil {
-		panic(fmt.Errorf("zhiannet package mysql link yamlFile.Get err #%v ", err))
+		//panic(fmt.Errorf("zhiannet package mysql link yamlFile.Get err #%v ", err))
+		return
 	}
 	err = yaml.Unmarshal(yamlFile, &conf)
 
 	if err != nil {
-		panic(fmt.Errorf("zhiannet package mysql link yaml.Unmarshal err %v", err))
+		//panic(fmt.Errorf("zhiannet package mysql link yaml.Unmarshal err %v", err))
+		return
 	}
 	//dsn := "root:mysql8@tcp(45.195.61.132:3306)/zhian-edges?charset=utf8mb4&parseTime=True&loc=Local"
 	dsn := conf.Dbs.Prod.Dsn
