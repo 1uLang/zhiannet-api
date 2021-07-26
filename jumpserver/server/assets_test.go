@@ -9,12 +9,12 @@ import (
 func init() {
 	InitMysql()
 	var err error
-	info, err := GetFortCloud()
-	if err != nil {
-		panic(err)
-	}
-	//req,err = NewServerRequest("http://182.150.0.106:8080","admin","21ops.com")
-	req, err = NewServerRequest(info.Addr, info.Username, info.Password)
+	//info, err := GetFortCloud()
+	//if err != nil {
+	//	panic(err)
+	//}
+	req, err = NewServerRequest("http://182.150.0.106:8080", "admin", "2s1ops.com")
+	//req, err = NewServerRequest(info.Addr, info.Username, info.Password)
 	if err != nil {
 		panic(err)
 	}

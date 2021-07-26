@@ -102,7 +102,7 @@ func (this *Request) updateToken() (string, error) {
 	}
 	userInfo := map[string]interface{}{}
 	_ = json.Unmarshal(b, &userInfo)
-
+	fmt.Println(userInfo)
 	token := userInfo["token"].(string)
 	err = redis_cache.SetCache(this.UserName, token, 3600)
 
@@ -117,6 +117,7 @@ func (this *Request) token() (string, error) {
 
 	value, err := redis_cache.GetCache(this.UserName + "_jumpserver_token")
 	token := value.(string)
+	fmt.Println("redis : ", this.UserName)
 	if err == nil && len(token) != 0 {
 		return token, nil
 	}
