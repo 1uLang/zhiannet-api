@@ -17,7 +17,7 @@ import (
 
 func InitMysql() {
 	var err error
-	dsn := "root:mysql8@tcp(45.195.61.132:3306)/zhian-edges?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:123456@tcp(192.168.137.1:3306)/edge?charset=utf8mb4&parseTime=True&loc=Local"
 	model.MysqlConn, err = gorm.Open(gmysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   "",   //表前缀
@@ -27,18 +27,6 @@ func InitMysql() {
 	})
 	if err != nil {
 		panic(fmt.Errorf("zhiannet-api package link mysql err %v", err))
-	}
-
-	dsn = "root:mysql8@tcp(45.195.61.132:3306)/gfast_open_test?charset=utf8mb4&parseTime=True&loc=Local"
-	model.AuditMysqlConn, err = gorm.Open(gmysql.Open(dsn), &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   "",   //表前缀
-			SingularTable: true, //表名复数形式
-		},
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
-	if err != nil {
-		panic("审计系统 mysql link err ")
 	}
 
 	cache.Rdb = redis.NewClient(&redis.Options{
