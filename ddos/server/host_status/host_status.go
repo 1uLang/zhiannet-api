@@ -63,14 +63,14 @@ type (
 )
 
 //获取登陆的账号信息
-//func GetLoginInfo(req NodeReq) (logReq *request.LoginReq, err error) {
+//func GetLoginInfo(req NodeReq) (logReq *audit_db.LoginReq, err error) {
 //	var nodeInfo subassemblynode.Subassemblynode
 //	//获取节点账号信息
 //	nodeInfo, err = subassemblynode.GetNodeInfoById(req.NodeId)
 //	if err != nil {
 //		return
 //	}
-//	logReq = &request.LoginReq{
+//	logReq = &audit_db.LoginReq{
 //		Name:     nodeInfo.Key,
 //		Password: nodeInfo.Secret,
 //		Addr:     nodeInfo.Addr,

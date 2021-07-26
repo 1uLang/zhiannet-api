@@ -44,7 +44,7 @@ func Login(req *LoginReq) (string, error) {
 	client := GetHttpClient(req)
 	url := req.Addr + _const.DDOS_LOGIN_URL
 	resp, err := client.R().
-		SetHeader("Content-Type", "multipart/form-data; boundary=<calculated when request is sent>").
+		SetHeader("Content-Type", "multipart/form-data; boundary=<calculated when audit_db is sent>").
 		SetFormData(map[string]string{
 			"param_type":     "login",
 			"param_username": req.Name,

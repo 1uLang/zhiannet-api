@@ -1,53 +1,40 @@
 package server
 
-import (
-	"fmt"
-	"github.com/1uLang/zhiannet-api/audit/request"
-	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
-	"github.com/1uLang/zhiannet-api/utils"
-)
+import "github.com/1uLang/zhiannet-api/audit/request"
 
 type (
-	UserReq struct { //节点
-		UserId      uint64 `json:"user_id"`
-		AdminUserId uint64 `json:"admin_user_id"`
+	//列表下拉参数
+	Options struct {
+		DictName string `json:"dict_name"`
+		Remark   string `json:"remark"`
+		Values   []struct {
+			IsDefault int    `json:"isDefault"`
+			Key       string `json:"key"`
+			Remark    string `json:"remark"`
+			Value     string `json:"value"`
+		} `json:"values"`
+	}
+
+	//修改 添加 公共响应参数
+	Resp struct {
+		Code int         `json:"code"`
+		Data interface{} `json:"data"`
+		Msg  string      `json:"msg"`
+	}
+
+	//授权 请求参数
+	AuthReq struct {
+		User  *request.UserReq `json:"user" `
+		Email []string         `json:"email"`
+		Id    uint64           `json:"id"`
+	}
+
+	//修改权限响应参数
+	AuthEmailResp struct {
+		Code int `json:"code"`
+		Data struct {
+			Email []string `json:"email"`
+		} `json:"data"`
+		Msg string `json:"msg"`
 	}
 )
-
-//获取登陆的账号信息
-func GetLoginInfo(req UserReq) (logReq *request.LoginReq, err error) {
-	var nodeInfo *subassemblynode.Subassemblynode
-	nodeInfo, err = GetAuditInfo()
-	logReq = &request.LoginReq{
-		Name:     nodeInfo.Key,
-		Password: nodeInfo.Secret,
-		Addr:     nodeInfo.Addr,
-		Port:     fmt.Sprintf("%v", nodeInfo.Port),
-		IsSsl:    nodeInfo.IsSsl == 1,
-	}
-	logReq.Addr = utils.CheckHttpUrl(logReq.Addr, nodeInfo.IsSsl == 1)
-
-	//等保平台 超级管理员
-	if req.AdminUserId == 1 {
-
-	}
-	return
-}
-
-//获取审计系统节点信息
-func GetAuditInfo() (nodeInfo *subassemblynode.Subassemblynode, err error) {
-	//获取节点账号信息
-	nodeInfos, _, err := subassemblynode.GetList(&subassemblynode.NodeReq{
-		State:    "1",
-		Type:     6,
-		PageSize: 1,
-	})
-	if err != nil {
-		return
-	}
-	if len(nodeInfos) == 0 {
-		return
-	}
-	nodeInfo = nodeInfos[0]
-	return
-}

@@ -83,6 +83,6 @@ func Edit(req *AuditReq, id uint64) (rows int64, err error) {
 
 //删除
 func DeleteByIds(ids []uint64) (err error) {
-	res := model.MysqlConn.Model(&AuditUserRelation{}).Where("id in (?)", ids).Update("is_delete", 0)
+	res := model.MysqlConn.Model(&AuditUserRelation{}).Where("id in (?)", ids).Update("is_delete", 1)
 	return res.Error
 }
