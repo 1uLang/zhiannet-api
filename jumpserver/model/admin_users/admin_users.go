@@ -70,7 +70,7 @@ func Create(req *request.Request, args *CreateReq) (map[string]interface{}, erro
 	if err != nil {
 		return nil, err
 	}
-	AddAdminUser(&AdminUser{
+	err = AddAdminUser(&AdminUser{
 		UserId:      args.UserId,
 		AdminUserId: args.AdminUserId,
 		AdUser:      info["id"].(string),
@@ -92,8 +92,8 @@ func Delete(req *request.Request, id string) error {
 		err = json.Unmarshal(ret, &info)
 		return fmt.Errorf(info["detail"].(string))
 	} else {
-		DeleteByAdminUserIds([]string{id})
-		return nil
+		err = DeleteByAdminUserIds([]string{id})
+		return err
 	}
 }
 
