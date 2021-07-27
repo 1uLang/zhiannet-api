@@ -13,7 +13,7 @@ func init() {
 	//if err != nil {
 	//	panic(err)
 	//}
-	req, err = NewServerRequest("http://182.150.0.106:8080", "admin", "2s1ops.com")
+	req, err = NewServerRequest("http://182.150.0.106:8080", "lusir", "dengbao-lusir")
 	//req, err = NewServerRequest(info.Addr, info.Username, info.Password)
 	if err != nil {
 		panic(err)
@@ -43,14 +43,14 @@ func TestAssetsList(t *testing.T) {
 }
 func TestCreate(t *testing.T) {
 	args := &assets_model.CreateReq{}
-	args.HostName = "1"
-	args.IP = "1"
+	args.HostName = "182.150.0.100"
+	args.IP = "182.150.0.100"
 	args.Platform = "Linux"
 	args.Protocols = []string{"ssh/22"}
 	args.Active = true
-	//req.AdminUser = "1ef6fc7d-ca98-4fa1-8a21-800ae58c48ef"
-	args.Comment = "创建主机测试"
-	args.PublicIp = "1"
+	args.AdminUser = "e6957684-7e25-4c1a-af60-5329e4398032"
+	args.Comment = "182.150.0.100"
+	args.PublicIp = "182.150.0.100"
 	info, err := req.Assets.Create(args)
 	if err != nil {
 		t.Fatal(err)

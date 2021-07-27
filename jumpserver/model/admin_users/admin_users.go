@@ -65,7 +65,7 @@ func Create(req *request.Request, args *CreateReq) (map[string]interface{}, erro
 	}
 	//解析返回值
 	info := make(map[string]interface{}, 0)
-
+	fmt.Println(info)
 	err = json.Unmarshal(ret, &info)
 	if err != nil {
 		return nil, err
