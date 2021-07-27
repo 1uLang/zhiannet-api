@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	yaml "gopkg.in/yaml.v2"
 	gmysql "gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -15,7 +14,8 @@ var AuditMysqlConn *gorm.DB
 
 type (
 	DBConfig struct {
-		Dbs Dbs `yaml:"dbs"`
+		Dbs     Dbs `yaml:"dbs"`
+		Auditdb Dbs `yaml:"auditdb"`
 	}
 
 	// Dbs
@@ -63,18 +63,19 @@ func InitMysqlLink() {
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
-		panic(fmt.Errorf("zhiannet-api package link mysql err %v", err))
+		//panic(fmt.Errorf("zhiannet-api package link mysql err %v", err))
 	}
 
 	//dsn = "root:mysql8@tcp(45.195.61.132:3306)/gfast_open_test?charset=utf8mb4&parseTime=True&loc=Local"
-	//AuditMysqlConn, err = gorm.Open(gmysql.Open(dsn), &gorm.Config{
-	//	NamingStrategy: schema.NamingStrategy{
-	//		TablePrefix:   "",   //表前缀
-	//		SingularTable: true, //表名复数形式
-	//	},
-	//	Logger: logger.Default.LogMode(logger.Silent),
-	//})
-	//if err != nil {
-	//	panic("审计系统 mysql link err ")
-	//}
+	dsn = conf.Auditdb.Prod.Dsn
+	AuditMysqlConn, err = gorm.Open(gmysql.Open(dsn), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix:   "",   //表前缀
+			SingularTable: true, //表名复数形式
+		},
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
+	if err != nil {
+		//panic("审计系统 mysql link err ")
+	}
 }

@@ -129,7 +129,7 @@ func GetAuditAppList(req *ReqSearch) (list *AppListResp, err error) {
 }
 
 //添加应用
-func AddHost(req *AppReq) (resp *server.Resp, err error) {
+func AddApp(req *AppReq) (resp *server.Resp, err error) {
 	//获取数据
 	logReq, err := request.GetLoginInfo(req.User)
 	if err != nil {
@@ -250,7 +250,7 @@ func GetAuthEmail(req *server.AuthReq) (resp *server.AuthEmailResp, err error) {
 }
 
 //日志列表
-func GetHostLog(req *AppLogReq) (resp *AppLogResp, err error) {
+func GetAppLog(req *AppLogReq) (resp *AppLogResp, err error) {
 	//获取数据
 	logReq, err := request.GetLoginInfo(req.UserId)
 	if err != nil {

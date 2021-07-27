@@ -144,6 +144,7 @@ func AddHost(req *HostReq) (resp *server.Resp, err error) {
 		"system":   fmt.Sprintf("%v", req.System),
 		"status":   fmt.Sprintf("%v", req.Status),
 		"timelong": fmt.Sprintf("%v", req.TimeLong),
+		"audits":   "[]",
 	}
 	logReq.ReqType = "post"
 	var res []byte

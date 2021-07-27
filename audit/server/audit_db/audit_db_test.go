@@ -17,10 +17,13 @@ func init() {
 //数据库
 func Test_dblist(t *testing.T) {
 	list, err := GetAuditBdList(&ReqSearch{
-		User:     &request.UserReq{AdminUserId: 1},
+		User: &request.UserReq{
+			//AdminUserId: 1,
+			UserId: 2,
+		},
 		PageSize: 1,
-		//Name: "罗兵",
-		Status: "1",
+		Name:     "222",
+		//Status: "1",
 	})
 	fmt.Println(list)
 	fmt.Println(err)
@@ -29,8 +32,8 @@ func Test_dblist(t *testing.T) {
 ////添加
 func Test_add_db(t *testing.T) {
 	list, err := AddDb(&DBReq{
-		User:     &request.UserReq{AdminUserId: 1},
-		Uid:      1,
+		User: &request.UserReq{UserId: 2},
+		//Uid:      1,
 		Type:     1,
 		Name:     "test",
 		Version:  "8",
@@ -80,8 +83,8 @@ func Test_audit_db(t *testing.T) {
 //获取授权列表
 func Test_audit_list(t *testing.T) {
 	list, err := GetAuthEmail(&server.AuthReq{
-		User: &request.UserReq{AdminUserId: 1},
-		Id:   26,
+		User: &request.UserReq{UserId: 2},
+		Id:   38,
 	})
 	fmt.Println(list)
 	fmt.Println(err)

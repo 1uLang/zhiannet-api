@@ -50,16 +50,16 @@ type (
 
 	//添加数据库请求参数
 	DBReq struct {
-		User     *request.UserReq `json:"user" `
-		Uid      uint64           `json:"uid"`
-		Type     uint             `json:"type"`
-		Name     string           `json:"name"`
-		Version  string           `json:"version"`
-		IP       string           `json:"ip" `
-		Port     string           `json:"port" `
-		System   uint             `json:"system"`
-		Status   uint             `json:"status"`
-		TimeLong int              `json:"time_long"`
+		User *request.UserReq `json:"user" `
+		//Uid      uint64           `json:"uid"`
+		Type     uint   `json:"type"`
+		Name     string `json:"name"`
+		Version  string `json:"version"`
+		IP       string `json:"ip" `
+		Port     string `json:"port" `
+		System   uint   `json:"system"`
+		Status   uint   `json:"status"`
+		TimeLong int    `json:"time_long"`
 	}
 
 	//修改数据库请求参数
@@ -144,7 +144,7 @@ func AddDb(req *DBReq) (resp *server.Resp, err error) {
 	}
 	logReq.Addr = fmt.Sprintf("%v%v", logReq.Addr, _const.AUDIT_ADD_DB)
 	logReq.QueryParams = map[string]string{
-		"uid":      fmt.Sprintf("%v", req.Uid),
+		//"uid":      fmt.Sprintf("%v", req.Uid),
 		"type":     fmt.Sprintf("%v", req.Type),
 		"name":     fmt.Sprintf("%v", req.Name),
 		"version":  fmt.Sprintf("%v", req.Version),
