@@ -31,7 +31,7 @@ type (
 				Format     int    `json:"format"`
 				AssetsType int    `json:"assets_type"`
 				AssetsID   int    `json:"assets_id"`
-				AssetsName int    `json:"assets_name"`
+				AssetsName string `json:"assets_name"`
 				Email      string `json:"email"`
 				IsDelete   int    `json:"is_delete"`
 				CreateTime int    `json:"create_time"`
