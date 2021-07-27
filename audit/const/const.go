@@ -34,4 +34,8 @@ const (
 	AUDIT_EDIT_FROM = "/system/audit/editFrom"    //修改
 	AUDIT_DEL_FROM  = "/system/audit/deleteFrom"  //删除
 	AUDIT_GET_FROM  = "/system/audit/getFromInfo" //获取详情
+
+	//用户
+	AUDIT_ADD_USER = "/system/auth/addUser" //添加用户
+
 )
