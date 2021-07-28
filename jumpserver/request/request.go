@@ -123,6 +123,9 @@ func (this *Request) token() (string, error) {
 	fmt.Println("update " + this.UserName + " token ...")
 	return this.updateToken()
 }
+func (this *Request) GetToken() (token string, err error) {
+	return this.token()
+}
 
 //ToString 打印
 func (this *Request) ToString() string {
@@ -146,7 +149,7 @@ func (this *Request) Do() (respBody []byte, err error) {
 	}
 
 	//非get 参数设置在body中 以json形式传输
-	if strings.ToUpper(this.Method) != "GET" && len(this.Params) > 0 {
+	if this.Method != "GET" && len(this.Params) > 0 {
 		buf, _ := json.Marshal(this.Params)
 		body = bytes.NewReader(buf)
 	}
@@ -155,14 +158,13 @@ func (this *Request) Do() (respBody []byte, err error) {
 		return nil, err
 	}
 
-	if strings.ToUpper(this.Method) == "GET" {
+	if this.Method == "GET" {
 		q := req.URL.Query()
 		for k, v := range this.Params {
 			q.Add(k, fmt.Sprintf("%v", v))
 		}
 		req.URL.RawQuery = q.Encode()
 	}
-
 	//todo:获取token
 	token, err := this.token()
 	if err != nil {
@@ -173,7 +175,6 @@ func (this *Request) Do() (respBody []byte, err error) {
 		req.Header.Add(k, v)
 	}
 doRequest:
-	fmt.Println(authorization_template + token)
 	req.Header.Set("Authorization", authorization_template+token)
 	//请求
 	resp, err := client.Do(req)

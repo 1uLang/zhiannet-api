@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/1uLang/zhiannet-api/jumpserver/model"
-	"github.com/1uLang/zhiannet-api/jumpserver/model/assets"
 	"github.com/1uLang/zhiannet-api/jumpserver/request"
 )
 
@@ -16,10 +15,6 @@ const (
 
 //会话列表
 func List(req *request.Request, args *ListReq) ([]map[string]interface{}, error) {
-
-	if args.Is_finished != "0" && args.Is_finished != "1" {
-		return nil, fmt.Errorf("参数错误")
-	}
 
 	req.Method = "get"
 	req.Params = model.ToMap(args)
@@ -35,26 +30,27 @@ func List(req *request.Request, args *ListReq) ([]map[string]interface{}, error)
 	if err != nil {
 		return nil, err
 	}
-	assetList, total, err := assets.GetList(&assets.AssetsListReq{
-		UserId:      args.UserId,
-		AdminUserId: args.AdminUserId,
-		PageSize:    999,
-		PageNum:     1,
-	})
-	if total == 0 || err != nil {
-		return []map[string]interface{}{}, err
-	}
-	contain := map[string]int{}
-	for _, v := range assetList {
-		contain[v.AssetsId] = 0
-	}
-	resList := make([]map[string]interface{}, 0)
-	for _, v := range list {
-		if _, isExist := contain[v["asset"].(string)]; isExist {
-			resList = append(resList, v)
-		}
-	}
-	return resList, err
+	//assetList, total, err := assets.GetList(&assets.AssetsListReq{
+	//	UserId:      args.UserId,
+	//	AdminUserId: args.AdminUserId,
+	//	PageSize:    999,
+	//	PageNum:     1,
+	//})
+	//if total == 0 || err != nil {
+	//	return []map[string]interface{}{}, err
+	//}
+	//contain := map[string]int{}
+	//for _, v := range assetList {
+	//	contain[v.AssetsId] = 0
+	//}
+	//resList := make([]map[string]interface{}, 0)
+	//for _, v := range list {
+	//	if _, isExist := contain[v["asset_id"].(string)]; isExist {
+	//		resList = append(resList, v)
+	//	}
+	//}
+	//return resList, err
+	return list, nil
 }
 
 //监控
@@ -78,41 +74,17 @@ func Monitor(req *request.Request, id string) error {
 }
 
 //回放
-func Replay(req *request.Request, id string) error {
+func Replay(req *request.Request, id string) (string,string,error ){
 
-	req.Method = "get"
 	req.Path = terminal_sessions_path + id + "/replay/"
-	ret, err := req.Do()
-	if err != nil {
-		return err
-	}
-	//解析返回值
-	resp := map[string]interface{}{}
-	err = json.Unmarshal(ret, &resp)
-	if err != nil {
-		return err
-	}
-	fmt.Println(resp)
-
-	return err
+	token ,err := req.GetToken()
+	return req.Path,token,err
 }
 
 //回放下载
-func Download(req *request.Request, id string) error {
+func Download(req *request.Request, id string)(string,string,error ){
 
-	req.Method = "get"
 	req.Path = terminal_sessions_path + id + "/replay/download/"
-	ret, err := req.Do()
-	if err != nil {
-		return err
-	}
-	//解析返回值
-	resp := map[string]interface{}{}
-	err = json.Unmarshal(ret, &resp)
-	if err != nil {
-		return err
-	}
-	fmt.Println(resp)
-
-	return err
+	token ,err := req.GetToken()
+	return req.Path,token,err
 }

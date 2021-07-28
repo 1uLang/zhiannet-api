@@ -9,8 +9,10 @@ type ListReq struct {
 	Limit  int `json:"limit,omitempty"`
 	Offset int `json:"offset,omitempty"`
 
-	UserId      uint64 `json:"user_id"`
-	AdminUserId uint64 `json:"admin_user_id"`
+	NodeId      string `json:"node_id,omitempty"`
+	Display     int    `json:"display"`
+	UserId      uint64 `json:"user_id,omitempty"`
+	AdminUserId uint64 `json:"admin_user_id,omitempty"`
 }
 
 type CreateReq struct {
@@ -31,6 +33,10 @@ type CreateReq struct {
 type UpdateReq struct {
 	ID string `json:"id"`
 	CreateReq
+}
+type AuthorizeReq struct {
+	Asset string
+	Emails []string
 }
 
 var protocolsMaps = map[string]bool{

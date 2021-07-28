@@ -13,9 +13,9 @@ func (this *sessions) List(args *sessions_model.ListReq) ([]map[string]interface
 func (this *sessions) Monitor(id string) error {
 	return sessions_model.Monitor(this.req, id)
 }
-func (this *sessions) Replay(id string) error {
+func (this *sessions) Replay(id string)  (string,string,error ) {
 	return sessions_model.Replay(this.req, id)
 }
-func (this *sessions) Download(id string) error {
+func (this *sessions) Download(id string)  (string,string,error ) {
 	return sessions_model.Download(this.req, id)
 }
