@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/1uLang/zhiannet-api/jumpserver/model"
+	"github.com/1uLang/zhiannet-api/jumpserver/model/assets"
 	"github.com/1uLang/zhiannet-api/jumpserver/request"
 )
 
@@ -30,27 +31,27 @@ func List(req *request.Request, args *ListReq) ([]map[string]interface{}, error)
 	if err != nil {
 		return nil, err
 	}
-	//assetList, total, err := assets.GetList(&assets.AssetsListReq{
-	//	UserId:      args.UserId,
-	//	AdminUserId: args.AdminUserId,
-	//	PageSize:    999,
-	//	PageNum:     1,
-	//})
-	//if total == 0 || err != nil {
-	//	return []map[string]interface{}{}, err
-	//}
-	//contain := map[string]int{}
-	//for _, v := range assetList {
-	//	contain[v.AssetsId] = 0
-	//}
-	//resList := make([]map[string]interface{}, 0)
-	//for _, v := range list {
-	//	if _, isExist := contain[v["asset_id"].(string)]; isExist {
-	//		resList = append(resList, v)
-	//	}
-	//}
-	//return resList, err
-	return list, nil
+	assetList, total, err := assets.GetList(&assets.AssetsListReq{
+		UserId:      args.UserId,
+		AdminUserId: args.AdminUserId,
+		PageSize:    999,
+		PageNum:     1,
+	})
+	if total == 0 || err != nil {
+		return []map[string]interface{}{}, err
+	}
+	contain := map[string]int{}
+	for _, v := range assetList {
+		contain[v.AssetsId] = 0
+	}
+	resList := make([]map[string]interface{}, 0)
+	for _, v := range list {
+		if _, isExist := contain[v["asset_id"].(string)]; isExist {
+			resList = append(resList, v)
+		}
+	}
+	return resList, err
+	//return list, nil
 }
 
 //监控
@@ -74,17 +75,17 @@ func Monitor(req *request.Request, id string) error {
 }
 
 //回放
-func Replay(req *request.Request, id string) (string,string,error ){
+func Replay(req *request.Request, id string) (string, string, error) {
 
 	req.Path = terminal_sessions_path + id + "/replay/"
-	token ,err := req.GetToken()
-	return req.Path,token,err
+	token, err := req.GetToken()
+	return req.Path, token, err
 }
 
 //回放下载
-func Download(req *request.Request, id string)(string,string,error ){
+func Download(req *request.Request, id string) (string, string, error) {
 
 	req.Path = terminal_sessions_path + id + "/replay/download/"
-	token ,err := req.GetToken()
-	return req.Path,token,err
+	token, err := req.GetToken()
+	return req.Path, token, err
 }
