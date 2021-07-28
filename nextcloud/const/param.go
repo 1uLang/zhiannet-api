@@ -1,7 +1,7 @@
 package _const
 
 const (
-	BASE_URL = `http://localhost:8088`
+	BASE_URL = `http://localhost:8080`
 	// %s：用户名 method：PROPFIND
 	LIST_FOLDERS = `remote.php/dav/files/%s`
 	// %s: 用户名  %s：文件路径 method：GET
@@ -14,5 +14,5 @@ const (
 	// 删除用户 method: DELETE
 	DELETE_USER = `ocs/v1.php/cloud/users/%s`
 	// 用户信息 method: GET
-	USER_INFO   = `ocs/v1.php/cloud/users/%s`
+	USER_INFO = `ocs/v1.php/cloud/users/%s`
 )

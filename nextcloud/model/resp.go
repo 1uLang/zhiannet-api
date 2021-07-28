@@ -18,6 +18,11 @@ type CreateUserResp struct {
 	} `xml:"meta"`
 }
 
+// DeleteFileError 删除文件错误
+type DeleteFileError struct {
+	Message   string `xml:"message"`
+}
+
 // FolderBody 文件实体属性
 type FolderBody struct {
 	URL  string

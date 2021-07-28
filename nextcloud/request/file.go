@@ -115,3 +115,46 @@ func UploadFile(token, fileName string, f io.Reader) error {
 	_, err = cli.Do(req)
 	return err
 }
+
+// DeleteFile 删除文件 Method: DELETE
+func DeleteFile(token, fileName string) error {
+	// 解析token获取用户名
+	user, err := ParseToken(token)
+	if err != nil {
+		return err
+	}
+
+	// 拼接删除路径，默认为根目录
+	df := fmt.Sprintf(param.DOWNLOAD_FILES, user, fileName)
+	uRL := fmt.Sprintf("%s/%s", param.BASE_URL, df)
+
+	cli := &http.Client{}
+	req, err := http.NewRequest("DELETE", uRL, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", token)
+
+	rsp, err := cli.Do(req)
+	if err != nil {
+		return err
+	}
+	defer rsp.Body.Close()
+
+	body, err := io.ReadAll(rsp.Body)
+	if err != nil {
+		return fmt.Errorf("读取删除文件响应错误：%w", err)
+	}
+
+	delErr := model.DeleteFileError{}
+	err = xml.Unmarshal(body, &delErr)
+	if err == io.EOF {
+		return nil
+	}
+	
+	if err != nil {
+		return fmt.Errorf("解码删除文件响应错误：%w", err)
+	}
+
+	return fmt.Errorf("删除文件错误：%s", delErr.Message)
+}

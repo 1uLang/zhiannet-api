@@ -73,6 +73,16 @@ func TestListFolders(t *testing.T) {
 	t.Log(lf)
 }
 
+func TestDeleteFile(t *testing.T) {
+	token := GenerateToken(req)
+	fileName := "golang.png"
+
+	err := DeleteFile(token, fileName)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestCreateUser(t *testing.T) {
 	token := GenerateToken(req)
 	userNamer := "hanchan"
