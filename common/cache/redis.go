@@ -64,7 +64,7 @@ func InitClient() (err error) {
 
 	_, err = Rdb.Ping(ctx).Result()
 	if err != nil {
-		panic(fmt.Errorf("zhiannet-api package link redis err %v", err))
+		//panic(fmt.Errorf("zhiannet-api package link redis err %v", err))
 	}
 	return err
 }
