@@ -9,6 +9,8 @@ type Request struct {
 	Users     users       //用户接口
 	Assets    assets      //资产接口
 	AdminUser admin_users //管理用户接口
+	Session   sessions    //会话管理
+	Command   commands    //命令记录
 }
 
 var req *Request
@@ -28,6 +30,8 @@ func NewServerRequest(url, username, password string) (*Request, error) {
 	}
 	req.Assets.req = req.Users.req
 	req.AdminUser.req = req.Users.req
+	req.Session.req = req.Users.req
+	req.Command.req = req.Users.req
 	return req, err
 }
 func GetFortCloud() (resp *model.JumpserverResp, err error) {

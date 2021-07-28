@@ -20,3 +20,11 @@ func (this *assets) Update(args *assets_model.UpdateReq) (map[string]interface{}
 func (this *assets) Delete(id string) error {
 	return assets_model.Delete(this.req, id)
 }
+
+func (this *assets) Authorize(args *assets_model.AuthorizeReq) error {
+	return assets_model.Authorize(this.req, args)
+}
+
+func (this *assets) Link(id string) (string,string,error ){
+	return assets_model.Link(this.req, id)
+}

@@ -9,8 +9,9 @@ type ListReq struct {
 	Date_to     string `json:"date_to,omitempty"`
 	Risk_level  string `json:"risk_level,omitempty"`
 	Asset       string `json:"asset,omitempty"`
-	Search      string `json:"search,omitempty"`
+	Input       string `json:"input,omitempty"`
+	User        string `json:"user"`
 
-	UserId      uint64 `json:"user_id"`
-	AdminUserId uint64 `json:"admin_user_id"`
+	UserId      uint64 `json:"-"`
+	AdminUserId uint64 `json:"-"`
 }
