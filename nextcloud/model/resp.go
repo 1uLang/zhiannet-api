@@ -6,9 +6,10 @@ type ListFoldersResp struct {
 		Href     string `xml:"href"`
 		Propstat []struct {
 			Prop struct {
-				Getlastmodified string `xml:"getlastmodified"`
-				QuotaUsedBytes  string `xml:"quota-used-bytes"`
-				Getcontenttype  string `xml:"getcontenttype"`
+				Getlastmodified  string `xml:"getlastmodified"`
+				QuotaUsedBytes   string `xml:"quota-used-bytes"`
+				Getcontentlength string `xml:"getcontentlength"`
+				Getcontenttype   string `xml:"getcontenttype"`
 			} `xml:"prop"`
 		} `xml:"propstat"`
 	} `xml:"response"`
@@ -34,7 +35,7 @@ type FolderBody struct {
 	Name         string `json:"name"`
 	LastModified string `json:"last_modified"`
 	UsedBytes    string `json:"used_bytes"`
-	ContentType  string	`json:"content_type"`
+	ContentType  string `json:"content_type"`
 }
 
 // FolderList 文件列表
