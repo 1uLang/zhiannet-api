@@ -21,6 +21,17 @@ var (
 	uf embed.FS
 )
 
+func TestFormatTime(t *testing.T) {
+	ts := FormatTime("Sat, 24 Jul 2021 13:53:13 GMT", "2006-01-02 15:04:05")
+
+	t.Log(ts)
+}
+
+func TestFormatBytes(t *testing.T) {
+	str := FormatBytes("5656463")
+	t.Log(str)
+}
+
 func TestToken(t *testing.T) {
 	token := GenerateToken(req)
 	user, err := ParseToken(token)

@@ -55,7 +55,7 @@ func ListFolders(token string, filePath ...string) (*model.FolderList, error) {
 
 	for _, v := range lfr.Response {
 		var fb model.FolderBody
-		unescape, err := url.QueryUnescape(v.Href.Text)
+		unescape, err := url.QueryUnescape(v.Href)
 		if err != nil {
 			continue
 		}
@@ -66,6 +66,9 @@ func ListFolders(token string, filePath ...string) (*model.FolderList, error) {
 			fb.Name = str[len(str)-1]
 		}
 		fb.URL = unescape
+		fb.ContentType = v.Propstat[0].Prop.Getcontenttype
+		fb.LastModified = FormatTime(v.Propstat[0].Prop.Getlastmodified, "2006-01-02 15:04:05")
+		fb.UsedBytes = FormatBytes(v.Propstat[0].Prop.QuotaUsedBytes)
 		fl.List = append(fl.List, fb)
 	}
 	return &fl, nil
@@ -151,7 +154,7 @@ func DeleteFile(token, fileName string) error {
 	if err == io.EOF {
 		return nil
 	}
-	
+
 	if err != nil {
 		return fmt.Errorf("解码删除文件响应错误：%w", err)
 	}
