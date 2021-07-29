@@ -30,14 +30,14 @@ type DeleteFileError struct {
 
 // FolderBody 文件实体属性
 type FolderBody struct {
-	URL          string
-	Name         string
-	LastModified string
-	UsedBytes    string
-	ContentType  string
+	URL          string `json:"url"`
+	Name         string `json:"name"`
+	LastModified string `json:"last_modified"`
+	UsedBytes    string `json:"used_bytes"`
+	ContentType  string	`json:"content_type"`
 }
 
 // FolderList 文件列表
 type FolderList struct {
-	List []FolderBody
+	List []FolderBody `json:"list"`
 }
