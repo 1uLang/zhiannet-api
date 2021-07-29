@@ -96,6 +96,8 @@ func TestDeleteFile(t *testing.T) {
 
 func TestCreateUser(t *testing.T) {
 	token := GenerateToken(req)
+	// 用户名只能是：“a-z”，“A-Z”，“0-9”和"_.@-'"
+	// 线上可用用户的主键或sn编码作为用户名
 	userNamer := "hanchan"
 	passwd := "123456"
 
