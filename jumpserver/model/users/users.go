@@ -43,7 +43,6 @@ func Create(req *request.Request, args *CreateReq) (map[string]interface{}, erro
 		//60年
 		args.DateExpired = time.Now().AddDate(60, 0, 0).Format("2006-01-02 15:04:05")
 	}
-
 	req.Params = model.ToMap(args)
 	req.Path = users_path
 	ret, err := req.Do()

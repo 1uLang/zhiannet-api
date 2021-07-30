@@ -13,14 +13,14 @@ type ListReq struct {
 }
 type CreateReq struct {
 	Email              string   `json:"email"`                //邮箱
-	mfaLevel           int      `json:"mfa_level"`            //双因子认证 0
+	MfaLevel           int      `json:"mfa_level"`            //双因子认证 0
 	Name               string   `json:"name"`                 //用户名称
-	needUpdatePassword bool     `json:"need_update_password"` //是否需要重置密码 fasle
+	NeedUpdatePassword bool     `json:"need_update_password"` //是否需要重置密码 fasle
 	OrgRoles           []string `json:"org_roles"`            //用户组 User
 	Password           string   `json:"password"`             //密码
-	passwordStrategy   string   `json:"password_strategy"`    //
-	role               string   `json:"role"`
-	source             string   `json:"source"` //用户来源 local
+	PasswordStrategy   string   `json:"password_strategy"`    //
+	Role               string   `json:"role"`
+	Source             string   `json:"source"` //用户来源 local
 	Username           string   `json:"username"`
 	DateExpired        string   `json:"date_expired"`
 }
@@ -31,11 +31,11 @@ type Update struct {
 
 func (this *CreateReq) check() error {
 
-	this.source = "local"
-	this.role = "admin"
-	this.passwordStrategy = "custom"
-	this.needUpdatePassword = false
-	this.mfaLevel = 0
+	this.Source = "local"
+	this.Role = "Admin"
+	this.PasswordStrategy = "custom"
+	this.NeedUpdatePassword = false
+	this.MfaLevel = 0
 
 	if this.Name == "" {
 		return fmt.Errorf("请输入名称")
