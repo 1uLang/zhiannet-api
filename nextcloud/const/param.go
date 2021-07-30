@@ -1,7 +1,7 @@
 package _const
 
 const (
-	BASE_URL = `http://localhost:8080`
+	BASE_URL = `http://123.129.208.232`
 	// %s：用户名 method：PROPFIND
 	LIST_FOLDERS = `remote.php/dav/files/%s`
 	// %s: 用户名  %s：文件路径 method：GET

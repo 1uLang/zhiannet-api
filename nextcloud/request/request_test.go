@@ -11,7 +11,7 @@ import (
 var (
 	req = &model.LoginReq{
 		User:     "admin",
-		Password: "admin",
+		Password: "Dengbao123!@#",
 	}
 	fileName = "Nextcloud.png"
 	//go:embed Nextcloud.png
