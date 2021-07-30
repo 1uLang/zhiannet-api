@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/1uLang/zhiannet-api/nessus/model"
 	"github.com/1uLang/zhiannet-api/nessus/request"
 )
 
@@ -16,4 +17,8 @@ func SetUrl(url string) error {
 // SetAPIKeys 初始化 Nessus APIKeys
 func SetAPIKeys(req *request.APIKeys) error {
 	return request.InitRequestAPIKeys(req)
+}
+
+func GetNessus() (resp *model.NessusResp, err error) {
+	return model.GetNessusInfo()
 }
