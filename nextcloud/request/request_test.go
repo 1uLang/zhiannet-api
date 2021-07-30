@@ -1,8 +1,10 @@
 package request
 
 import (
-	"embed"
+	"bytes"
+	_ "embed"
 	"io"
+	"os"
 	"testing"
 
 	"github.com/1uLang/zhiannet-api/nextcloud/model"
@@ -16,9 +18,6 @@ var (
 	fileName = "Nextcloud.png"
 	//go:embed Nextcloud.png
 	nexcloud string
-	//go:embed golang.png
-	//go:embed test.jpg
-	uf embed.FS
 )
 
 func TestFormatTime(t *testing.T) {
@@ -73,12 +72,12 @@ func TestDownLoadFileWithURL(t *testing.T) {
 
 func TestUploadFile(t *testing.T) {
 	token := GenerateToken(req)
-	f, err := uf.Open("golang.png")
+	by, err := os.ReadFile("golang.png")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = UploadFile(token, "golang.png", f)
+	err = UploadFile(token, "golang.png", bytes.NewReader(by))
 	if err != nil {
 		t.Fatal(err)
 	}
