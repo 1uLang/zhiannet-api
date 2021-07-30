@@ -118,6 +118,7 @@ func GetAuditHostList(req *ReqSearch) (list *HostListResp, err error) {
 		"system":   req.System,
 		"pageNum":  fmt.Sprintf("%v", req.PageNum),
 	}
+	logReq.ReqType = "post"
 	var res []byte
 	res, err = request.Request(logReq, true)
 	if err != nil {

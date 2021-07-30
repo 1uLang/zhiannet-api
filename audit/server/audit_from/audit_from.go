@@ -107,6 +107,7 @@ func GetAuditFromList(req *ReqSearch) (list *FromListResp, err error) {
 		"assets_type": req.AssetsType,
 		"pageNum":     fmt.Sprintf("%v", req.PageNum),
 	}
+	logReq.ReqType = "post"
 	var res []byte
 	res, err = request.Request(logReq, true)
 	if err != nil {
