@@ -3,9 +3,15 @@ package model
 // ListFoldersResp 列举用户文件的返回
 type ListFoldersResp struct {
 	Response []struct {
-		Href struct {
-			Text string `xml:",chardata"`
-		} `xml:"href"`
+		Href     string `xml:"href"`
+		Propstat []struct {
+			Prop struct {
+				Getlastmodified  string `xml:"getlastmodified"`
+				QuotaUsedBytes   string `xml:"quota-used-bytes"`
+				Getcontentlength string `xml:"getcontentlength"`
+				Getcontenttype   string `xml:"getcontenttype"`
+			} `xml:"prop"`
+		} `xml:"propstat"`
 	} `xml:"response"`
 }
 
@@ -20,16 +26,19 @@ type CreateUserResp struct {
 
 // DeleteFileError 删除文件错误
 type DeleteFileError struct {
-	Message   string `xml:"message"`
+	Message string `xml:"message"`
 }
 
 // FolderBody 文件实体属性
 type FolderBody struct {
-	URL  string
-	Name string
+	URL          string `json:"url"`
+	Name         string `json:"name"`
+	LastModified string `json:"last_modified"`
+	UsedBytes    string `json:"used_bytes"`
+	ContentType  string `json:"content_type"`
 }
 
 // FolderList 文件列表
 type FolderList struct {
-	List []FolderBody
+	List []FolderBody `json:"list"`
 }

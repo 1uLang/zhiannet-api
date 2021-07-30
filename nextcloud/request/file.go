@@ -55,17 +55,25 @@ func ListFolders(token string, filePath ...string) (*model.FolderList, error) {
 
 	for _, v := range lfr.Response {
 		var fb model.FolderBody
-		unescape, err := url.QueryUnescape(v.Href.Text)
+		unescape, err := url.QueryUnescape(v.Href)
 		if err != nil {
 			continue
 		}
 		str := strings.Split(unescape, "/")
 		if str[len(str)-1] == "" {
-			fb.Name = str[len(str)-2] + "/"
+			// fb.Name = str[len(str)-2] + "/"
+			// fb.UsedBytes = FormatBytes(v.Propstat[0].Prop.QuotaUsedBytes)
+			// 如果是文件夹则不展示，后续不会使用文件夹
+			// 默认全都存储在根目录下
+			continue
 		} else {
 			fb.Name = str[len(str)-1]
+			fb.UsedBytes = FormatBytes(v.Propstat[0].Prop.Getcontentlength)
 		}
 		fb.URL = unescape
+		fb.ContentType = v.Propstat[0].Prop.Getcontenttype
+		fb.LastModified = FormatTime(v.Propstat[0].Prop.Getlastmodified, "2006-01-02 15:04:05")
+
 		fl.List = append(fl.List, fb)
 	}
 	return &fl, nil
@@ -151,7 +159,7 @@ func DeleteFile(token, fileName string) error {
 	if err == io.EOF {
 		return nil
 	}
-	
+
 	if err != nil {
 		return fmt.Errorf("解码删除文件响应错误：%w", err)
 	}

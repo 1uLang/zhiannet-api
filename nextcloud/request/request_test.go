@@ -21,6 +21,17 @@ var (
 	uf embed.FS
 )
 
+func TestFormatTime(t *testing.T) {
+	ts := FormatTime("Sat, 24 Jul 2021 13:53:13 GMT", "2006-01-02 15:04:05")
+
+	t.Log(ts)
+}
+
+func TestFormatBytes(t *testing.T) {
+	str := FormatBytes("5656463")
+	t.Log(str)
+}
+
 func TestToken(t *testing.T) {
 	token := GenerateToken(req)
 	user, err := ParseToken(token)
@@ -85,6 +96,8 @@ func TestDeleteFile(t *testing.T) {
 
 func TestCreateUser(t *testing.T) {
 	token := GenerateToken(req)
+	// 用户名只能是：“a-z”，“A-Z”，“0-9”和"_.@-'"
+	// 线上可用用户的主键或sn编码作为用户名
 	userNamer := "hanchan"
 	passwd := "123456"
 
