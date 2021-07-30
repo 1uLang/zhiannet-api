@@ -19,7 +19,7 @@ func Test_dblist(t *testing.T) {
 	list, err := GetAuditBdList(&ReqSearch{
 		User: &request.UserReq{
 			//AdminUserId: 1,
-			UserId: 2,
+			UserId: 1,
 		},
 		PageSize: 1,
 		Name:     "222",

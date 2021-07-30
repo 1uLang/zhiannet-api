@@ -117,6 +117,7 @@ func GetAuditAppList(req *ReqSearch) (list *AppListResp, err error) {
 		"appType":  req.AppType,
 		"pageNum":  fmt.Sprintf("%v", req.PageNum),
 	}
+	logReq.ReqType = "post"
 	var res []byte
 	res, err = request.Request(logReq, true)
 	if err != nil {
@@ -137,7 +138,7 @@ func AddApp(req *AppReq) (resp *server.Resp, err error) {
 	}
 	logReq.Addr = fmt.Sprintf("%v%v", logReq.Addr, _const.AUDIT_ADD_APP)
 	logReq.QueryParams = map[string]string{
-		"uid":      fmt.Sprintf("%v", req.Uid),
+		//"uid":      fmt.Sprintf("%v", req.Uid),
 		"name":     fmt.Sprintf("%v", req.Name),
 		"ip":       fmt.Sprintf("%v", req.IP),
 		"appType":  fmt.Sprintf("%v", req.AppType),

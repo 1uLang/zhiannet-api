@@ -124,6 +124,7 @@ func GetAuditBdList(req *ReqSearch) (list *DbListResp, err error) {
 		"type":     req.Type,
 		"pageNum":  fmt.Sprintf("%v", req.PageNum),
 	}
+	logReq.ReqType = "post"
 	var res []byte
 	res, err = request.Request(logReq, true)
 	if err != nil {
