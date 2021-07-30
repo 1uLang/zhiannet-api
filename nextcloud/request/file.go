@@ -1,6 +1,7 @@
 package request
 
 import (
+	"crypto/tls"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -32,7 +33,13 @@ func ListFolders(token string, filePath ...string) (*model.FolderList, error) {
 	lf := fmt.Sprintf(param.LIST_FOLDERS, user)
 	uRL := fmt.Sprintf("%s/%s%s", param.BASE_URL, lf, fp)
 
-	cli := &http.Client{}
+	// 跳过证书验证
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	cli := &http.Client{
+		Transport: tr,
+	}
 	req, err := http.NewRequest("PROPFIND", uRL, nil)
 	if err != nil {
 		return nil, err
@@ -91,11 +98,18 @@ func DownLoadFile(token, fileName string) (*http.Response, error) {
 	df := fmt.Sprintf(param.DOWNLOAD_FILES, user, fileName)
 	uRL := fmt.Sprintf("%s/%s", param.BASE_URL, df)
 
-	cli := &http.Client{}
+	// 跳过证书验证
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	cli := &http.Client{
+		Transport: tr,
+	}
 	req, err := http.NewRequest("GET", uRL, nil)
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Set("Authorization", token)
 
 	return cli.Do(req)
@@ -128,7 +142,13 @@ func UploadFile(token, fileName string, f io.Reader) error {
 	uf := fmt.Sprintf(param.UPLOAD_FILES, user)
 	uRL := fmt.Sprintf("%s/%s/%s", param.BASE_URL, uf, fileName)
 
-	cli := &http.Client{}
+	// 跳过证书验证
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	cli := &http.Client{
+		Transport: tr,
+	}
 	req, err := http.NewRequest("PUT", uRL, f)
 	if err != nil {
 		return err
@@ -151,7 +171,13 @@ func DeleteFile(token, fileName string) error {
 	df := fmt.Sprintf(param.DOWNLOAD_FILES, user, fileName)
 	uRL := fmt.Sprintf("%s/%s", param.BASE_URL, df)
 
-	cli := &http.Client{}
+	// 跳过证书验证
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	cli := &http.Client{
+		Transport: tr,
+	}
 	req, err := http.NewRequest("DELETE", uRL, nil)
 	if err != nil {
 		return err
