@@ -45,17 +45,17 @@ type (
 
 	//添加请求参数
 	FromReq struct {
-		User       *request.UserReq `json:"user" `
-		Id         uint64           `json:"id"`
-		UserId     uint64           `json:"user_id"`
-		Name       string           `json:"name" v:"required#请填写名称"`
-		Cycle      int              `json:"cycle" `
-		CycleDay   int              `json:"cycle_day" `
-		SendTime   string           `json:"send_time" `
-		Format     int              `json:"format"  `
-		AssetsType int              `json:"assets_type" `
-		AssetsId   uint64           `json:"assets_id" `
-		Email      string           `json:"email" `
+		User *request.UserReq `json:"user" `
+		Id   uint64           `json:"id"`
+		//UserId     uint64           `json:"user_id"`
+		Name       string `json:"name" v:"required#请填写名称"`
+		Cycle      int    `json:"cycle" `
+		CycleDay   int    `json:"cycle_day" `
+		SendTime   string `json:"send_time" `
+		Format     int    `json:"format"  `
+		AssetsType int    `json:"assets_type" `
+		AssetsId   uint64 `json:"assets_id" `
+		Email      string `json:"email" `
 	}
 
 	//删除 请求参数

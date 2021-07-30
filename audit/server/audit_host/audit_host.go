@@ -48,13 +48,13 @@ type (
 
 	//添加请求参数
 	HostReq struct {
-		User     *request.UserReq `json:"user" `
-		Uid      uint64           `json:"uid"`
-		Name     string           `json:"name"`
-		IP       string           `json:"ip" `
-		System   uint             `json:"system"`
-		Status   uint             `json:"status"`
-		TimeLong int              `json:"time_long"`
+		User *request.UserReq `json:"user" `
+		//Uid      uint64           `json:"uid"`
+		Name     string `json:"name"`
+		IP       string `json:"ip" `
+		System   uint   `json:"system"`
+		Status   uint   `json:"status"`
+		TimeLong int    `json:"time_long"`
 	}
 
 	//修改请求参数
@@ -139,7 +139,7 @@ func AddHost(req *HostReq) (resp *server.Resp, err error) {
 	}
 	logReq.Addr = fmt.Sprintf("%v%v", logReq.Addr, _const.AUDIT_ADD_HOST)
 	logReq.QueryParams = map[string]string{
-		"uid":      fmt.Sprintf("%v", req.Uid),
+		//"uid":      fmt.Sprintf("%v", req.Uid),
 		"name":     fmt.Sprintf("%v", req.Name),
 		"ip":       fmt.Sprintf("%v", req.IP),
 		"system":   fmt.Sprintf("%v", req.System),
