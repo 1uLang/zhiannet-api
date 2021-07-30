@@ -47,13 +47,13 @@ type (
 
 	//添加请求参数
 	AppReq struct {
-		User     *request.UserReq `json:"user" `
-		Uid      uint64           `json:"uid"`
-		Name     string           `json:"name"`
-		IP       string           `json:"ip" `
-		AppType  uint             `json:"app_type"`
-		Status   uint             `json:"status"`
-		TimeLong int              `json:"timelong"`
+		User *request.UserReq `json:"user" `
+		//Uid      uint64           `json:"uid"`
+		Name     string `json:"name"`
+		IP       string `json:"ip" `
+		AppType  uint   `json:"app_type"`
+		Status   uint   `json:"status"`
+		TimeLong int    `json:"timelong"`
 	}
 
 	//修改请求参数

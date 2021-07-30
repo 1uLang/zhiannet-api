@@ -27,8 +27,8 @@ func Test_fromlist(t *testing.T) {
 ////添加
 func Test_add_db(t *testing.T) {
 	list, err := AddFrom(&FromReq{
-		User:       &request.UserReq{AdminUserId: 1},
-		UserId:     1,
+		User: &request.UserReq{AdminUserId: 1},
+		//UserId:     1,
 		Name:       "test",
 		Cycle:      1,
 		CycleDay:   1,
@@ -46,8 +46,8 @@ func Test_add_db(t *testing.T) {
 ////修改
 func Test_edit(t *testing.T) {
 	list, err := EditFrom(&FromReq{
-		User:       &request.UserReq{AdminUserId: 1},
-		UserId:     1,
+		User: &request.UserReq{AdminUserId: 1},
+		//UserId:     1,
 		Name:       "test",
 		Cycle:      1,
 		CycleDay:   1,
