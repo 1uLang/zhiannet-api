@@ -101,6 +101,21 @@ func DownLoadFile(token, fileName string) (*http.Response, error) {
 	return cli.Do(req)
 }
 
+// DownLoadFileWithURL 获取文件下载链接
+func DownLoadFileWithURL(token, fileName string) (string, error) {
+	// 解析token获取用户名
+	user, err := ParseToken(token)
+	if err != nil {
+		return "", err
+	}
+
+	// 拼接下载路径，默认为根目录
+	df := fmt.Sprintf(param.DOWNLOAD_FILES, user, fileName)
+	uRL := fmt.Sprintf("%s/%s", param.BASE_URL, df)
+
+	return uRL, nil
+}
+
 // UploadFile 上传文件，默认上传到根目录 method: PUT
 func UploadFile(token, fileName string, f io.Reader) error {
 	// 解析token获取用户名

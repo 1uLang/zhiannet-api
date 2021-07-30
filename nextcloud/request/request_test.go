@@ -61,6 +61,16 @@ func TestDownLoadFile(t *testing.T) {
 	}
 }
 
+func TestDownLoadFileWithURL(t *testing.T) {
+	token := GenerateToken(req)
+	url, err := DownLoadFileWithURL(token, fileName)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(url)
+}
+
 func TestUploadFile(t *testing.T) {
 	token := GenerateToken(req)
 	f, err := uf.Open("golang.png")
