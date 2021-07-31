@@ -10,14 +10,14 @@ import (
 
 func init() {
 	//初始化 nessus 服务器地址
-	err := server.SetUrl("https://182.150.0.108:8834")
+	err := server.SetUrl("https://156.240.95.239:8834")
 	if err != nil {
 		panic(err)
 	}
 	//初始化 nessus 系统管理员账号apikeys
 	err = server.SetAPIKeys(&request.APIKeys{
-		Access: "d15f22095fe5fb6f1a81a574fa13163cc1c4a0b596de244453588aaf8a057129",
-		Secret: "6ad76937e2e9c39a5e9463b67f43423fbfafffd8095c834b9f70a43aad9da591",
+		Access: "4caa54e1df36556950450ee00d5e6e22b55fdcb81d940e3999c51c743782288c",
+		Secret: "c96b82f6507e2249647ef5e50f32642504fbaad37d5cfee28f58c630545f9ebd",
 	})
 	if err != nil {
 		panic(err)

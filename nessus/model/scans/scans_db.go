@@ -13,6 +13,7 @@ type (
 		AdminUserId uint64 `gorm:"column:admin_user_id" json:"admin_user_id" form:"admin_user_id"` //admin用户ID
 		IsDelete    int    `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除
 		CreateTime  int    `gorm:"column:create_time" json:"create_time" form:"create_time"`       //创建时间
+		Description string `gorm:"column:description" json:"description" form:"description"`       //备注
 	}
 	ScansListReq struct {
 		UserId      uint64 `json:"user_id" gorm:"column:user_id"`                                  // 用户ID
@@ -23,6 +24,12 @@ type (
 	}
 )
 
+func GetInfo(id string) (info NessusScans, err error) {
+	var entity NessusScans
+	err = db_model.MysqlConn.Model(&NessusScans{}).Where("scans_id=?", id).Where("is_delete=0").Find(&entity).Error
+	return entity,err
+
+}
 //获取节点
 func GetList(req *ScansListReq) (list []*NessusScans, total int64, err error) {
 	//从数据库获取
