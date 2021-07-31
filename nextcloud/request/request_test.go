@@ -12,8 +12,9 @@ import (
 
 var (
 	req = &model.LoginReq{
-		User:     "admin",
+		User: "admin",
 		Password: "Dengbao123!@#",
+		// Password: "admin",
 	}
 	fileName = "Nextcloud.png"
 	//go:embed Nextcloud.png
@@ -111,6 +112,56 @@ func TestCreateUser(t *testing.T) {
 	passwd := "123456"
 
 	err := CreateUser(token, userNamer, passwd)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestListFoldersWithPath(t *testing.T) {
+	token := GenerateToken(req)
+	var url string
+	ls, err := ListFoldersWithPath(token, url)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, v := range ls.List {
+		t.Logf("%s\n", v.URL)
+	}
+}
+
+func TestDownLoadFileURLWithPath(t *testing.T) {
+	var uRL string
+	// uRL = `/remote.php/dav/files/admin/golang.png`
+	s, err := DownLoadFileURLWithPath(uRL)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(s)
+}
+
+func TestDeleteFileWithPath(t *testing.T) {
+	token := GenerateToken(req)
+	var uRL string
+	// uRL = `/remote.php/dav/files/admin/golang.png`
+	uRL = `/remote.php/dav/files/admin/新建文件夹/`
+	err := DeleteFileWithPath(token, uRL)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestUploadFileWithPath(t *testing.T) {
+	token := GenerateToken(req)
+	var uRL string
+	// uRL = `/remote.php/dav/files/admin/新建文件夹/`
+
+	by, err := os.ReadFile("golang.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = UploadFileWithPath(token, "golang.png", bytes.NewBuffer(by), uRL)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -3,6 +3,7 @@ package request
 import (
 	"crypto/tls"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,11 +14,10 @@ import (
 	"github.com/1uLang/zhiannet-api/nextcloud/model"
 )
 
-// ListFolders 列举用户文件 method: PROPFIND
-func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
+// ListFoldersWithPath 通过url获取文件列表
+func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, error) {
 	var lfr model.ListFoldersResp
 	var fl model.FolderList
-	var fp string
 	// 解析token获取用户名
 	user, err := ParseToken(token)
 	if err != nil {
@@ -25,13 +25,20 @@ func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
 	}
 
 	// 拼接用户文件列表路径，默认根目录
-	if len(fileName) == 0 {
-		fp = "/"
+	var uRL string
+	if len(filePath) == 0 {
+		uRL = fmt.Sprintf("%s/"+param.LIST_FOLDERS+"/", param.BASE_URL, user)
 	} else {
-		fp = fileName[0]
+		fp := filePath[0]
+		if fp == "" {
+			fp = fmt.Sprintf("/"+param.LIST_FOLDERS+"/", user)
+		} else {
+			if string([]rune(fp)[len([]rune(fp))-1]) != "/" {
+				return nil, errors.New("请填写正确的文件夹路径")
+			}
+		}
+		uRL = fmt.Sprintf("%s%s", param.BASE_URL, fp)
 	}
-	lf := fmt.Sprintf(param.LIST_FOLDERS, user)
-	uRL := fmt.Sprintf("%s/%s%s", param.BASE_URL, lf, fp)
 
 	// 跳过证书验证
 	tr := &http.Transport{
@@ -60,7 +67,7 @@ func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
 		return nil, err
 	}
 
-	for _, v := range lfr.Response {
+	for _, v := range lfr.Response[:] {
 		var fb model.FolderBody
 		unescape, err := url.QueryUnescape(v.Href)
 		if err != nil {
@@ -68,11 +75,8 @@ func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
 		}
 		str := strings.Split(unescape, "/")
 		if str[len(str)-1] == "" {
-			// fb.Name = str[len(str)-2] + "/"
-			// fb.UsedBytes = FormatBytes(v.Propstat[0].Prop.QuotaUsedBytes)
-			// 如果是文件夹则不展示，后续不会使用文件夹
-			// 默认全都存储在根目录下
-			continue
+			fb.Name = str[len(str)-2] + "/"
+			fb.UsedBytes = FormatBytes(v.Propstat[0].Prop.QuotaUsedBytes)
 		} else {
 			fb.Name = str[len(str)-1]
 			fb.UsedBytes = FormatBytes(v.Propstat[0].Prop.Getcontentlength)
@@ -86,17 +90,13 @@ func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
 	return &fl, nil
 }
 
-// DownLoadFile 下载文件 method: GET
-func DownLoadFile(token, fileName string) (*http.Response, error) {
-	// 解析token获取用户名
-	user, err := ParseToken(token)
-	if err != nil {
-		return nil, err
-	}
-
+// DownLoadFileWithPath 下载文件 method: GET
+func DownLoadFileWithPath(token, path string) (*http.Response, error) {
 	// 拼接下载路径，默认为根目录
-	df := fmt.Sprintf(param.DOWNLOAD_FILES, user, fileName)
-	uRL := fmt.Sprintf("%s/%s", param.BASE_URL, df)
+	if string([]rune(path)[len([]rune(path))-1]) == "/" {
+		return nil, errors.New("请输入正确的文件路径")
+	}
+	uRL := fmt.Sprintf("%s%s", param.BASE_URL, path)
 
 	// 跳过证书验证
 	tr := &http.Transport{
@@ -115,61 +115,33 @@ func DownLoadFile(token, fileName string) (*http.Response, error) {
 	return cli.Do(req)
 }
 
-// DownLoadFileWithURL 获取文件下载链接
-func DownLoadFileWithURL(token, fileName string) (string, error) {
-	// 解析token获取用户名
-	user, err := ParseToken(token)
-	if err != nil {
-		return "", err
+// DownLoadFileURLWithPath 根据path获取文件url
+func DownLoadFileURLWithPath(path string) (string, error) {
+	if path == "" {
+		return "", errors.New("请输入正确的文件路径")
 	}
-
 	// 拼接下载路径，默认为根目录
-	df := fmt.Sprintf(param.DOWNLOAD_FILES, user, fileName)
-	uRL := fmt.Sprintf("%s/%s", param.BASE_URL, df)
+	if string([]rune(path)[len([]rune(path))-1]) == "/" {
+		return "", errors.New("请输入正确的文件路径")
+	}
+	uRL := fmt.Sprintf("%s%s", param.BASE_URL, path)
 
 	return uRL, nil
 }
 
-// UploadFile 上传文件，默认上传到根目录 method: PUT
-func UploadFile(token, fileName string, f io.Reader) error {
+// DeleteFileWithPath 删除文件 Method: DELETE
+func DeleteFileWithPath(token, path string) error {
 	// 解析token获取用户名
-	user, err := ParseToken(token)
+	_, err := ParseToken(token)
 	if err != nil {
 		return err
 	}
 
-	// 拼接上传路径，默认为根目录
-	uf := fmt.Sprintf(param.UPLOAD_FILES, user)
-	uRL := fmt.Sprintf("%s/%s/%s", param.BASE_URL, uf, fileName)
-
-	// 跳过证书验证
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	if path == "" {
+		return errors.New("文件或文件夹路径不能为空")
 	}
-	cli := &http.Client{
-		Transport: tr,
-	}
-	req, err := http.NewRequest("PUT", uRL, f)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Authorization", token)
-
-	_, err = cli.Do(req)
-	return err
-}
-
-// DeleteFile 删除文件 Method: DELETE
-func DeleteFile(token, fileName string) error {
-	// 解析token获取用户名
-	user, err := ParseToken(token)
-	if err != nil {
-		return err
-	}
-
 	// 拼接删除路径，默认为根目录
-	df := fmt.Sprintf(param.DOWNLOAD_FILES, user, fileName)
-	uRL := fmt.Sprintf("%s/%s", param.BASE_URL, df)
+	uRL := fmt.Sprintf("%s%s", param.BASE_URL, path)
 
 	// 跳过证书验证
 	tr := &http.Transport{
@@ -206,4 +178,46 @@ func DeleteFile(token, fileName string) error {
 	}
 
 	return fmt.Errorf("删除文件错误：%s", delErr.Message)
+}
+
+// UploadFileWithPath 上传文件，默认上传到根目录 method: PUT
+func UploadFileWithPath(token, fileName string, f io.Reader, dirPath ...string) error {
+	// 解析token获取用户名
+	user, err := ParseToken(token)
+	if err != nil {
+		return err
+	}
+
+	// 拼接上传路径，默认为根目录
+	var uRL string
+	if len(dirPath) == 0 {
+		uRL = fmt.Sprintf("%s/"+param.UPLOAD_FILES+"/%s", param.BASE_URL, user, fileName)
+	} else {
+		fp := dirPath[0]
+		if fp == "" {
+			fp = fmt.Sprintf("/"+param.UPLOAD_FILES+"/%s", user, fileName)
+		} else {
+			if string([]rune(fp)[len([]rune(fp))-1]) != "/" {
+				return errors.New("请填写正确的文件夹路径")
+			}
+			fp += fileName
+		}
+		uRL = fmt.Sprintf("%s%s", param.BASE_URL, fp)
+	}
+
+	// 跳过证书验证
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	cli := &http.Client{
+		Transport: tr,
+	}
+	req, err := http.NewRequest("PUT", uRL, f)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", token)
+
+	_, err = cli.Do(req)
+	return err
 }
