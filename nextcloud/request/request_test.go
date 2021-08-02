@@ -7,12 +7,13 @@ import (
 	"os"
 	"testing"
 
+	param "github.com/1uLang/zhiannet-api/nextcloud/const"
 	"github.com/1uLang/zhiannet-api/nextcloud/model"
 )
 
 var (
 	req = &model.LoginReq{
-		User: "admin",
+		User:     "admin",
 		Password: "Dengbao123!@#",
 		// Password: "admin",
 	}
@@ -41,6 +42,7 @@ func TestToken(t *testing.T) {
 	if user != "admin" {
 		t.Fail()
 	}
+	t.Log(token)
 }
 
 func TestDownLoadFile(t *testing.T) {
@@ -164,5 +166,34 @@ func TestUploadFileWithPath(t *testing.T) {
 	err = UploadFileWithPath(token, "golang.png", bytes.NewBuffer(by), uRL)
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestStoreNCToken(t *testing.T) {
+	err := model.StoreNCToken("hanchan", "456789")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(param.AdminUser)
+	t.Log(param.AdminPasswd)
+	t.Log(param.BASE_URL)
+}
+
+func TestBindNCTokenAndUID(t *testing.T) {
+	err := model.BindNCTokenAndUID("hanchan", 123)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestQueryTokenByUID(t *testing.T) {
+	token,err := model.QueryTokenByUID(123)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if token != "456789" {
+		t.Fail()
 	}
 }

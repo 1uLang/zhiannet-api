@@ -67,7 +67,7 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 		return nil, err
 	}
 
-	for _, v := range lfr.Response[:] {
+	for _, v := range lfr.Response[1:] {
 		var fb model.FolderBody
 		unescape, err := url.QueryUnescape(v.Href)
 		if err != nil {

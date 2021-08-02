@@ -1,0 +1,7 @@
+dbs:
+  prod:
+    driver: "mysql"
+    dsn: "root:123456@tcp(127.0.0.1:3306)/edges?charset=utf8mb4&timeout=30s"
+    prefix: "edge"
+    models:
+      package: internal/web/models
