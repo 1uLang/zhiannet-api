@@ -6,10 +6,9 @@ CREATE TABLE IF NOT EXISTS `nextcloud_token` (
      `uid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '用户id',
      `token` varchar(127) NOT NULL DEFAULT '' COMMENT 'nextcloud token',
      PRIMARY KEY (`id`),
-     UNIQUE KEY `user` (`user`),
-     UNIQUE KEY `uid` (`uid`)
+     UNIQUE KEY `user` (`user`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='数据备份token表';
 
 INSERT INTO  `subassemblynode` (
      `name`,`addr`,`type`,`key`,`secret`
-) VALUES ('nextcloud','http://182.150.0.80:18002/backup',8,'admian','Dengbao123!@#');
+) VALUES ('nextcloud','http://182.150.0.80:18002/backup',8,'admin','Dengbao123!@#');
