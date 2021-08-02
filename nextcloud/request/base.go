@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	param "github.com/1uLang/zhiannet-api/nextcloud/const"
 	"github.com/1uLang/zhiannet-api/nextcloud/model"
 )
 
@@ -28,6 +29,16 @@ func GenerateToken(req *model.LoginReq) string {
 	dst := base64.StdEncoding.EncodeToString([]byte(src))
 
 	return fmt.Sprintf("Basic %s", dst)
+}
+
+// GetAdminToken 获取nextcloud管理员的token
+func GetAdminToken() string {
+	req := &model.LoginReq{
+		User:     param.AdminUser,
+		Password: param.AdminPasswd,
+	}
+
+	return GenerateToken(req)
 }
 
 // ParseToken 根据token获取用户名密码
