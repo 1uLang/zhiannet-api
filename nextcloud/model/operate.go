@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"fmt"
+	"github.com/1uLang/zhiannet-api/common/model"
 )
 
 // StoreNCToken 保存nextcloud用户token
@@ -19,7 +20,7 @@ func StoreNCToken(name, token string, kind ...uint8) error {
 		Kind:  kd,
 	}
 
-	cdb := db.Create(&nct)
+	cdb := model.MysqlConn.Create(&nct)
 	if cdb.RowsAffected == 0 {
 		return fmt.Errorf("创建数据备份账号错误：%w", cdb.Error)
 	}
@@ -35,7 +36,7 @@ func BindNCTokenAndUID(name string, uid int64, kind ...uint8) error {
 	} else {
 		kd = kind[0]
 	}
-	udb := db.Model(&NextCloudToken{}).Where("user = ? AND uid = 0 AND kind = ?", name, kd).Update("uid", uid)
+	udb := model.MysqlConn.Model(&NextCloudToken{}).Where("user = ? AND uid = 0 AND kind = ?", name, kd).Update("uid", uid)
 	if udb.RowsAffected == 0 {
 		return fmt.Errorf("绑定token和主站用户错误：%w", udb.Error)
 	}
@@ -51,9 +52,9 @@ func QueryTokenByUID(uid int64, kind ...uint8) (string, error) {
 	} else {
 		kd = kind[0]
 	}
-	
+
 	nct := NextCloudToken{}
-	db.Model(&NextCloudToken{}).Where("uid = ? AND kind = ?", uid, kd).First(&nct)
+	model.MysqlConn.Model(&NextCloudToken{}).Where("uid = ? AND kind = ?", uid, kd).First(&nct)
 	if nct.ID == 0 {
 		return "", errors.New("获取nextcloud token错误")
 	}
