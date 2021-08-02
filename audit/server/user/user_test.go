@@ -24,16 +24,17 @@ func Test_list(t *testing.T) {
 func Test_add(t *testing.T) {
 	list, err := AddUser(&AddUserReq{
 		User:        &request.UserReq{AdminUserId: 1},
-		Email:       "404821634@qq.com",
+		Email:       "4048216340@qq.com",
 		IsAdmin:     1,
-		NickName:    "test",
+		NickName:    "test4",
 		Opt:         1,
-		Password:    "18113470660",
-		Phonenumber: "18113470660",
-		RoleIds:     []uint64{1},
+		Password:    "18113470664",
+		Phonenumber: "18113470664",
+		RoleIds:     []uint64{},
+		RoleName:    "平台管理员",
 		Sex:         1,
 		Status:      1,
-		UserName:    "test",
+		UserName:    "test4",
 	})
 	fmt.Println(list)
 	fmt.Println(err)

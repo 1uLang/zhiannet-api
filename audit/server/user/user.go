@@ -22,6 +22,7 @@ type (
 		Sex         int              `json:"sex"`
 		Status      int              `json:"status"`
 		UserName    string           `json:"userName"`
+		RoleName    string           `json:"roleName"`
 	}
 
 	//添加用户响应参数
