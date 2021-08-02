@@ -5,6 +5,7 @@ type NextCloudToken struct {
 	ID    int64  `gorm:"column:id"`
 	User  string `gorm:"column:user;unqiue"` // 主站的用户名
 	UID   int64  `gorm:"column:uid"`         // 主站用户id
+	Kind  uint8  `gorm:"column:kind"`        // 0用户端 1管理端
 	Token string `gorm:"column:token"`       // nextcloud token
 }
 

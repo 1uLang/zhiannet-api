@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS `nextcloud_token` (
      `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
      `user` varchar(63) NOT NULL DEFAULT '' COMMENT '主站用户名',
      `uid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '用户id',
+     `kind` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'id类型 0用户 1管理员',
      `token` varchar(127) NOT NULL DEFAULT '' COMMENT 'nextcloud token',
      PRIMARY KEY (`id`),
      UNIQUE KEY `user` (`user`)
