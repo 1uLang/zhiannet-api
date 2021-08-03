@@ -38,6 +38,13 @@ type AuthorizeReq struct {
 	Asset string
 	Emails []string
 }
+type DelAuthorizeReq struct {
+	Asset string
+}
+
+type AuthorizeListReq struct {
+	Asset string
+}
 
 var protocolsMaps = map[string]bool{
 	"ssh":    false,

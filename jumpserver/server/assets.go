@@ -25,6 +25,24 @@ func (this *assets) Authorize(args *assets_model.AuthorizeReq) error {
 	return assets_model.Authorize(this.req, args)
 }
 
+func (this *assets) DelAuthorize(args *assets_model.DelAuthorizeReq) error {
+	return assets_model.DelAuthorize(this.req, args)
+}
+
+func (this *assets) AuthorizeList(args *assets_model.AuthorizeListReq) ([]map[string]interface{},error ){
+	return assets_model.AuthorizeList(this.req, args)
+}
+
 func (this *assets) Link(id string) (string,string,error ){
 	return assets_model.Link(this.req, id)
+}
+
+func (this *assets) Info(id string) (map[string]interface{}, error) {
+	return assets_model.Info(this.req, id)
+}
+func (this *assets) Refresh(id string) (string,error)  {
+	return assets_model.Refresh(this.req, id)
+}
+func (this *assets) CheckLink(id string)(string,error)  {
+	return assets_model.CheckLink(this.req, id)
 }

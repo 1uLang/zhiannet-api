@@ -45,3 +45,28 @@ func (this *UpdateReq) check() error {
 	}
 	return this.CreateReq.check()
 }
+
+type AssetsListReq struct {
+	Systemuser string `json:"systemuser"`
+	Offset     int    `json:"offset"`
+	Limit      int    `json:"limit"`
+	Display    int    `json:"display"`
+	Draw       int    `json:"draw"`
+
+	UserId      uint64 `json:"-"`
+	AdminUserId uint64 `json:"-"`
+}
+
+func (this *AssetsListReq) check() error {
+
+	if this.Limit == 0 {
+		this.Limit = 99
+		this.Offset = 0
+	}
+	this.Display = 1
+	this.Draw = 1
+	if this.Systemuser == "" {
+		return fmt.Errorf("请输入管理用户id")
+	}
+	return nil
+}

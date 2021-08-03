@@ -60,7 +60,7 @@ func TestCreate(t *testing.T) {
 }
 func TestUpdate(t *testing.T) {
 	args := &assets_model.UpdateReq{}
-	args.ID = "e8dd287a-f4e0-4804-8bfe-6df5ef9678fe"
+	args.ID = "673d125e-7a2c-4db6-9e35-4f52bbcb4af0"
 	args.HostName = "1"
 	args.IP = "1"
 	args.Platform = "Linux"

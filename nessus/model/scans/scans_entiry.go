@@ -19,6 +19,14 @@ type ListReq struct {
 	Scan        bool   `json:"-"`
 	Report      bool   `json:"-"`
 }
+type HistoryReq struct {
+	UserId      uint64 `json:"-"`
+	AdminUserId uint64 `json:"-"`
+}
+type DelHistoryReq struct {
+	ID        string
+	HistoryId string
+}
 type ScanReq struct {
 	ID string
 }
@@ -32,6 +40,7 @@ type ResumeReq struct {
 
 type ExportReq struct {
 	ID     string
+	HistoryId string
 	Format string
 }
 type ExportResp struct {
@@ -39,19 +48,33 @@ type ExportResp struct {
 	File  float64
 }
 type VulnerabilitiesReq struct {
-	ID string
+	ID        string
+	HistoryId string
 }
 
 type PluginsReq struct {
-	ScanId string
-	VulId  string
+	ID        string
+	HistoryId string
+	VulId     string
 }
 
 type DeleteReq struct {
 	ID string
 }
 type ResetReq struct {
-	ID string
+	ID          string
+	UserId      uint64 `json:"-"`
+	AdminUserId uint64 `json:"-"`
+}
+
+type CreateReportReq struct {
+	ID        string `json:"id"`
+	HistoryId string `json:"history_id"`
+	UserId      uint64 `json:"-"`
+	AdminUserId uint64 `json:"-"`
+}
+
+type ListReportReq struct {
 	UserId      uint64 `json:"-"`
 	AdminUserId uint64 `json:"-"`
 }
