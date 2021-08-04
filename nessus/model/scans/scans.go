@@ -227,8 +227,7 @@ func List(args *ListReq) ([]interface{}, error) {
 				}
 				if len(info["hosts"].([]interface{})) > 0 {
 					severity_counts := map[string]float64{}
-					severity_counts["critical"] = info["hosts"].([]interface{})[0].(map[string]interface{})["critical"].(float64)
-					severity_counts["high"] = info["hosts"].([]interface{})[0].(map[string]interface{})["high"].(float64)
+					severity_counts["high"] = info["hosts"].([]interface{})[0].(map[string]interface{})["high"].(float64) + info["hosts"].([]interface{})[0].(map[string]interface{})["critical"].(float64)
 					severity_counts["medium"] = info["hosts"].([]interface{})[0].(map[string]interface{})["medium"].(float64)
 					severity_counts["low"] = info["hosts"].([]interface{})[0].(map[string]interface{})["low"].(float64)
 					severity_counts["info"] = info["hosts"].([]interface{})[0].(map[string]interface{})["info"].(float64)
@@ -570,8 +569,7 @@ func History(args *HistoryReq) ([]interface{}, error) {
 				}
 				if len(history_info["hosts"].([]interface{})) > 0 {
 					severity_counts := map[string]float64{}
-					severity_counts["critical"] = history_info["hosts"].([]interface{})[0].(map[string]interface{})["critical"].(float64)
-					severity_counts["high"] = history_info["hosts"].([]interface{})[0].(map[string]interface{})["high"].(float64)
+					severity_counts["high"] = history_info["hosts"].([]interface{})[0].(map[string]interface{})["high"].(float64) + history_info["hosts"].([]interface{})[0].(map[string]interface{})["critical"].(float64)
 					severity_counts["medium"] = history_info["hosts"].([]interface{})[0].(map[string]interface{})["medium"].(float64)
 					severity_counts["low"] = history_info["hosts"].([]interface{})[0].(map[string]interface{})["low"].(float64)
 					severity_counts["info"] = history_info["hosts"].([]interface{})[0].(map[string]interface{})["info"].(float64)

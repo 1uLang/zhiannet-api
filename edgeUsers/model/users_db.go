@@ -75,7 +75,7 @@ type (
 		Features string
 	}
 )
-
+var edgeUserTableName = "edgeUsers"
 //获取节点
 func GetList(req *ListReq) (list []*Edgeusers, err error) {
 	if req.UserId == 0 {
@@ -83,7 +83,7 @@ func GetList(req *ListReq) (list []*Edgeusers, err error) {
 	}
 	//判断是否为子账号
 	parent :=Edgeusers{}
-	err = model.MysqlConn.Model(&Edgeusers{}).Where("id=?", req.UserId).Find(&parent).Error
+	err = model.MysqlConn.Table(edgeUserTableName).Where("id=?", req.UserId).Find(&parent).Error
 	if err != nil {
 		return nil,err
 	}
@@ -91,7 +91,7 @@ func GetList(req *ListReq) (list []*Edgeusers, err error) {
 		req.UserId = parent.ParentId
 	}
 	//从数据库获取
-	db_model := model.MysqlConn.Model(&Edgeusers{}).Where("state=?", 1)
+	db_model := model.MysqlConn.Table(edgeUserTableName).Where("state=?", 1)
 	if req != nil && req.UserId > 0 {
 		db_model = db_model.Where("parentId=?", req.UserId)
 	} else {
@@ -119,7 +119,7 @@ func GetList(req *ListReq) (list []*Edgeusers, err error) {
 //获取数量
 func GetNum(req *GetNumReq) (total int64, err error) {
 	//从数据库获取
-	db_model := model.MysqlConn.Model(&Edgeusers{}).Where("state=?", 1)
+	db_model := model.MysqlConn.Table(edgeUserTableName).Where("state=?", 1)
 	if req != nil && req.UserId > 0 {
 		db_model = db_model.Where("parentId=?", req.UserId)
 	} else {
@@ -133,7 +133,7 @@ func CheckUserUsername(req *CheckUserNameReq) (bool, error) {
 	if req.Username == "" {
 		return false, fmt.Errorf("参数错误")
 	}
-	user_model := model.MysqlConn.Model(&Edgeusers{}).Where("username=?", req.Username)
+	user_model := model.MysqlConn.Table(edgeUserTableName).Where("username=?", req.Username)
 	if req.UserId != 0 {
 		user_model = user_model.Where("id!=?", req.UserId)
 	}
@@ -152,7 +152,7 @@ func UpdateUser(req *UpdateUserReq) error {
 		return fmt.Errorf("参数错误")
 	}
 	ent := Edgeusers{}
-	err := model.MysqlConn.Model(&Edgeusers{}).Where("id=?", req.Id).Find(&ent).Error
+	err := model.MysqlConn.Table(edgeUserTableName).Where("id=?", req.Id).Find(&ent).Error
 	if err != nil {
 		return err
 	}
@@ -165,7 +165,7 @@ func UpdateUser(req *UpdateUserReq) error {
 	ent.Remark = req.Remark
 	ent.Email = req.Email
 	ent.UpdatedAt = time.Now().Unix()
-	return model.MysqlConn.Model(&Edgeusers{}).Where("id=?", req.Id).Save(&ent).Error
+	return model.MysqlConn.Table(edgeUserTableName).Where("id=?", req.Id).Save(&ent).Error
 }
 func CreateUser(req *CreateUserReq)(uint64,error  ){
 
@@ -173,7 +173,7 @@ func CreateUser(req *CreateUserReq)(uint64,error  ){
 		return 0,fmt.Errorf("参数错误")
 	}
 	parent :=Edgeusers{}
-	err := model.MysqlConn.Model(&Edgeusers{}).Where("id=?", req.UserId).Find(&parent).Error
+	err := model.MysqlConn.Table(edgeUserTableName).Where("id=?", req.UserId).Find(&parent).Error
 	if err != nil {
 		return 0,err
 	}
@@ -206,7 +206,7 @@ func CreateUser(req *CreateUserReq)(uint64,error  ){
 	return op.Id,nil
 }
 func DeleteUser(req *DeleteUserReq) error {
-	res := model.MysqlConn.Model(&Edgeusers{}).Where("id in (?)", req.UserId).Update("state", 0)
+	res := model.MysqlConn.Table(edgeUserTableName).Where("id in (?)", req.UserId).Update("state", 0)
 	return res.Error
 }
 
@@ -215,7 +215,7 @@ func FindUserFeatures(req *FindUserFeaturesReq)([]string,error)  {
 		return nil,fmt.Errorf("参数错误")
 	}
 	ent :=Edgeusers{}
-	err := model.MysqlConn.Model(&Edgeusers{}).Where("id=?", req.UserId).Find(&ent).Error
+	err := model.MysqlConn.Table(edgeUserTableName).Where("id=?", req.UserId).Find(&ent).Error
 	if err != nil {
 		return nil,err
 	}
@@ -231,5 +231,5 @@ func UpdateUserFeatures(req *UpdateUserFeaturesReq)error  {
 		return fmt.Errorf("参数错误")
 	}
 
-	return model.MysqlConn.Model(&Edgeusers{}).Where("id=?", req.UserId).Update("features",req.Features).Error
+	return model.MysqlConn.Table(edgeUserTableName).Where("id=?", req.UserId).Update("features",req.Features).Error
 }
