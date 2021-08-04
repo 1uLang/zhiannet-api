@@ -79,13 +79,13 @@ func GetListByUid(req []uint64) (resMap map[uint64]*EdgeUsers, total int64, err 
 
 //通过id获取用户信息
 func GetInfoById(id uint64) (info *EdgeUsers, err error) {
-	err = model.MysqlConn.Table("edgeUsers").Where("id=?", id).First(info).Error
+	err = model.MysqlConn.Debug().Table("edgeUsers").Where("id=?", id).First(&info).Error
 	return
 }
 
 //通过用户名获取用户信息
 func GetInfoByUsername(name string) (info *EdgeUsers, err error) {
-	err = model.MysqlConn.Table("edgeUsers").Where("username=?", name).First(info).Error
+	err = model.MysqlConn.Table("edgeUsers").Where("username=?", name).First(&info).Error
 	return
 }
 

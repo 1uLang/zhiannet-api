@@ -6,8 +6,8 @@ import (
 )
 
 //判断用户密码是否过期 有效90天
-func CheckPwdInvalid(name string) (res bool, err error) {
-	info, err := edge_users.GetInfoByUsername(name)
+func CheckPwdInvalid(id uint64) (res bool, err error) {
+	info, err := edge_users.GetInfoById(id)
 	if err != nil || info == nil {
 		return
 	}
