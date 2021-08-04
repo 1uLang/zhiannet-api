@@ -31,6 +31,8 @@ func UploadFile(name, format, describe string, body []byte) error {
 	if err != nil {
 		return fmt.Errorf("创建存储文件失败：%w", err)
 	}
+	defer sf.Close()
+	
 	_, err = sf.Write(body)
 	if err != nil {
 		return fmt.Errorf("存储文件失败：%w", err)
