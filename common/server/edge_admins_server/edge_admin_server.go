@@ -1,4 +1,4 @@
-package edge_admins
+package edge_admins_server
 
 import (
 	"fmt"
@@ -8,26 +8,27 @@ import (
 )
 
 //判断用户密码是否过期 有效90天
-func CheckPwdInvalid(name string) (res bool, err error) {
-	info, err := edge_admins.GetInfoByUsername(name)
+func CheckPwdInvalid(id uint64) (res bool, err error) {
+	info, err := edge_admins.GetInfoById(id)
 	if err != nil || info == nil {
 		return
 	}
 	if int64(info.PwdAt) < time.Now().Add(-time.Second*60*60*24*90).Unix() {
 		res = true
 	}
+	fmt.Println("----", info.PwdAt, time.Now().Add(-time.Second*60*60*24*90).Unix())
 	return res, err
 }
 
 //更新密码
-func UpdatePwd(name, pwd, newPwd string) (res int64, err error) {
+func UpdatePwd(id uint64, newPwd string) (res int64, err error) {
 	var info *edge_admins.EdgeAdmins
-	info, err = edge_admins.GetInfoByPwd(name, pwd)
+	info, err = edge_admins.GetInfoById(id)
 	if err != nil || info == nil {
-		return 0, fmt.Errorf("更新密码失败,账号或密码错误")
+		return 0, fmt.Errorf("更新密码失败,获取账号信息失败")
 	}
 
-	return edge_admins.UpdatePwd(info.Id, pwd)
+	return edge_admins.UpdatePwd(info.Id, newPwd)
 
 }
 

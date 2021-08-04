@@ -55,7 +55,7 @@ func GetLogsList(req *LogReq, apiKey *request.ApiKey) (list *LogListResp, err er
 		//Get("https://182.150.0.109:5443/firewall_nat_edit.php")
 		//Get("https://182.150.0.109:5443/api/diagnostics/log/core/suricata")
 		Post(url)
-	//fmt.Println("edge_logs query list == ",string(resp.Body()), err)
+	//fmt.Println("edge_logs_server query list == ",string(resp.Body()), err)
 	err = json.Unmarshal(resp.Body(), &list)
 	if err != nil {
 		return list, err
