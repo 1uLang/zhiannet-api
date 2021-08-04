@@ -42,6 +42,11 @@ func CreateUser(token, user, passwd string) error {
 		return fmt.Errorf("xml解析失败：%w", err)
 	}
 
+	// 说明用户已经被创建过，避免脏数据，这里不将这个错误抛出
+	if cuRsp.Meta.Statuscode == 102 {
+		return nil
+	}
+
 	if cuRsp.Meta.Status != "ok" || cuRsp.Meta.Statuscode != 100 {
 		return errors.New(cuRsp.Meta.Message)
 	}

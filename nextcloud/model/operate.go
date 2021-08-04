@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"fmt"
+
 	"github.com/1uLang/zhiannet-api/common/model"
 )
 
@@ -14,15 +15,16 @@ func StoreNCToken(name, token string, kind ...uint8) error {
 	} else {
 		kd = kind[0]
 	}
-	nct := NextCloudToken{
-		User:  name,
-		Token: token,
-		Kind:  kd,
-	}
 
-	cdb := model.MysqlConn.Create(&nct)
-	if cdb.RowsAffected == 0 {
-		return fmt.Errorf("创建数据备份账号错误：%w", cdb.Error)
+	nct := NextCloudToken{}
+	model.MysqlConn.First(&nct, "user = ?", name)
+	nct.User = name
+	nct.Token = token
+	nct.Kind = kd
+
+	err := model.MysqlConn.Save(&nct).Error
+	if err != nil {
+		return fmt.Errorf("创建数据备份账号错误：%w", err)
 	}
 
 	return nil
