@@ -15,7 +15,7 @@ var (
 	dsn string
 )
 
-func init() {
+// func init() {
 	// 加载配置文件
 	//readConfig()
 
@@ -27,8 +27,8 @@ func init() {
 	// }
 
 	// 读取数据库中的节点配置
-	getAdminUser()
-}
+	// getAdminUser()
+// }
 
 //func readConfig() {
 //	viper.SetConfigFile(param.DB_CONFIG_PATH)
@@ -40,8 +40,8 @@ func init() {
 //	dsn = viper.GetString("dbs.prod.dsn")
 //}
 
-// getAdminUser 获取数据库中配置的用户名密码
-func getAdminUser() {
+// GetAdminUser 获取数据库中配置的用户名密码
+func GetAdminUser() {
 	sn := Subassemblynode{}
 	model.MysqlConn.Model(&Subassemblynode{}).Where("type = 8 AND state = 1 AND is_delete = 0").First(&sn)
 	if sn.ID > 0 {

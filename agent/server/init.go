@@ -11,8 +11,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-func init() {
-	viper.SetConfigFile(param.CONFIG_PATH)
+// AgentInit Agent初始化
+func AgentInit(cp string) {
+	viper.SetConfigFile(cp)
 	err := viper.ReadInConfig()
 	if err != nil {
 		return

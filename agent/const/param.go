@@ -20,5 +20,5 @@ const (
 	GB float64 = 1024 * 1024 * 1024
 
 	// CONFIG_PATH 配置文件路径
-	CONFIG_PATH = `./build/configs/api_db.yaml`
+	// CONFIG_PATH = `./build/configs/api_db.yaml`
 )
