@@ -8,6 +8,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
+	"strconv"
 	"time"
 
 	"github.com/tidwall/gjson"
@@ -40,7 +41,7 @@ func InitClient() (err error) {
 	conf := new(RdbConfig)
 	yamlFile, err = ioutil.ReadFile(ApiDbPath)
 	//yamlFile, err = ioutil.ReadFile("./build/configs/api_db.yaml")
-	//yamlFile, err = ioutil.ReadFile("/Users/dp/zhian/zhiannet-edge-line/EdgeAdmin/build/configs/api_db.yaml")
+	//yamlFile, err = ioutil.ReadFile("/Users/yons/zhian/zhiannet-edge-line/EdgeAdmin/build/configs/api_db.yaml")
 
 	if err != nil {
 		return err
@@ -137,4 +138,51 @@ func getA() (a interface{}, err error) {
 	fmt.Println("audit_db a")
 	time.Sleep(time.Second * 3)
 	return "a", nil
+}
+
+//加锁key 值为1
+func SetNx(key string, t time.Duration) (res bool, err error) {
+	//key = Md5Str(key)
+	ctx := context.Background()
+	res, err = Rdb.SetNX(ctx, key, 1, t).Result()
+	return
+}
+
+//key 值+1
+func Incr(key string, t time.Duration) (res int64, err error) {
+	//key = Md5Str(key)
+	ctx := context.Background()
+	//return Rdb.Incr(ctx, key).Result()
+
+	pipe := Rdb.TxPipeline()
+	incr := pipe.Incr(ctx, key)
+	pipe.Expire(ctx, key, t)
+
+	// Execute
+	//
+	//     MULTI
+	//     INCR pipeline_counter
+	//     EXPIRE pipeline_counts 3600
+	//     EXEC
+	//
+	// using one rdb-server roundtrip.
+	_, err = pipe.Exec(ctx)
+	//fmt.Println(incr.Val(), err)
+	res = incr.Val()
+	return
+}
+
+//获取key的int值
+func GetInt(key string) (res int, err error) {
+	//key = Md5Str(key)
+	ctx := context.Background()
+	var result string
+	result, err = Rdb.Get(ctx, key).Result()
+	if err == redis.Nil {
+		res, err = 0, nil
+	} else {
+		res, _ = strconv.Atoi(result)
+	}
+
+	return
 }

@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/PuerkitoBio/goquery v1.7.1
+	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/go-redis/redis/v8 v8.10.0
 	github.com/go-resty/resty/v2 v2.6.0
 	github.com/loveleshsharma/gohive v0.0.0-20191008095549-7eec91c92993

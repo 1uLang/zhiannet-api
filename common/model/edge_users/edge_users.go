@@ -1,6 +1,9 @@
 package edge_users
 
-import "github.com/1uLang/zhiannet-api/common/model"
+import (
+	"github.com/1uLang/zhiannet-api/common/model"
+	"time"
+)
 
 type (
 	EdgeUsers struct {
@@ -19,6 +22,7 @@ type (
 		State        int64  `gorm:"column:state" json:"state" form:"state"`
 		Source       string `gorm:"column:source" json:"source" form:"source"`
 		Clusterid    int64  `gorm:"column:clusterId" json:"clusterid" form:"clusterid"`
+		PwdAt        uint64 `gorm:"column:pwdAt" json:"pwdAt" form:"pwdAt"` //密码修改时间
 	}
 	ListReq struct {
 		Username string `json:"username"`
@@ -70,5 +74,33 @@ func GetListByUid(req []uint64) (resMap map[uint64]*EdgeUsers, total int64, err 
 	for _, v := range list {
 		resMap[v.ID] = v
 	}
+	return
+}
+
+//通过id获取用户信息
+func GetInfoById(id uint64) (info *EdgeUsers, err error) {
+	err = model.MysqlConn.Table("edgeUsers").Where("id=?", id).First(info).Error
+	return
+}
+
+//通过用户名获取用户信息
+func GetInfoByUsername(name string) (info *EdgeUsers, err error) {
+	err = model.MysqlConn.Table("edgeUsers").Where("username=?", name).First(info).Error
+	return
+}
+
+//更新账号密码修改时间
+func UpdatePwdAt(id uint64) (row int64, err error) {
+	tx := model.MysqlConn.Table("edgeUsers").Where("id=?", id).Update("pwdAt", time.Now().Unix())
+	row = tx.RowsAffected
+	err = tx.Error
+	return
+}
+
+//更新账号密码
+func UpdatePwd(id uint64, pwd string) (row int64, err error) {
+	tx := model.MysqlConn.Table("edgeUsers").Where("id=?", id).Updates(map[string]interface{}{"pwdAt": time.Now().Unix(), "password": pwd})
+	row = tx.RowsAffected
+	err = tx.Error
 	return
 }
