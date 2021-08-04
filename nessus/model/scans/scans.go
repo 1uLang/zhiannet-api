@@ -20,7 +20,7 @@ const (
 	folders_url        = "/folders"
 )
 
-func getScanInfo(id string) (map[string]interface{}, error) {
+func getScanInfo(id string, history ...string) (map[string]interface{}, error) {
 	req, err := request.NewRequest()
 	if err != nil {
 		return nil, err
@@ -32,6 +32,9 @@ func getScanInfo(id string) (map[string]interface{}, error) {
 	req.Params = map[string]interface{}{
 		"limit":                              2500,
 		"includeHostDetailsForHostDiscovery": true,
+	}
+	if len(history) > 0 {
+		req.Params["history_id"] = history[0]
 	}
 
 	resp, err := req.Do()
@@ -136,6 +139,7 @@ func Create(args *AddReq) (uint64, error) {
 		AdminUserId: args.AdminUserId,
 		ScansId:     id,
 		Description: args.Settings.Description,
+		Addr:        args.Settings.Name,
 		CreateTime:  int(time.Now().Unix()),
 	})
 	return id, err
@@ -281,7 +285,7 @@ func Pause(args *PauseReq) error {
 	}
 
 	req.Method = "post"
-	req.Url += scan_url + "/" + args.ID + "/pause"
+	req.Url += scan_url + "/" + args.ID + "/stop"
 
 	req.Params = map[string]interface{}{
 		"limit":                              2500,
@@ -324,6 +328,9 @@ func Export(args *ExportReq) (*ExportResp, error) {
 
 	req.Method = "post"
 	req.Url += scan_url + "/" + args.ID + "/export?limit=2500"
+	if args.HistoryId != "" {
+		req.Url += "&history_id=" + args.HistoryId
+	}
 	args.Format = strings.ToLower(args.Format)
 	var reportContents interface{}
 	if args.Format == "csv" {
@@ -382,7 +389,7 @@ func Export(args *ExportReq) (*ExportResp, error) {
 }
 func Vulnerabilities(args *VulnerabilitiesReq) ([]interface{}, error) {
 
-	info, err := getScanInfo(args.ID)
+	info, err := getScanInfo(args.ID, args.HistoryId)
 	if err != nil {
 		return nil, err
 	}
@@ -407,7 +414,7 @@ func Plugins(args *PluginsReq) (map[string]interface{}, error) {
 	}
 
 	req.Method = "get"
-	req.Url += scan_url + "/" + args.ScanId + "/plugins/" + args.VulId + "?limit=2500"
+	req.Url += scan_url + "/" + args.ID + "/plugins/" + args.VulId + "?history_id=" + args.HistoryId + "&limit=2500"
 
 	req.Params = map[string]interface{}{}
 
@@ -487,4 +494,150 @@ func Reset(args *ResetReq) error {
 		fmt.Println("create scan error ", err)
 	}
 	return nil
+}
+
+func History(args *HistoryReq) ([]interface{}, error) {
+
+	req, err := request.NewRequest()
+	if err != nil {
+		return nil, err
+	}
+	folder_id, err := getScanFoldersId("My Scans")
+	if err != nil {
+		return nil, err
+	}
+	req.Method = "get"
+	req.Params = map[string]interface{}{
+		"folder_id": folder_id,
+	}
+	req.Url += scan_url
+	ret, err := req.Do()
+	if err != nil {
+		return nil, err
+	}
+	//解析返回值
+	result := make(map[string]interface{}, 0)
+
+	err = json.Unmarshal(ret, &result)
+	if err != nil {
+		return nil, err
+	}
+	scansList, total, err := GetList(&ScansListReq{
+		UserId:      args.UserId,
+		AdminUserId: args.AdminUserId,
+		PageSize:    999,
+		PageNum:     1,
+	})
+	if total == 0 || err != nil {
+		return nil, err
+	}
+	contain := map[uint64]string{}
+	for _, v := range scansList {
+		contain[v.ScansId] = v.Description
+	}
+
+	retList := make([]interface{}, 0)
+
+	for _, v := range result["scans"].([]interface{}) {
+		scan := v.(map[string]interface{})
+		id, _ := util.Interface2Uint64(scan["id"])
+		//对应web扫描
+		if desc, isExist := contain[id]; isExist {
+			info, err := getScanInfo(fmt.Sprintf("%v", id))
+			if err != nil {
+				return nil, err
+			}
+			if info["history"] == nil {
+				return nil, nil
+			}
+			for _, v := range info["history"].([]interface{}) {
+				item := v.(map[string]interface{})
+				node := map[string]interface{}{}
+				node["target_id"] = fmt.Sprintf("%v-host", scan["id"])
+				node["owner"] = "host"
+				node["scan_id"] = fmt.Sprintf("%v-host", item["history_id"])
+				node["target"] = map[string]interface{}{
+					"address":     scan["name"],
+					"description": desc,
+				}
+				node["current_session"] = map[string]interface{}{
+					"status":     item["status"],
+					"start_date": float2TimeStr(item["creation_date"].(float64)),
+				}
+				history_info, err := getScanInfo(fmt.Sprintf("%v", scan["id"]), fmt.Sprintf("%v", item["history_id"]))
+				if err != nil {
+					return nil, err
+				}
+				if len(history_info["hosts"].([]interface{})) > 0 {
+					severity_counts := map[string]float64{}
+					severity_counts["critical"] = history_info["hosts"].([]interface{})[0].(map[string]interface{})["critical"].(float64)
+					severity_counts["high"] = history_info["hosts"].([]interface{})[0].(map[string]interface{})["high"].(float64)
+					severity_counts["medium"] = history_info["hosts"].([]interface{})[0].(map[string]interface{})["medium"].(float64)
+					severity_counts["low"] = history_info["hosts"].([]interface{})[0].(map[string]interface{})["low"].(float64)
+					severity_counts["info"] = history_info["hosts"].([]interface{})[0].(map[string]interface{})["info"].(float64)
+
+					node["current_session"].(map[string]interface{})["severity_counts"] = severity_counts
+				}
+				retList = append(retList, node)
+			}
+		}
+	}
+	return retList, nil
+}
+
+func DelHistory(args *DelHistoryReq) error {
+	req, err := request.NewRequest()
+	if err != nil {
+		return err
+	}
+
+	req.Method = "delete"
+	req.Url += scan_url + "/" + args.ID + "/history/" + args.HistoryId
+
+	resp, err := req.Do()
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(resp))
+	//删除对应报表
+	_ = DeleteScansReportByHistoryId(args.ID, args.HistoryId)
+	return nil
+}
+
+func CreateReport(args *CreateReportReq) error {
+
+	info, err := GetInfo(args.ID)
+	if err != nil {
+		return err
+	}
+	report := &NessusScanReport{}
+	report.HistoryId, _ = util.Interface2Uint64(args.HistoryId)
+	report.ScansId, _ = util.Interface2Uint64(args.ID)
+	report.UserId = args.UserId
+	report.AdminUserId = args.AdminUserId
+	report.Addr = info.Addr
+	report.CreateTime = time.Now().Unix()
+
+	return AddScansReport(report)
+}
+func ListReport(args *ScansListReq) ([]interface{}, error) {
+	list, total, err := GetListReport(args)
+	if err != nil || total == 0 {
+		return nil, err
+	}
+	ret := make([]interface{}, 0)
+	for _, v := range list {
+		node := map[string]interface{}{}
+		node["report_id"] = fmt.Sprintf("%v-host", v.Id)
+		node["address"] = v.Addr
+		node["generation_date"] = time.Unix(int64(v.CreateTime), 0).Format("2006-01-02T15:04:05") + ".095708+08:00"
+		node["status"] = "completed"
+		node["owner"] = "host"
+		ret = append(ret, node)
+	}
+	return ret, nil
+}
+
+func DeleteReport(ids []string) (err error) {
+	return DeleteScansReportById(ids)
 }

@@ -10,7 +10,6 @@ type admin_users struct{ req *request.Request }
 func (this *admin_users) List(args *admin_users_model.ListReq) ([]map[string]interface{}, error) {
 	return admin_users_model.List(this.req, args)
 }
-
 func (this *admin_users) Create(args *admin_users_model.CreateReq) (map[string]interface{}, error) {
 	return admin_users_model.Create(this.req, args)
 }
@@ -19,4 +18,8 @@ func (this *admin_users) Update(args *admin_users_model.UpdateReq) (map[string]i
 }
 func (this *admin_users) Delete(id string) error {
 	return admin_users_model.Delete(this.req, id)
+}
+
+func (this *admin_users) AssetsList(args *admin_users_model.AssetsListReq) ([]map[string]interface{}, error) {
+	return admin_users_model.AssetsList(this.req, args)
 }

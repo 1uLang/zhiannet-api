@@ -60,3 +60,28 @@ func Delete(req *scans.DeleteReq) error {
 func Reset(req *scans.ResetReq) error {
 	return scans.Reset(req)
 }
+
+// 扫描记录
+func History(req *scans.HistoryReq) ([]interface{}, error) {
+	return scans.History(req)
+}
+
+// 扫描记录
+func DelHistory(req *scans.DelHistoryReq) error {
+	return scans.DelHistory(req)
+}
+
+// 扫描记录
+func CreateReport(req *scans.CreateReportReq) error {
+	return scans.CreateReport(req)
+}
+
+// 扫描记录
+func ListReport(req *scans.ScansListReq) ([]interface{}, error) {
+	return scans.ListReport(req)
+}
+
+// 扫描记录
+func DeleteReport(req []string) error {
+	return scans.DeleteReport(req)
+}
