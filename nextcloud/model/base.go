@@ -15,20 +15,20 @@ var (
 	dsn string
 )
 
-//func init() {
-//	// 加载配置文件
-//	//readConfig()
-//
-//	// 初始化数据库
-//	var err error
-//	db, err = gorm.Open(mysql.New(mysql.Config{DSN: dsn}), &gorm.Config{})
-//	if err != nil {
-//		panic(fmt.Errorf("连接数据库失败：%w", err))
-//	}
-//
-//	// 读取数据库中的节点配置
-//	getAdminUser()
-//}
+func init() {
+	// 加载配置文件
+	//readConfig()
+
+	// 初始化数据库
+	// var err error
+	// db, err = gorm.Open(mysql.New(mysql.Config{DSN: dsn}), &gorm.Config{})
+	// if err != nil {
+	// 	panic(fmt.Errorf("连接数据库失败：%w", err))
+	// }
+
+	// 读取数据库中的节点配置
+	getAdminUser()
+}
 
 //func readConfig() {
 //	viper.SetConfigFile(param.DB_CONFIG_PATH)
@@ -47,6 +47,11 @@ func getAdminUser() {
 	if sn.ID > 0 {
 		param.AdminUser = sn.Key
 		param.AdminPasswd = sn.Secret
-		param.BASE_URL = sn.Addr
+		// param.BASE_URL = sn.Addr
+		if sn.IsSSL == 1 {
+			param.BASE_URL = "https://" + sn.Addr
+		} else {
+			param.BASE_URL = "http://" + sn.Addr
+		}
 	}
 }

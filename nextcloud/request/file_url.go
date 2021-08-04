@@ -18,6 +18,9 @@ import (
 func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, error) {
 	var lfr model.ListFoldersResp
 	var fl model.FolderList
+	if param.BASE_URL == "" || param.AdminUser == "" || param.AdminPasswd == "" {
+		return nil, errors.New("该组件暂未添加，请添加后重试")
+	}
 	// 解析token获取用户名
 	user, err := ParseToken(token)
 	if err != nil {

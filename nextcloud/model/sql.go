@@ -16,6 +16,7 @@ type Subassemblynode struct {
 	Addr     string `gorm:"column:addr"`
 	State    uint8  `gorm:"column:state"`     // 1启用、0禁用
 	IsDelete uint8  `gorm:"column:is_delete"` // 1删除
+	IsSSL    uint8  `gorm:"is_ssl"`           // 1是 0不是
 	Key      string `gorm:"column:key"`
 	Secret   string `gorm:"column:secret"`
 }

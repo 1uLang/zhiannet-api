@@ -3,9 +3,12 @@ package _const
 var (
 	// BASE_URL = `https://123.129.208.232`
 	// BASE_URL = `http://localhost:8080`
-	BASE_URL = `http://182.150.0.80:18002/backup`
-	AdminUser = `admin`
-	AdminPasswd = `Dengbao123!@#`
+	// BASE_URL = `http://182.150.0.80:18002/backup`
+	// AdminUser = `admin`
+	// AdminPasswd = `Dengbao123!@#`
+	BASE_URL = ``
+	AdminUser = ``
+	AdminPasswd = ``
 )
 
 const (
