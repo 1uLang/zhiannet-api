@@ -8,20 +8,17 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"sync"
 
 	param "github.com/1uLang/zhiannet-api/nextcloud/const"
 	"github.com/1uLang/zhiannet-api/nextcloud/model"
 )
-
-var so sync.Once
 
 // ListFolders 列举用户文件 method: PROPFIND
 func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
 	var lfr model.ListFoldersResp
 	var fl model.FolderList
 	var fp string
-	so.Do(model.GetAdminUser)
+
 	// 解析token获取用户名
 	user, err := ParseToken(token)
 	if err != nil {
