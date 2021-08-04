@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -22,6 +23,11 @@ func UploadFile(name, format, describe string, body []byte) error {
 	} else {
 		sp = param.FILE_STORE_PATH + sn
 	}
+
+	// 判断字节流大小
+	if len(body) > param.MAX_FILE_SIZE {
+		return fmt.Errorf("文件最大为：%v", formatBytes(param.MAX_FILE_SIZE))
+	}
 	fp := filepath.Dir(sp)
 	err := os.MkdirAll(fp, 0666)
 	if err != nil {
@@ -32,7 +38,7 @@ func UploadFile(name, format, describe string, body []byte) error {
 		return fmt.Errorf("创建存储文件失败：%w", err)
 	}
 	defer sf.Close()
-	
+
 	_, err = sf.Write(body)
 	if err != nil {
 		return fmt.Errorf("存储文件失败：%w", err)
@@ -159,4 +165,15 @@ func ListFile(paging ...int) (*model.FileListRsp, error) {
 	rsp.List = fs
 
 	return &rsp, nil
+}
+
+// GetFileInfo 获取文件信息
+func GetFileInfo(id int64) (*model.AgentFile, error) {
+	af := model.AgentFile{}
+	cm.MysqlConn.First(&af, id)
+	if af.ID == 0 {
+		return nil, errors.New("请输入正确的id")
+	}
+
+	return &af, nil
 }
