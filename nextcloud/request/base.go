@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	cm_model "github.com/1uLang/zhiannet-api/common/model"
 	param "github.com/1uLang/zhiannet-api/nextcloud/const"
 	"github.com/1uLang/zhiannet-api/nextcloud/model"
 )
@@ -169,4 +170,28 @@ func (this *CheckRequest) Run() {
 		}
 	}
 
+}
+
+// ConnNextcloudWithAdmin admin与nextcloud建立连接
+func ConnNextcloudWithAdmin(name, passwd string) error {
+	req := model.LoginReq{
+		User:     name,
+		Password: passwd,
+	}
+
+	token := GenerateToken(&req)
+	nct := model.NextCloudToken{}
+	un := "admin_admin"
+	cm_model.MysqlConn.First(&nct, "user = ?", un)
+	nct.User = un
+	nct.Token = token
+	nct.UID = 1
+	nct.Kind = 1
+
+	err := cm_model.MysqlConn.Save(&nct).Error
+	if err != nil {
+		return fmt.Errorf("与admin关联失败：%w", err)
+	}
+
+	return nil
 }
