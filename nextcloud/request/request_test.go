@@ -197,3 +197,10 @@ func TestQueryTokenByUID(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestCheckConf(t *testing.T) {
+	err := CheckConf("admin","admin",`http://localhost:8080`)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

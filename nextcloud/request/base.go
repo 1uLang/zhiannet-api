@@ -1,9 +1,13 @@
 package request
 
 import (
+	"crypto/tls"
 	"encoding/base64"
+	"encoding/xml"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -91,4 +95,47 @@ func FormatBytes(bytes string) string {
 	default:
 		return fmt.Sprintf("%.1fB", fb)
 	}
+}
+
+// CheckConf 校验配置是否可用
+func CheckConf(name, passwd, url string) error {
+	var lfr model.ListFoldersResp
+	lreq := model.LoginReq{
+		User:     name,
+		Password: passwd,
+	}
+
+	
+	token := GenerateToken(&lreq)
+	lURL := fmt.Sprintf("%s/"+param.LIST_FOLDERS, url, name)
+	// 跳过证书验证
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	cli := &http.Client{
+		Transport: tr,
+	}
+	req, err := http.NewRequest("PROPFIND", lURL, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", token)
+	rsp, err := cli.Do(req)
+	if err != nil {
+		return err
+	}
+	defer rsp.Body.Close()
+
+	body, err := io.ReadAll(rsp.Body)
+	if err != nil {
+		return err
+	}
+	err = xml.Unmarshal(body, &lfr)
+	if err != nil {
+		return err
+	}
+	if lfr.Response == nil {
+		return errors.New("配置错误")
+	}
+	return nil
 }
