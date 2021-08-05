@@ -16,7 +16,7 @@ func init() {
 
 //获取列表
 func Test_acl_list(t *testing.T) {
-	list, err := GetAclList(12)
+	list, err := GetAclList(2)
 	r, _ := json.Marshal(list)
 	fmt.Println(gjson.ParseBytes(r).Value())
 	fmt.Println(err)

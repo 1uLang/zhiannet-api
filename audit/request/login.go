@@ -140,3 +140,35 @@ func GetHttpClient(req *LoginReq) *resty.Client {
 	}
 	return Client
 }
+
+//检测是否可用
+func (this *LoginReq) Run() {
+	nodes, _, err := subassemblynode.GetList(&subassemblynode.NodeReq{
+		//State:    "1",
+		Type:     6,
+		PageNum:  1,
+		PageSize: 99,
+	})
+	if err != nil || len(nodes) == 0 {
+		err = fmt.Errorf("获取审计系统节点信息失败")
+		return
+	}
+	for _, v := range nodes {
+		logReq := &LoginReq{
+			Name:     v.Key,
+			Password: v.Secret,
+			Addr:     v.Addr,
+			IsSsl:    v.IsSsl == 1,
+		}
+		token, err := Login(logReq)
+		var conn int = 1
+		if err != nil || token == "" {
+			//登录失败 不可用
+			conn = 0
+		}
+		if conn != v.ConnState {
+			subassemblynode.UpdateConnState(v.Id, conn)
+		}
+	}
+
+}

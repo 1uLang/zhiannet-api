@@ -186,3 +186,9 @@ func GetInt(key string) (res int, err error) {
 
 	return
 }
+
+func DelKey(key string) (err error) {
+	ctx := context.Background()
+	_, err = Rdb.Del(ctx, key).Result()
+	return
+}

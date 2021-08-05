@@ -27,7 +27,7 @@ func ListMatch(Interface string, data io.Reader) (list []*AclListResp, err error
 		//if s.Find("td").Eq(1).Find("i").Eq(0).Is(".text-success") {
 		//	info.Disabled = true
 		//}
-		text, _ := s.Find("td").Eq(1).Find("i").Eq(0).Attr("data-original-title")
+		text, _ := s.Find("td").Eq(1).Find("i").Eq(0).Attr("title")
 		if text == "禁用规则" {
 			info.Disabled = true
 		}
