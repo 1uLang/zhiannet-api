@@ -26,16 +26,16 @@ func InitCron() {
 	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&monitor_cron.PortCheck{}))
 	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&monitor_cron.CodeCheck{}))
 	//安全审计组件定时检测状态是否可用
-	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&audit_request.LoginReq{}))
+	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&audit_request.LoginReq{}))
 	//ddos金盾 组件定时检测状态是否可用
-	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&ddos_request.LoginReq{}))
+	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&ddos_request.LoginReq{}))
 	//下一代防火墙 组件定时检测状态是否可用
-	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&opnsense_request.ApiKey{}))
+	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&opnsense_request.ApiKey{}))
 	//数据备份系统 组件定时检测状态是否可用
-	c.AddJob("*/5 * * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&nextcloud_request.CheckRequest{}))
-	c.AddJob("*/5 * * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&awvs_request.CheckRequest{}))
-	c.AddJob("*/5 * * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&nessus_request.CheckRequest{}))
-	c.AddJob("*/5 * * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&hids_request.CheckRequest{}))
+	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&nextcloud_request.CheckRequest{}))
+	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&awvs_request.CheckRequest{}))
+	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&nessus_request.CheckRequest{}))
+	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&hids_request.CheckRequest{}))
 
 	c.Start()
 }
