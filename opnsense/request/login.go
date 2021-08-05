@@ -54,8 +54,8 @@ func Login(req *ApiKey) (CookieMap map[string]string, err error) {
 			key:           value,
 		}).
 		Post(url)
-	//fmt.Println(resp.StatusCode())
-	//fmt.Println(string(resp.Body()))
+	fmt.Println("code========", resp.StatusCode())
+	fmt.Println(string(resp.Body()))
 	//fmt.Println("key=",name,"value=",value)
 	if err != nil {
 		return CookieMap, err
@@ -68,7 +68,7 @@ func Login(req *ApiKey) (CookieMap map[string]string, err error) {
 			CookieMap["x-csrftoken"] = value //接口调用凭证
 		}
 
-		//fmt.Println("cookies", Cookies)
+		fmt.Println("cookies", Cookies)
 		//fmt.Println("login in Cookie=", Cookie)
 	}
 	return CookieMap, err
