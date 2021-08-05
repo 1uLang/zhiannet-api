@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"github.com/1uLang/zhiannet-api/awvs/model"
+	"github.com/1uLang/zhiannet-api/awvs/model/dashboard"
 	"github.com/1uLang/zhiannet-api/awvs/request"
 )
 
@@ -30,4 +31,26 @@ func SetAPIKeys(req *request.APIKeys) error {
 
 func GetWebScan() (resp *model.WebScanResp, err error) {
 	return model.GetWebScanInfo()
+}
+
+//检测awvs 是否配置正常
+func Check() (bool, error) {
+
+	info,err := GetWebScan()
+	if err != nil {
+		return false,err
+	}
+	err = SetUrl(info.Addr)
+	if err != nil {
+		return false,err
+	}
+	err = SetAPIKeys(&request.APIKeys{XAuth: info.Key})
+	if err != nil {
+		return false,err
+	}
+	_,err = dashboard.MeStats()
+	if err != nil {
+		return false,err
+	}
+	return true,nil
 }
