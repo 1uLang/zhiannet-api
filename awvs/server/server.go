@@ -5,11 +5,15 @@ import (
 	"github.com/1uLang/zhiannet-api/awvs/model"
 	"github.com/1uLang/zhiannet-api/awvs/model/dashboard"
 	"github.com/1uLang/zhiannet-api/awvs/request"
+	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 )
 
 /*
 	awvs web漏洞扫描api对接 server 层
 */
+type (
+	CheckRequest struct{}
+)
 
 // SetUrl 初始化 awvs url or ip:port
 func SetUrl(url string) error {
@@ -34,23 +38,35 @@ func GetWebScan() (resp *model.WebScanResp, err error) {
 }
 
 //检测awvs 是否配置正常
-func Check() (bool, error) {
+func Check() (bool, uint64, error) {
 
-	info,err := GetWebScan()
+	info, err := GetWebScan()
 	if err != nil {
-		return false,err
+		return false, 0, err
 	}
 	err = SetUrl(info.Addr)
 	if err != nil {
-		return false,err
+		return false, info.Id, err
 	}
 	err = SetAPIKeys(&request.APIKeys{XAuth: info.Key})
 	if err != nil {
-		return false,err
+		return false, info.Id, err
 	}
-	_,err = dashboard.MeStats()
+	_, err = dashboard.MeStats()
 	if err != nil {
-		return false,err
+		return false, info.Id, err
 	}
-	return true,nil
+	return true, info.Id, nil
+}
+
+func (this *CheckRequest) Run() {
+	var conn int = 1
+	res, id, _ := Check()
+	if !res {
+		conn = 0
+	}
+	if id > 0 {
+		subassemblynode.UpdateConnState(id, conn)
+	}
+
 }

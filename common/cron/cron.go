@@ -4,6 +4,10 @@ import (
 	audit_request "github.com/1uLang/zhiannet-api/audit/request"
 	ddos_request "github.com/1uLang/zhiannet-api/ddos/request"
 	monitor_cron "github.com/1uLang/zhiannet-api/monitor/cron"
+	awvs_request "github.com/1uLang/zhiannet-api/nextcloud/request"
+	hids_request "github.com/1uLang/zhiannet-api/nextcloud/request"
+	nessus_request "github.com/1uLang/zhiannet-api/nextcloud/request"
+	nextcloud_request "github.com/1uLang/zhiannet-api/nextcloud/request"
 	opnsense_request "github.com/1uLang/zhiannet-api/opnsense/request"
 	"github.com/robfig/cron/v3"
 )
@@ -27,6 +31,11 @@ func InitCron() {
 	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&ddos_request.LoginReq{}))
 	//下一代防火墙 组件定时检测状态是否可用
 	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&opnsense_request.ApiKey{}))
+	//数据备份系统 组件定时检测状态是否可用
+	c.AddJob("*/5 * * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&nextcloud_request.CheckRequest{}))
+	c.AddJob("*/5 * * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&awvs_request.CheckRequest{}))
+	c.AddJob("*/5 * * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&nessus_request.CheckRequest{}))
+	c.AddJob("*/5 * * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&hids_request.CheckRequest{}))
 
 	c.Start()
 }

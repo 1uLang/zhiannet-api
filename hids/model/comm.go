@@ -50,6 +50,7 @@ type (
 		Addr   string `json:"addr"`
 		AppId  string `json:"app_id"`
 		Secret string `json:"secret"`
+		Id     uint64 `json:"id"`
 	}
 )
 
@@ -74,6 +75,7 @@ func GetHidsInfo() (resp *HidsResp, err error) {
 		Addr:   addr,
 		AppId:  info.Key,
 		Secret: info.Secret,
+		Id:     info.Id,
 	}
 	return resp, err
 }

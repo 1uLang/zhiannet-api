@@ -6,6 +6,8 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
+	"github.com/1uLang/zhiannet-api/utils"
 	"io"
 	"net/http"
 	"strconv"
@@ -25,6 +27,10 @@ const (
 	MB float64 = 1024 * 1024
 	// GB G byte
 	GB float64 = 1024 * 1024 * 1024
+)
+
+type (
+	CheckRequest struct{}
 )
 
 // GenerateToken 根据用户名密码生成Auth basic
@@ -105,7 +111,6 @@ func CheckConf(name, passwd, url string) error {
 		Password: passwd,
 	}
 
-	
 	token := GenerateToken(&lreq)
 	lURL := fmt.Sprintf("%s/"+param.LIST_FOLDERS, url, name)
 	// 跳过证书验证
@@ -138,4 +143,30 @@ func CheckConf(name, passwd, url string) error {
 		return errors.New("配置错误")
 	}
 	return nil
+}
+
+func (this *CheckRequest) Run() {
+	nodes, _, err := subassemblynode.GetList(&subassemblynode.NodeReq{
+		//State:    "1",
+		Type:     8,
+		PageNum:  1,
+		PageSize: 99,
+	})
+	if err != nil || len(nodes) == 0 {
+		err = fmt.Errorf("获取数据备份节点信息失败")
+		return
+	}
+	for _, v := range nodes {
+		url := utils.CheckHttpUrl(v.Addr, v.IsSsl == 1)
+		err := CheckConf(v.Key, v.Secret, url)
+		var conn int = 1
+		if err != nil {
+			//登录失败 不可用
+			conn = 0
+		}
+		if conn != v.ConnState {
+			subassemblynode.UpdateConnState(v.Id, conn)
+		}
+	}
+
 }

@@ -54,8 +54,8 @@ func Login(req *ApiKey) (CookieMap map[string]string, err error) {
 			key:           value,
 		}).
 		Post(url)
-	fmt.Println("code========", resp.StatusCode())
-	fmt.Println(string(resp.Body()))
+	//fmt.Println("code========", resp.StatusCode())
+	//fmt.Println(string(resp.Body()))
 	//fmt.Println("key=",name,"value=",value)
 	if err != nil {
 		return CookieMap, err

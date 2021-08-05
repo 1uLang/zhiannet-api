@@ -8,9 +8,10 @@ import (
 )
 
 type NessusResp struct {
-	Addr 	string `json:"addr"`
-	Access 	string `json:"access"`
-	Secret 	string `json:"secret"`
+	Addr   string `json:"addr"`
+	Access string `json:"access"`
+	Secret string `json:"secret"`
+	Id     uint64 `json:"id"`
 }
 
 func ToMap(obj interface{}) map[string]interface{} {
@@ -61,9 +62,10 @@ func GetNessusInfo() (resp *NessusResp, err error) {
 	info := list[0]
 	addr := utils.CheckHttpUrl(info.Addr, info.IsSsl == 1)
 	resp = &NessusResp{
-		Addr: addr,
-		Access:  info.Key,
-		Secret:  info.Secret,
+		Addr:   addr,
+		Access: info.Key,
+		Secret: info.Secret,
+		Id:     info.Id,
 	}
 	return resp, err
 }

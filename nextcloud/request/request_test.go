@@ -188,7 +188,7 @@ func TestBindNCTokenAndUID(t *testing.T) {
 }
 
 func TestQueryTokenByUID(t *testing.T) {
-	token,err := model.QueryTokenByUID(123)
+	token, err := model.QueryTokenByUID(123)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -199,7 +199,7 @@ func TestQueryTokenByUID(t *testing.T) {
 }
 
 func TestCheckConf(t *testing.T) {
-	err := CheckConf("admin","admin",`http://localhost:8080`)
+	err := CheckConf("admin", "21ops.com", `https://bptest.dengbao.cloud`)
 	if err != nil {
 		t.Fatal(err)
 	}
