@@ -199,7 +199,7 @@ func CreateUser(req *CreateUserReq)(uint64,error  ){
 	op.IsOn = 1
 	op.State = 1
 	op.Features = "[]"
-	res :=  model.MysqlConn.Create(&op)
+	res :=  model.MysqlConn.Table(edgeUserTableName).Create(&op)
 	if res.Error != nil {
 		return 0, res.Error
 	}
