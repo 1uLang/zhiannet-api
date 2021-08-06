@@ -9,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 
 	param "github.com/1uLang/zhiannet-api/nextcloud/const"
@@ -24,7 +23,7 @@ func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
 	if param.BASE_URL == "" || param.AdminUser == "" || param.AdminPasswd == "" {
 		return nil, errors.New("该组件暂未添加，请添加后重试")
 	}
-	
+
 	// 解析token获取用户名
 	user, err := ParseToken(token)
 	if err != nil {
@@ -47,12 +46,8 @@ func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
 	cli := &http.Client{
 		Transport: tr,
 	}
-	reqBody, err := os.ReadFile("xml/list_file.xml")
-	if err != nil {
-		return nil, err
-	}
-	
-	req, err := http.NewRequest("PROPFIND", uRL, bytes.NewReader(reqBody))
+
+	req, err := http.NewRequest("PROPFIND", uRL, bytes.NewReader([]byte(listFileXML)))
 	if err != nil {
 		return nil, err
 	}

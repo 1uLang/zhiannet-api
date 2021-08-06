@@ -9,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 
@@ -53,11 +52,8 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 	cli := &http.Client{
 		Transport: tr,
 	}
-	reqBody, err := os.ReadFile("xml/list_file.xml")
-	if err != nil {
-		return nil, err
-	}
-	req, err := http.NewRequest("PROPFIND", uRL, bytes.NewReader(reqBody))
+
+	req, err := http.NewRequest("PROPFIND", uRL, bytes.NewReader([]byte(listFileXML)))
 	if err != nil {
 		return nil, err
 	}
