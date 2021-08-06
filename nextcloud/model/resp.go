@@ -4,12 +4,13 @@ package model
 type ListFoldersResp struct {
 	Response []struct {
 		Href     string `xml:"href"`
-		Propstat []struct {
+		Propstat struct {
 			Prop struct {
 				Getlastmodified  string `xml:"getlastmodified"`
 				QuotaUsedBytes   string `xml:"quota-used-bytes"`
 				Getcontentlength string `xml:"getcontentlength"`
 				Getcontenttype   string `xml:"getcontenttype"`
+				FileID           uint64 `xml:"fileid"`
 			} `xml:"prop"`
 		} `xml:"propstat"`
 	} `xml:"response"`
@@ -31,6 +32,7 @@ type DeleteFileError struct {
 
 // FolderBody 文件实体属性
 type FolderBody struct {
+	FileID       uint64 `json:"file_id"`
 	URL          string `json:"url"`
 	Name         string `json:"name"`
 	LastModified string `json:"last_modified"`

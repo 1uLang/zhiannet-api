@@ -1,12 +1,15 @@
 package request
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	param "github.com/1uLang/zhiannet-api/nextcloud/const"
@@ -18,7 +21,10 @@ func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
 	var lfr model.ListFoldersResp
 	var fl model.FolderList
 	var fp string
-
+	if param.BASE_URL == "" || param.AdminUser == "" || param.AdminPasswd == "" {
+		return nil, errors.New("该组件暂未添加，请添加后重试")
+	}
+	
 	// 解析token获取用户名
 	user, err := ParseToken(token)
 	if err != nil {
@@ -41,7 +47,11 @@ func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
 	cli := &http.Client{
 		Transport: tr,
 	}
-	req, err := http.NewRequest("PROPFIND", uRL, nil)
+	reqBody, err := os.ReadFile("xml/list_file.xml")
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest("PROPFIND", uRL, bytes.NewReader(reqBody))
 	if err != nil {
 		return nil, err
 	}
@@ -76,11 +86,12 @@ func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
 			continue
 		} else {
 			fb.Name = str[len(str)-1]
-			fb.UsedBytes = FormatBytes(v.Propstat[0].Prop.Getcontentlength)
+			fb.UsedBytes = FormatBytes(v.Propstat.Prop.Getcontentlength)
 		}
+		fb.FileID = v.Propstat.Prop.FileID
 		fb.URL = unescape
-		fb.ContentType = v.Propstat[0].Prop.Getcontenttype
-		fb.LastModified = FormatTime(v.Propstat[0].Prop.Getlastmodified, "2006-01-02 15:04:05")
+		fb.ContentType = v.Propstat.Prop.Getcontenttype
+		fb.LastModified = FormatTime(v.Propstat.Prop.Getlastmodified, "2006-01-02 15:04:05")
 
 		fl.List = append(fl.List, fb)
 	}
