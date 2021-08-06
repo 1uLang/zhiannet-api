@@ -20,6 +20,8 @@ const (
 	DOWNLOAD_FILES = `remote.php/dav/files/%s/%s`
 	// %s: 用户名 method: PUT
 	UPLOAD_FILES = `remote.php/dav/files/%s/`
+	// method: POST
+	Direct_Download = `ocs/v2.php/apps/dav/api/v1/direct`
 
 	// 创建用户 method: POST
 	CREATE_USER = `ocs/v1.php/cloud/users`

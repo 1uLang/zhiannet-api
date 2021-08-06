@@ -44,3 +44,14 @@ type FolderBody struct {
 type FolderList struct {
 	List []FolderBody `json:"list"`
 }
+
+// DirectResp 直链响应体
+type DirectResp struct {
+	Meta struct {
+		Statuscode int    `xml:"statuscode"`
+		Message    string `xml:"message"`
+	} `xml:"meta"`
+	Data struct {
+		URL string `xml:"url"`
+	} `xml:"data"`
+}
