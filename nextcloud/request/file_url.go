@@ -9,7 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
+	"strconv"
 	"strings"
 
 	param "github.com/1uLang/zhiannet-api/nextcloud/const"
@@ -52,11 +52,8 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 	cli := &http.Client{
 		Transport: tr,
 	}
-	reqBody, err := os.ReadFile("xml/list_file.xml")
-	if err != nil {
-		return nil, err
-	}
-	req, err := http.NewRequest("PROPFIND", uRL, bytes.NewReader(reqBody))
+
+	req, err := http.NewRequest("PROPFIND", uRL, bytes.NewReader([]byte(listFileXML)))
 	if err != nil {
 		return nil, err
 	}
@@ -230,4 +227,52 @@ func UploadFileWithPath(token, fileName string, f io.Reader, dirPath ...string) 
 
 	_, err = cli.Do(req)
 	return err
+}
+
+// GetDirectDownloadURL 获取下载直链
+func GetDirectDownloadURL(fileID int64, token string) (string, error) {
+	// 跳过证书验证
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	cli := &http.Client{
+		Transport: tr,
+	}
+
+	uRL := fmt.Sprintf("%s/%s", param.BASE_URL, param.Direct_Download)
+	req, err := http.NewRequest("POST", uRL, nil)
+	if err != nil {
+		return "", fmt.Errorf("新建请求失败：%w", err)
+	}
+	req.Header.Set("Authorization", token)
+	req.Header.Set("OCS-APIRequest", "true")
+	reqQuery := req.URL.Query()
+	reqQuery.Add("fileId", strconv.FormatInt(fileID, 10))
+	req.URL.RawQuery = reqQuery.Encode()
+	rsp, err := cli.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("请求执行失败：%w", err)
+	}
+	defer rsp.Body.Close()
+
+	dRsp := model.DirectResp{}
+	rBody, err := io.ReadAll(rsp.Body)
+	if err != nil {
+		return "", fmt.Errorf("获取响应体失败：%w", err)
+	}
+	err = xml.Unmarshal(rBody, &dRsp)
+	if err != nil {
+		return "", fmt.Errorf("xml解析错误：%w", err)
+	}
+
+	if dRsp.Meta.Statuscode != 200 {
+		return "", errors.New(dRsp.Meta.Message)
+	}
+
+	dURL, err := url.QueryUnescape(dRsp.Data.URL)
+	if err != nil {
+		return "", fmt.Errorf("url解析失败：%w", err)
+	}
+
+	return dURL, nil
 }

@@ -13,7 +13,7 @@ import (
 
 var (
 	req = &model.LoginReq{
-		User:     "admin",
+		User: "admin",
 		// Password: "Dengbao123!@#",
 		Password: "admin",
 	}
@@ -88,12 +88,17 @@ func TestUploadFile(t *testing.T) {
 
 func TestListFolders(t *testing.T) {
 	token := GenerateToken(req)
+	// param.BASE_URL = "http://localhost:8080"
+	// param.AdminUser = "admin"
+	// param.AdminPasswd = "admin"
 	lf, err := ListFolders(token)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	t.Log(lf)
+	for _, v := range lf.List {
+		t.Logf("%d %s\n", v.FileID, v.URL)
+	}
 }
 
 func TestDeleteFile(t *testing.T) {
@@ -207,4 +212,16 @@ func TestCheckConf(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestGetDirectDownloadURL(t *testing.T) {
+	token := GenerateToken(req)
+	param.BASE_URL = "http://localhost:8080"
+
+	dURL, err := GetDirectDownloadURL(423, token)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(dURL)
 }
