@@ -34,7 +34,7 @@ type (
 func GetList(req *UserLogReq) (list []*UserLogResp, total int64, err error) {
 	list = make([]*UserLogResp, 0)
 	//从数据库获取
-	model := model.MysqlConn.Table("edgeLogs").Where("edgeLogs.userId=?", req.UserId)
+	model := model.MysqlConn.Table("edgeLogs").Where("edgeLogs.userId=? or edgeLogs.parentId=?", req.UserId, req.UserId)
 	if req.Keyword != "" {
 		model = model.Where("edgeLogs.description like ?", "%"+req.Keyword+"%")
 	}
@@ -55,7 +55,7 @@ func GetList(req *UserLogReq) (list []*UserLogResp, total int64, err error) {
 		req.PageSize = 20
 	}
 	model = model.Joins("left join edgeUsers on edgeUsers.id=edgeLogs.userId").Select("edgeLogs.*,edgeUsers.username")
-	err = model.Debug().Offset((req.PageNum - 1) * req.PageSize).Limit(req.PageSize).Order("edgeLogs.id desc").Find(&list).Error
+	err = model.Offset((req.PageNum - 1) * req.PageSize).Limit(req.PageSize).Order("edgeLogs.id desc").Find(&list).Error
 	if err != nil {
 		return
 	}
@@ -64,7 +64,7 @@ func GetList(req *UserLogReq) (list []*UserLogResp, total int64, err error) {
 
 func GetNum(req *UserLogReq) (total int64, err error) {
 	//从数据库获取
-	model := model.MysqlConn.Table("edgeLogs").Where("userId=?", req.UserId)
+	model := model.MysqlConn.Table("edgeLogs").Where("userId=? or parentId=?", req.UserId, req.UserId)
 	if req.Keyword != "" {
 		model = model.Where("description like ?", "%"+req.Keyword+"%")
 	}

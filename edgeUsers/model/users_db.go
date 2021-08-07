@@ -28,6 +28,12 @@ type (
 		ClusterId    uint32 `gorm:"column:clusterId" json:"clusterId" form:"clusterId"`          // 集群ID
 		Features     string `gorm:"column:features" json:"features" form:"features"`             // 允许操作的特征
 		ParentId     uint64 `gorm:"column:parentId" json:"parentId" form:"parentId"`             // 创建该用户的父级用户iD
+		PwdAt        uint64 `gorm:"column:pwdAt" json:"pwdAt" form:"pwdAt"`                      // 创建该用户的父级用户iD
+	}
+	EdgeusersResp struct {
+		Edgeusers
+		OtpOn     int8   `gorm:"column:otpIsOn" json:"otpIsOn" form:"otpIsOn"`
+		OtpParams string `gorm:"column:otpParams" json:"otpParams" form:"otpParams"`
 	}
 	GetNumReq struct {
 		UserId uint64
@@ -52,17 +58,17 @@ type (
 		Email    string
 	}
 	CreateUserReq struct {
-		UserId 		  uint64
-		IsOn          uint8
-		Password      string
-		Name          string
-		Mobile        string
-		Tel           string
-		Remark        string
-		Email         string
-		Source        string
-		Fullname      string
-		Username      string
+		UserId   uint64
+		IsOn     uint8
+		Password string
+		Name     string
+		Mobile   string
+		Tel      string
+		Remark   string
+		Email    string
+		Source   string
+		Fullname string
+		Username string
 	}
 	DeleteUserReq struct {
 		UserId uint64
@@ -71,29 +77,31 @@ type (
 		UserId int64
 	}
 	UpdateUserFeaturesReq struct {
-		UserId int64
+		UserId   int64
 		Features string
 	}
 )
+
 var edgeUserTableName = "edgeUsers"
+
 //获取节点
-func GetList(req *ListReq) (list []*Edgeusers, err error) {
+func GetList(req *ListReq) (list []*EdgeusersResp, err error) {
 	if req.UserId == 0 {
 		return
 	}
 	//判断是否为子账号
-	parent :=Edgeusers{}
-	err = model.MysqlConn.Table(edgeUserTableName).Where("id=?", req.UserId).Find(&parent).Error
+	parent := Edgeusers{}
+	err = model.MysqlConn.Debug().Table(edgeUserTableName).Where("edgeUsers.id=?", req.UserId).Find(&parent).Error
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	if parent.ParentId != 0 {
 		req.UserId = parent.ParentId
 	}
 	//从数据库获取
-	db_model := model.MysqlConn.Table(edgeUserTableName).Where("state=?", 1)
+	db_model := model.MysqlConn.Debug().Table(edgeUserTableName).Where("edgeUsers.state=?", 1)
 	if req != nil && req.UserId > 0 {
-		db_model = db_model.Where("parentId=?", req.UserId)
+		db_model = db_model.Where("edgeUsers.parentId=?", req.UserId)
 	} else {
 		return
 	}
@@ -109,7 +117,8 @@ func GetList(req *ListReq) (list []*Edgeusers, err error) {
 	if req.Size <= 0 {
 		req.Size = 20
 	}
-	err = db_model.Debug().Offset(req.Offset).Limit(req.Size).Order("id desc").Find(&list).Error
+	db_model = db_model.Joins("left join edgeLogins on edgeUsers.id=edgeLogins.userId").Select("edgeUsers.*,edgeLogins.isOn as otpIsOn,edgeLogins.params as otpParams")
+	err = db_model.Debug().Offset(req.Offset).Limit(req.Size).Order("edgeUsers.id desc").Find(&list).Error
 	if err != nil {
 		return
 	}
@@ -160,28 +169,32 @@ func UpdateUser(req *UpdateUserReq) error {
 	ent.IsOn = req.IsOn
 	if req.Password != "" {
 		ent.Password = createMd5(req.Password)
+		ent.PwdAt = uint64(time.Now().Unix())
 	}
 	ent.Mobile = req.Mobile
 	ent.Remark = req.Remark
 	ent.Email = req.Email
 	ent.UpdatedAt = time.Now().Unix()
+	if ent.Features == "" {
+		ent.Features = "[]"
+	}
 	return model.MysqlConn.Table(edgeUserTableName).Where("id=?", req.Id).Save(&ent).Error
 }
-func CreateUser(req *CreateUserReq)(uint64,error  ){
+func CreateUser(req *CreateUserReq) (uint64, error) {
 
 	if req.UserId == 0 {
-		return 0,fmt.Errorf("参数错误")
+		return 0, fmt.Errorf("参数错误")
 	}
-	parent :=Edgeusers{}
+	parent := Edgeusers{}
 	err := model.MysqlConn.Table(edgeUserTableName).Where("id=?", req.UserId).Find(&parent).Error
 	if err != nil {
-		return 0,err
+		return 0, err
 	}
 
 	op := Edgeusers{}
 	if parent.ParentId == 0 {
 		op.ParentId = req.UserId
-	}else{
+	} else {
 		op.ParentId = parent.ParentId
 	}
 	op.Username = req.Username
@@ -199,37 +212,38 @@ func CreateUser(req *CreateUserReq)(uint64,error  ){
 	op.IsOn = 1
 	op.State = 1
 	op.Features = "[]"
-	res :=  model.MysqlConn.Create(&op)
+	op.PwdAt = uint64(time.Now().Unix())
+	res := model.MysqlConn.Table(edgeUserTableName).Create(&op)
 	if res.Error != nil {
 		return 0, res.Error
 	}
-	return op.Id,nil
+	return op.Id, nil
 }
 func DeleteUser(req *DeleteUserReq) error {
 	res := model.MysqlConn.Table(edgeUserTableName).Where("id in (?)", req.UserId).Update("state", 0)
 	return res.Error
 }
 
-func FindUserFeatures(req *FindUserFeaturesReq)([]string,error)  {
+func FindUserFeatures(req *FindUserFeaturesReq) ([]string, error) {
 	if req.UserId == 0 {
-		return nil,fmt.Errorf("参数错误")
+		return nil, fmt.Errorf("参数错误")
 	}
-	ent :=Edgeusers{}
+	ent := Edgeusers{}
 	err := model.MysqlConn.Table(edgeUserTableName).Where("id=?", req.UserId).Find(&ent).Error
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
-	ret := make([]string,0)
+	ret := make([]string, 0)
 	if ent.Features != "" {
-		err = json.Unmarshal([]byte(ent.Features),&ret)
+		err = json.Unmarshal([]byte(ent.Features), &ret)
 	}
-	return ret ,err
+	return ret, err
 }
-func UpdateUserFeatures(req *UpdateUserFeaturesReq)error  {
+func UpdateUserFeatures(req *UpdateUserFeaturesReq) error {
 
-	if req.UserId == 0 || !json.Valid([]byte(req.Features)){
+	if req.UserId == 0 || !json.Valid([]byte(req.Features)) {
 		return fmt.Errorf("参数错误")
 	}
 
-	return model.MysqlConn.Table(edgeUserTableName).Where("id=?", req.UserId).Update("features",req.Features).Error
+	return model.MysqlConn.Table(edgeUserTableName).Where("id=?", req.UserId).Update("features", req.Features).Error
 }

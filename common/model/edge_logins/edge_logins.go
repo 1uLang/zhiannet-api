@@ -34,7 +34,7 @@ func GetListByUid(req []uint64) (resMap map[uint64]*EdgeLogins, total int64, err
 	}
 	resMap = make(map[uint64]*EdgeLogins)
 	for _, v := range list {
-		resMap[v.Id] = v
+		resMap[v.UserId] = v
 	}
 	return
 }

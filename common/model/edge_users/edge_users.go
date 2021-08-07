@@ -22,7 +22,8 @@ type (
 		State        int64  `gorm:"column:state" json:"state" form:"state"`
 		Source       string `gorm:"column:source" json:"source" form:"source"`
 		Clusterid    int64  `gorm:"column:clusterId" json:"clusterid" form:"clusterid"`
-		PwdAt        uint64 `gorm:"column:pwdAt" json:"pwdAt" form:"pwdAt"` //密码修改时间
+		ParentId     uint64 `gorm:"column:parentId" json:"parentid" form:"parentid"`
+		PwdAt        uint64 `gorm:"column:pwdAt" json:"pwdat" form:"pwdat"` //密码修改时间
 	}
 	ListReq struct {
 		Username string `json:"username"`
