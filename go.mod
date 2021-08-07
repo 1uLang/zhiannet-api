@@ -4,13 +4,13 @@ go 1.16
 
 require (
 	github.com/PuerkitoBio/goquery v1.7.1
-	github.com/dlclark/regexp2 v1.4.0 // indirect
+	github.com/dlclark/regexp2 v1.4.0
 	github.com/go-redis/redis/v8 v8.10.0
 	github.com/go-resty/resty/v2 v2.6.0
 	github.com/loveleshsharma/gohive v0.0.0-20191008095549-7eec91c92993
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/rs/xid v1.3.0 // indirect
+	github.com/rs/xid v1.3.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.8.1
 	github.com/tidwall/gjson v1.8.0

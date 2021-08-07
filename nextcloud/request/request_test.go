@@ -14,8 +14,8 @@ import (
 var (
 	req = &model.LoginReq{
 		User:     "admin",
-		Password: "Dengbao123!@#",
-		// Password: "admin",
+		// Password: "Dengbao123!@#",
+		Password: "admin",
 	}
 	fileName = "Nextcloud.png"
 	//go:embed Nextcloud.png
@@ -122,6 +122,10 @@ func TestCreateUser(t *testing.T) {
 func TestListFoldersWithPath(t *testing.T) {
 	token := GenerateToken(req)
 	var url string
+	// param.BASE_URL = "http://localhost:8080"
+	// param.AdminUser = "admin"
+	// param.AdminPasswd = "admin"
+	// url = `/remote.php/dav/files/admin/新建文件夹/`
 	ls, err := ListFoldersWithPath(token, url)
 	if err != nil {
 		t.Fatal(err)
@@ -188,12 +192,19 @@ func TestBindNCTokenAndUID(t *testing.T) {
 }
 
 func TestQueryTokenByUID(t *testing.T) {
-	token,err := model.QueryTokenByUID(123)
+	token, err := model.QueryTokenByUID(123)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if token != "456789" {
 		t.Fail()
+	}
+}
+
+func TestCheckConf(t *testing.T) {
+	err := CheckConf("admin", "21ops.com", `https://bptest.dengbao.cloud`)
+	if err != nil {
+		t.Fatal(err)
 	}
 }

@@ -1,8 +1,8 @@
 package _const
 
 var (
-	// MAX_FILE_SIZE 允许上传的最大文件尺寸 默认4M
-	MAX_FILE_SIZE = 4 * 1024 * 1024
+	// MAX_FILE_SIZE 允许上传的最大文件尺寸 默认100M
+	MAX_FILE_SIZE = 100 * 1024 * 1024
 	// Describe_SIZE 描述信息字数限制，默认30字
 	Describe_SIZE = 30
 	// FILE_STORE_PATH 文件默认保存的绝对路径

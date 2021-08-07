@@ -1,16 +1,14 @@
 package server
 
 import (
-	"github.com/1uLang/zhiannet-api/jumpserver/model"
-	"github.com/1uLang/zhiannet-api/jumpserver/request"
+	"github.com/1uLang/zhiannet-api/next-terminal/model"
+	"github.com/1uLang/zhiannet-api/next-terminal/request"
 )
 
 type Request struct {
-	Users     users       //用户接口
-	Assets    assets      //资产接口
-	AdminUser admin_users //管理用户接口
-	Session   sessions    //会话管理
-	Command   commands    //命令记录
+	Assets  asset   //资产接口
+	Session session //会话管理
+	Cert 	cert 	//授权凭证
 }
 
 var req *Request
@@ -24,16 +22,14 @@ func NewServerRequest(url, username, password string) (*Request, error) {
 		return nil, err
 	}
 	req := &Request{}
-	req.Users.req, err = request.NewRequest()
+	req.Assets.req, err = request.NewRequest()
 	if err != nil {
 		return nil, err
 	}
-	req.Assets.req = req.Users.req
-	req.AdminUser.req = req.Users.req
-	req.Session.req = req.Users.req
-	req.Command.req = req.Users.req
+	req.Session.req = req.Assets.req
+	req.Cert.req = req.Assets.req
 	return req, err
 }
-func GetFortCloud() (resp *model.JumpserverResp, err error) {
-	return model.GetJumpserverInfo()
+func GetFortCloud() (resp *model.NextTerminalResp, err error) {
+	return model.GetNextTerminalInfo()
 }

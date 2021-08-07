@@ -17,7 +17,7 @@ func ToMap(obj interface{}) map[string]interface{} {
 }
 
 type (
-	JumpserverResp struct {
+	NextTerminalResp struct {
 		Addr     string `json:"addr"`
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -25,7 +25,7 @@ type (
 )
 
 //获取漏扫节点配置信息
-func GetJumpserverInfo() (resp *JumpserverResp, err error) {
+func GetNextTerminalInfo() (resp *NextTerminalResp, err error) {
 	var list []*subassemblynode.Subassemblynode
 	list, _, err = subassemblynode.GetList(&subassemblynode.NodeReq{
 		Type:     7, //堡垒机
@@ -38,7 +38,7 @@ func GetJumpserverInfo() (resp *JumpserverResp, err error) {
 	}
 	info := list[0]
 	addr := utils.CheckHttpUrl(info.Addr, info.IsSsl == 1)
-	resp = &JumpserverResp{
+	resp = &NextTerminalResp{
 		Addr:     addr,
 		Username: info.Key,
 		Password: info.Secret,

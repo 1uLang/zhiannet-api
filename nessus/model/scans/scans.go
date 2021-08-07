@@ -627,6 +627,8 @@ func ListReport(args *ScansListReq) ([]interface{}, error) {
 	for _, v := range list {
 		node := map[string]interface{}{}
 		node["report_id"] = fmt.Sprintf("%v-host", v.Id)
+		node["scan_id"] = fmt.Sprintf("%v", v.ScansId)
+		node["history_id"] = fmt.Sprintf("%v", v.HistoryId)
 		node["address"] = v.Addr
 		node["generation_date"] = time.Unix(int64(v.CreateTime), 0).Format("2006-01-02T15:04:05") + ".095708+08:00"
 		node["status"] = "completed"

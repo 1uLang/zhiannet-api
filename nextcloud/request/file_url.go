@@ -1,6 +1,7 @@
 package request
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/xml"
 	"errors"
@@ -8,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	param "github.com/1uLang/zhiannet-api/nextcloud/const"
@@ -50,7 +52,11 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 	cli := &http.Client{
 		Transport: tr,
 	}
-	req, err := http.NewRequest("PROPFIND", uRL, nil)
+	reqBody, err := os.ReadFile("xml/list_file.xml")
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest("PROPFIND", uRL, bytes.NewReader(reqBody))
 	if err != nil {
 		return nil, err
 	}
@@ -79,14 +85,15 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 		str := strings.Split(unescape, "/")
 		if str[len(str)-1] == "" {
 			fb.Name = str[len(str)-2] + "/"
-			fb.UsedBytes = FormatBytes(v.Propstat[0].Prop.QuotaUsedBytes)
+			fb.UsedBytes = FormatBytes(v.Propstat.Prop.QuotaUsedBytes)
 		} else {
 			fb.Name = str[len(str)-1]
-			fb.UsedBytes = FormatBytes(v.Propstat[0].Prop.Getcontentlength)
+			fb.UsedBytes = FormatBytes(v.Propstat.Prop.Getcontentlength)
 		}
+		fb.FileID = v.Propstat.Prop.FileID
 		fb.URL = unescape
-		fb.ContentType = v.Propstat[0].Prop.Getcontenttype
-		fb.LastModified = FormatTime(v.Propstat[0].Prop.Getlastmodified, "2006-01-02 15:04:05")
+		fb.ContentType = v.Propstat.Prop.Getcontenttype
+		fb.LastModified = FormatTime(v.Propstat.Prop.Getlastmodified, "2006-01-02 15:04:05")
 
 		fl.List = append(fl.List, fb)
 	}

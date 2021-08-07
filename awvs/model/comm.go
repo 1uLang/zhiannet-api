@@ -44,6 +44,7 @@ type (
 	WebScanResp struct {
 		Addr string `json:"addr"`
 		Key  string `json:"key"`
+		Id   uint64 `json:"id"`
 	}
 )
 
@@ -64,6 +65,7 @@ func GetWebScanInfo() (resp *WebScanResp, err error) {
 	resp = &WebScanResp{
 		Addr: addr,
 		Key:  info.Key,
+		Id:   info.Id,
 	}
 	return resp, err
 }

@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	authorization_template = "Bearer "
+	authorization_template = ""
 
-	token_path = "/api/v1/authentication/auth/"
+	token_path = "/login"
 )
 
 type Request struct {
@@ -28,16 +28,21 @@ type Request struct {
 	UserName string
 	Password string
 }
+type RetInfo struct {
+	Code    int         `json:"code"`
+	Data    interface{} `json:"data"`
+	Message string      `json:"message"`
+}
 
 var req = Request{
 	Method: "get",
 	Headers: map[string]string{
-		"Content-Type":  "application/json",
-		"Authorization": "Bearer ",
+		"X-Auth-Token": "",
+		"Content-Type": "application/json",
 	},
 }
 
-//InitServerUrl 初始化jumpserver服务器地址
+//InitServerUrl 初始化next-terminal服务器地址
 func InitServerUrl(url string) error {
 	req.url = url
 	return nil
@@ -102,9 +107,8 @@ func (this *Request) updateToken() (string, error) {
 	}
 	userInfo := map[string]interface{}{}
 	_ = json.Unmarshal(b, &userInfo)
-	fmt.Println(userInfo)
-	token := userInfo["token"].(string)
-	err = redis_cache.SetCache(this.UserName+"_jumpserver_token", token, 3600)
+	token := userInfo["data"].(string)
+	err = redis_cache.SetCache(this.UserName+"_next-terminal_token", token, 3600)
 
 	if err != nil {
 		return "", fmt.Errorf("token存入Redis缓存失败：%v", err)
@@ -115,12 +119,11 @@ func (this *Request) updateToken() (string, error) {
 //token 获取token
 func (this *Request) token() (string, error) {
 
-	value, err := redis_cache.GetCache(this.UserName + "_jumpserver_token")
+	value, err := redis_cache.GetCache(this.UserName + "_next-terminal_token")
 	token := value.(string)
 	if err == nil && len(token) != 0 {
 		return token, nil
 	}
-	fmt.Println("update " + this.UserName + " token ...")
 	return this.updateToken()
 }
 func (this *Request) GetToken() (token string, err error) {
@@ -140,7 +143,6 @@ func (this *Request) ToString() string {
 //Do 执行请求
 func (this *Request) Do() (respBody []byte, err error) {
 	var body io.Reader
-	var updateTokenFlags bool
 
 	this.Method = strings.ToUpper(this.Method)
 	client := &http.Client{
@@ -152,6 +154,7 @@ func (this *Request) Do() (respBody []byte, err error) {
 	if this.Method != "GET" && len(this.Params) > 0 {
 		buf, _ := json.Marshal(this.Params)
 		body = bytes.NewReader(buf)
+		fmt.Println(string(buf))
 	}
 	req, err := http.NewRequest(this.Method, this.url+this.Path, body)
 	if err != nil {
@@ -174,8 +177,7 @@ func (this *Request) Do() (respBody []byte, err error) {
 	for k, v := range this.Headers {
 		req.Header.Add(k, v)
 	}
-doRequest:
-	req.Header.Set("Authorization", authorization_template+token)
+	req.Header.Set("X-Auth-Token", authorization_template+token)
 	//请求
 	resp, err := client.Do(req)
 	if err != nil {
@@ -188,16 +190,17 @@ doRequest:
 	}
 	retInfo := map[string]interface{}{}
 	_ = json.Unmarshal(retBuf, &retInfo)
-
-	//验证是否token过期
-	if code, isExist := retInfo["code"]; isExist && code.(string) == "authentication_failed" {
-		if updateTokenFlags {
-			return nil, fmt.Errorf("token失效")
-		} else {
-			token, err = this.updateToken()
-			updateTokenFlags = true
-			goto doRequest
-		}
-	}
 	return retBuf, nil
+}
+
+//DoAndParseResp 执行请求并解析
+func (this *Request) DoAndParseResp() (ret *RetInfo, err error) {
+	resp, err := this.Do()
+	if err != nil {
+		return nil, err
+	}
+	ret = &RetInfo{}
+	err = json.Unmarshal(resp, &ret)
+	fmt.Println(ret)
+	return
 }

@@ -1,13 +1,20 @@
 package request
 
 import (
+	"crypto/tls"
 	"encoding/base64"
+	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
+	"github.com/1uLang/zhiannet-api/utils"
+	"io"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
+	cm_model "github.com/1uLang/zhiannet-api/common/model"
 	param "github.com/1uLang/zhiannet-api/nextcloud/const"
 	"github.com/1uLang/zhiannet-api/nextcloud/model"
 )
@@ -21,6 +28,10 @@ const (
 	MB float64 = 1024 * 1024
 	// GB G byte
 	GB float64 = 1024 * 1024 * 1024
+)
+
+type (
+	CheckRequest struct{}
 )
 
 // GenerateToken 根据用户名密码生成Auth basic
@@ -91,4 +102,96 @@ func FormatBytes(bytes string) string {
 	default:
 		return fmt.Sprintf("%.1fB", fb)
 	}
+}
+
+// CheckConf 校验配置是否可用
+func CheckConf(name, passwd, url string) error {
+	var lfr model.ListFoldersResp
+	lreq := model.LoginReq{
+		User:     name,
+		Password: passwd,
+	}
+
+	token := GenerateToken(&lreq)
+	lURL := fmt.Sprintf("%s/"+param.LIST_FOLDERS, url, name)
+	// 跳过证书验证
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	cli := &http.Client{
+		Transport: tr,
+	}
+	req, err := http.NewRequest("PROPFIND", lURL, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", token)
+	rsp, err := cli.Do(req)
+	if err != nil {
+		return err
+	}
+	defer rsp.Body.Close()
+
+	body, err := io.ReadAll(rsp.Body)
+	if err != nil {
+		return err
+	}
+	err = xml.Unmarshal(body, &lfr)
+	if err != nil {
+		return err
+	}
+	if lfr.Response == nil {
+		return errors.New("配置错误")
+	}
+	return nil
+}
+
+func (this *CheckRequest) Run() {
+	nodes, _, err := subassemblynode.GetList(&subassemblynode.NodeReq{
+		//State:    "1",
+		Type:     8,
+		PageNum:  1,
+		PageSize: 99,
+	})
+	if err != nil || len(nodes) == 0 {
+		err = fmt.Errorf("获取数据备份节点信息失败")
+		return
+	}
+	for _, v := range nodes {
+		url := utils.CheckHttpUrl(v.Addr, v.IsSsl == 1)
+		err := CheckConf(v.Key, v.Secret, url)
+		var conn int = 1
+		if err != nil {
+			//登录失败 不可用
+			conn = 0
+		}
+		if conn != v.ConnState {
+			subassemblynode.UpdateConnState(v.Id, conn)
+		}
+	}
+
+}
+
+// ConnNextcloudWithAdmin admin与nextcloud建立连接
+func ConnNextcloudWithAdmin(name, passwd string) error {
+	req := model.LoginReq{
+		User:     name,
+		Password: passwd,
+	}
+
+	token := GenerateToken(&req)
+	nct := model.NextCloudToken{}
+	un := "admin_admin"
+	cm_model.MysqlConn.First(&nct, "user = ?", un)
+	nct.User = un
+	nct.Token = token
+	nct.UID = 1
+	nct.Kind = 1
+
+	err := cm_model.MysqlConn.Save(&nct).Error
+	if err != nil {
+		return fmt.Errorf("与admin关联失败：%w", err)
+	}
+
+	return nil
 }
