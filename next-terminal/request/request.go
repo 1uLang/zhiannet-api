@@ -54,10 +54,10 @@ func InitToken(username, password string) error {
 	//将改用户的账号密码存入程序缓存中。重启时自动清空
 	req.UserName = username
 	req.Password = password
-	_, err := req.token()
-	if err != nil {
-		return fmt.Errorf("初始化token失败：%v", err)
-	}
+	//_, err := req.token()
+	//if err != nil {
+	//	return fmt.Errorf("初始化token失败：%v", err)
+	//}
 	return nil
 }
 
@@ -169,15 +169,15 @@ func (this *Request) Do() (respBody []byte, err error) {
 		req.URL.RawQuery = q.Encode()
 	}
 	//todo:获取token
-	token, err := this.token()
-	if err != nil {
-		return nil, fmt.Errorf("获取token失败：%v", err)
-	}
+	//token, err := this.token()
+	//if err != nil {
+	//	return nil, fmt.Errorf("获取token失败：%v", err)
+	//}
 
 	for k, v := range this.Headers {
 		req.Header.Add(k, v)
 	}
-	req.Header.Set("X-Auth-Token", authorization_template+token)
+	//req.Header.Set("X-Auth-Token", authorization_template+token)
 	//请求
 	resp, err := client.Do(req)
 	if err != nil {
