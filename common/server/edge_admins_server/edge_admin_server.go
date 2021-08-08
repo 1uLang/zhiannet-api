@@ -57,12 +57,12 @@ func LoginCheck(name string) (res bool, err error) {
 func LoginErrIncr(name string) (res bool, err error) {
 	key := name
 	var ex bool
-	ex, err = cache.SetNx(key, time.Minute)
+	ex, err = cache.SetNx(key, time.Minute*30)
 	if err != nil {
 		return false, err
 	}
 	if !ex {
-		cache.Incr(key, time.Minute)
+		cache.Incr(key, time.Minute*30)
 		value, err := cache.GetInt(key)
 		if value > 4 && err == nil {
 			//锁定30分钟
