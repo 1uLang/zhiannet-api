@@ -68,6 +68,7 @@ func GetList(req *ListReq) (list []*nextTerminalAssets, total int64, err error) 
 	//从数据库获取
 	model := db_model.MysqlConn.Model(&nextTerminalAssets{}).Where("is_delete=?", 0)
 	if req != nil {
+		fmt.Println("req ...",req)
 		if req.UserId > 0 {
 			model = model.Where("user_id=?", req.UserId)
 		}

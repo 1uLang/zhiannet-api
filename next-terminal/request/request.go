@@ -154,7 +154,6 @@ func (this *Request) Do() (respBody []byte, err error) {
 	if this.Method != "GET" && len(this.Params) > 0 {
 		buf, _ := json.Marshal(this.Params)
 		body = bytes.NewReader(buf)
-		fmt.Println(string(buf))
 	}
 	req, err := http.NewRequest(this.Method, this.url+this.Path, body)
 	if err != nil {
@@ -201,6 +200,5 @@ func (this *Request) DoAndParseResp() (ret *RetInfo, err error) {
 	}
 	ret = &RetInfo{}
 	err = json.Unmarshal(resp, &ret)
-	fmt.Println(ret)
 	return
 }

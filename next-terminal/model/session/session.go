@@ -26,7 +26,10 @@ func List(req *request.Request ,args *ListReq)([]map[string]interface{},error  )
 	if resp.Code != 1 {
 		return nil, fmt.Errorf("服务器异常：%v",resp.Message)
 	}
-	assets,total,err := asset.GetList(&asset.ListReq{})
+	assets,total,err := asset.GetList(&asset.ListReq{
+		UserId: int64(args.UserId),
+		AdminUserId: int64(args.AdminUserId),
+	})
 	if err != nil || total == 0 {
 		return nil,err
 	}
@@ -34,8 +37,7 @@ func List(req *request.Request ,args *ListReq)([]map[string]interface{},error  )
 	for _,v := range assets {
 		contain[v.AssetsId] = true
 	}
-	fmt.Println(contain)
-	fmt.Println(resp.Data)
+	fmt.Println(contain,args)
 	ret := make([]map[string]interface{},0)
 	for _,v := range resp.Data.(map[string]interface{})["items"].([]interface{}){
 		item := v.(map[string]interface{})

@@ -66,7 +66,7 @@ func (this *ListReq) check() error {
 	if this.Tags == "" {
 		this.Tags = fmt.Sprintf("user_%v", this.UserId)
 		if this.AdminUserId != 0 {
-			this.Tags = fmt.Sprintf("user_%v", this.AdminUserId)
+			this.Tags = fmt.Sprintf("admin_%v", this.AdminUserId)
 		}
 	}
 	return nil
@@ -87,6 +87,7 @@ func (this *CreateReq) check() error {
 		this.CredentialId = ""
 	}
 	_, isExist := protos[this.Protocol]
+
 	if !isExist {
 		return fmt.Errorf("暂不支持该协议")
 	}

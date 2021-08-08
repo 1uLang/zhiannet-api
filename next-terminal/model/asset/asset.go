@@ -47,7 +47,6 @@ func Create(req *request.Request, args *CreateReq) error {
 	req.Path = asset_path
 	req.Method = "POST"
 	req.Params = model.ToMap(args)
-	fmt.Println(req.Params,req.Path)
 	resp, err := req.DoAndParseResp()
 	if err != nil {
 		return err
@@ -145,6 +144,7 @@ func Authorize(req *request.Request, args *AuthorizeReq) error {
 	arg.AccountType = asset["accountType"].(string)
 	arg.Description = asset["description"].(string)
 	arg.IP = asset["ip"].(string)
+	arg.Protocol = asset["protocol"].(string)
 	arg.Name = asset["name"].(string)
 	arg.Password = asset["password"].(string)
 	arg.Port, _ = util.Interface2Int(asset["port"])
@@ -173,7 +173,7 @@ func Authorize(req *request.Request, args *AuthorizeReq) error {
 			}
 		}
 	} else {
-		for _, userId := range args.UserIds {
+		for _, userId := range args.AdminUserIds {
 			tags += fmt.Sprintf(",admin_%v", userId)
 			err = addAsset(&nextTerminalAssets{
 				AssetsId:    args.AssetId,
