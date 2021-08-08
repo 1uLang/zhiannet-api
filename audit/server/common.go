@@ -33,7 +33,12 @@ type (
 	AuthEmailResp struct {
 		Code int `json:"code"`
 		Data struct {
-			Email []string `json:"email"`
+			Email    []string `json:"email"`
+			UserList []struct {
+				Id   uint64 `json:"id"`
+				Name string `json:"name"`
+				IsOn bool   `json:"is_on"`
+			} `json:"user_list"`
 		} `json:"data"`
 		Msg string `json:"msg"`
 	}
