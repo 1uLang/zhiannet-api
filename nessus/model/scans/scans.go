@@ -369,7 +369,7 @@ func Export(args *ExportReq) (*ExportResp, error) {
 	}
 	req.Params = map[string]interface{}{
 		"format":   args.Format,
-		"chapters": "vuln_hosts_summary",
+		"chapters": "",
 		"extraFilters": map[string]interface{}{
 			"host_ids":   []string{},
 			"plugin_ids": []string{},
@@ -381,7 +381,7 @@ func Export(args *ExportReq) (*ExportResp, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(string(resp))
+
 	export := &ExportResp{}
 	err = json.Unmarshal(resp, export)
 	return export, err
