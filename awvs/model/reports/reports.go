@@ -18,8 +18,7 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 
 	req.Method = "get"
 	req.Url += _const.Reports_api_url
-	args.Limit = 999
-	args.C = 0
+	args.Limit = 100
 	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
