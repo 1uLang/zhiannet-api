@@ -26,6 +26,8 @@ func GetNessus() (resp *model.NessusResp, err error) {
 	return model.GetNessusInfo()
 }
 
+//检测nessus 配置访问是否异常
+
 func Check() (bool, uint64, error) {
 	info, err := GetNessus()
 	if err != nil {

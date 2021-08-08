@@ -214,6 +214,7 @@ func CreateUser(req *CreateUserReq) (uint64, error) {
 	op.Features = "[]"
 	op.PwdAt = uint64(time.Now().Unix())
 	res := model.MysqlConn.Table(edgeUserTableName).Create(&op)
+
 	if res.Error != nil {
 		return 0, res.Error
 	}
