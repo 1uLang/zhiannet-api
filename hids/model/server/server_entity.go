@@ -7,6 +7,9 @@ type SearchReq struct {
 	ServerIp     string `json:"serverIp,omitempty"`
 	HealthLevel  string `json:"healthLevel,omitempty"`   //体检等级 0 （0-59） 1 （60-89） 2 （90-100）
 	ServerStatus string `json:"server_status,omitempty"` //主机状态 0 离线 1 在线
+
+	UserId      uint64 `json:"-"`
+	AdminUserId uint64 `json:"-"`
 }
 
 type SearchResp struct {

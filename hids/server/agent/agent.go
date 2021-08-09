@@ -2,11 +2,15 @@ package agent
 
 import "github.com/1uLang/zhiannet-api/hids/model/agent"
 
-func Download(username, osType string) (string, error) {
-	return agent.Download(username, osType)
+func Create(args *agent.CreateReq) (err error) {
+	return agent.Create(args)
 }
-func Install(username, osType string) (string, error) {
-	return agent.Install(username, osType)
+
+func Download(osType string) (string, error) {
+	return agent.Download(osType)
+}
+func Install(osType string) (string, error) {
+	return agent.Install(osType)
 }
 func List(req *agent.SearchReq) (agent.SearchResp, error) {
 	return agent.List(req)

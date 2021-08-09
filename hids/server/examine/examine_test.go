@@ -32,7 +32,7 @@ func TestList(t *testing.T) {
 	fmt.Println(list)
 }
 func TestDetails(t *testing.T) {
-	info, err := Details("48C57D8BFC8EE7BEB9ADA36845A6E051")
+	info, err := Details(&examine.DetailsReq{MacCode: "48C57D8BFC8EE7BEB9ADA36845A6E051"})
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()

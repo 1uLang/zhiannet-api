@@ -19,6 +19,7 @@ func SetUrl(url string) error {
 
 // SetAPIKeys 初始化 Nessus APIKeys
 func SetAPIKeys(req *request.APIKeys) error {
+	model.HidsUserNameAPI = "cysct56"
 	return request.InitRequestAPIKeys(req)
 }
 

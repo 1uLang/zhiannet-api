@@ -4,6 +4,7 @@ import (
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/hids/const"
 	"github.com/1uLang/zhiannet-api/hids/model"
+	"github.com/1uLang/zhiannet-api/hids/model/agent"
 	"github.com/1uLang/zhiannet-api/hids/model/server"
 	"github.com/1uLang/zhiannet-api/hids/request"
 	"github.com/1uLang/zhiannet-api/hids/util"
@@ -37,6 +38,7 @@ func SystemRiskList(args *SearchReq) (list SearchResp, err error) {
 	req.Method = "get"
 	req.Path = _const.Risk_system_info_api_url
 	req.Headers["signNonce"] = util.RandomNum(10)
+	args.UserName = model.HidsUserNameAPI
 	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
@@ -48,7 +50,7 @@ func SystemRiskList(args *SearchReq) (list SearchResp, err error) {
 }
 
 //Dashboard 首页概览数据 主机总数 - 待处理入侵事件 - 待处理高危漏洞 - 已开启安全监控主机
-func Dashboard(userName string) (info DashboardResp, err error) {
+func Dashboard(args *DashboardReq) (info DashboardResp, err error) {
 
 	info = DashboardResp{}
 	dashboardWg := sync.WaitGroup{}
@@ -59,7 +61,7 @@ func Dashboard(userName string) (info DashboardResp, err error) {
 		hostWg := sync.WaitGroup{}
 		go func() {
 			hostWg.Add(1)
-			sr, _ := server.List(&server.SearchReq{UserName: userName})
+			sr, _ := server.List(&server.SearchReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
 			hostLock.Lock()
 			info.Host = sr.TotalData
 			hostLock.Unlock()
@@ -67,7 +69,7 @@ func Dashboard(userName string) (info DashboardResp, err error) {
 		}()
 		go func() {
 			hostWg.Add(1)
-			sr, _ := server.List(&server.SearchReq{UserName: userName, ServerStatus: "1"})
+			sr, _ := server.List(&server.SearchReq{UserId: args.UserId, AdminUserId: args.AdminUserId, ServerStatus: "1"})
 			hostLock.Lock()
 			info.Host = sr.TotalData
 			hostLock.Unlock()
@@ -92,7 +94,7 @@ func Dashboard(userName string) (info DashboardResp, err error) {
 			AbnormalProcessList,
 			SystemCmdList,
 		}
-		args := &RiskSearchReq{UserName: userName}
+		args := &RiskSearchReq{UserId: args.UserId, AdminUserId: args.AdminUserId}
 
 		for _, fn := range fns {
 			go func() {
@@ -110,13 +112,15 @@ func Dashboard(userName string) (info DashboardResp, err error) {
 
 	//待处理高危漏洞
 	{
-		args := &SearchReq{UserName: userName, Level: 3, ProcessState: 1}
-		args.PageSize = 100
-		args.PageNo = 1
+		req := &SearchReq{Level: 3, ProcessState: 1}
+		req.PageSize = 100
+		req.PageNo = 1
+		req.UserId = args.UserId
+		req.AdminUserId = args.AdminUserId
 		today := 0
 		nowStr := time.Now().Format("2006-01-02")
 	Do:
-		di, err := SystemRiskList(args)
+		di, err := SystemRiskList(req)
 		if err != nil {
 			return info, err
 		}
@@ -127,7 +131,7 @@ func Dashboard(userName string) (info DashboardResp, err error) {
 				today++
 			}
 		}
-		if di.TotalData/args.PageSize+1 > args.PageNo {
+		if di.TotalData/req.PageSize+1 > req.PageNo {
 			goto Do
 		}
 
@@ -156,6 +160,7 @@ func riskList(path string, args *RiskSearchReq) (list RiskSearchResp, err error)
 	req.Method = "get"
 	req.Path = path
 	req.Headers["signNonce"] = util.RandomNum(10)
+	args.UserName = model.HidsUserNameAPI
 	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
@@ -172,7 +177,28 @@ func VirusList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 		args.State != 201 && args.State != 301 && args.State != -1 && args.State != -2 && args.State != -3 {
 		return list, fmt.Errorf("处理状态参数错误")
 	}
-	return riskList(_const.Risk_Virus_api_url, args)
+	agentList := make([]map[string]interface{}, 0)
+	//查询当前用户所添加个agent
+	agents, total, err := agent.GetList(&agent.ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
+	if err != nil || total == 0 {
+		return list, err
+	}
+	contain := map[string]bool{}
+	for _, v := range agents {
+		contain[v.IP] = true
+	}
+	ret, err := riskList(_const.Risk_Virus_api_url, args)
+	if err != nil {
+		return list, err
+	}
+	for _, item := range ret.VirusCountInfoList {
+		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			agentList = append(agentList, item)
+		}
+	}
+	ret.VirusCountInfoList = agentList
+
+	return ret, nil
 }
 
 //WebShellList 网页后门列表
@@ -180,7 +206,29 @@ func WebShellList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	if args.State != 0 && args.State != 1 && args.State != 2 && args.State != 3 {
 		return list, fmt.Errorf("处理状态参数错误")
 	}
-	return riskList(_const.Risk_webshell_api_url, args)
+
+	agentList := make([]map[string]interface{}, 0)
+	//查询当前用户所添加个agent
+	agents, total, err := agent.GetList(&agent.ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
+	if err != nil || total == 0 {
+		return list, err
+	}
+	contain := map[string]bool{}
+	for _, v := range agents {
+		contain[v.IP] = true
+	}
+	ret, err := riskList(_const.Risk_webshell_api_url, args)
+	if err != nil {
+		return list, err
+	}
+	for _, item := range ret.WebshellCountInfoList {
+		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			agentList = append(agentList, item)
+		}
+	}
+	ret.WebshellCountInfoList = agentList
+
+	return ret, nil
 }
 
 //ReboundList 反弹shell数据列表
@@ -188,7 +236,28 @@ func ReboundList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	if args.State != 0 && args.State != 7 {
 		return list, fmt.Errorf("处理状态参数错误")
 	}
-	return riskList(_const.Risk_reboundshell_api_url, args)
+	agentList := make([]map[string]interface{}, 0)
+	//查询当前用户所添加个agent
+	agents, total, err := agent.GetList(&agent.ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
+	if err != nil || total == 0 {
+		return list, err
+	}
+	contain := map[string]bool{}
+	for _, v := range agents {
+		contain[v.IP] = true
+	}
+	ret, err := riskList(_const.Risk_reboundshell_api_url, args)
+
+	if err != nil {
+		return list, err
+	}
+	for _, item := range ret.ReboundshellCountInfoList {
+		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			agentList = append(agentList, item)
+		}
+	}
+	ret.ReboundshellCountInfoList = agentList
+	return ret, nil
 }
 
 //AbnormalAccountList 异常账号数量列表
@@ -196,7 +265,28 @@ func AbnormalAccountList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	if args.State != 0 && args.State != 7 {
 		return list, fmt.Errorf("处理状态参数错误")
 	}
-	return riskList(_const.Risk_abnormal_account_api_url, args)
+	agentList := make([]map[string]interface{}, 0)
+	//查询当前用户所添加个agent
+	agents, total, err := agent.GetList(&agent.ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
+	if err != nil || total == 0 {
+		return list, err
+	}
+	contain := map[string]bool{}
+	for _, v := range agents {
+		contain[v.IP] = true
+	}
+	ret, err := riskList(_const.Risk_abnormal_account_api_url, args)
+
+	if err != nil {
+		return list, err
+	}
+	for _, item := range ret.AbnormalAccountCountInfoList {
+		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			agentList = append(agentList, item)
+		}
+	}
+	ret.AbnormalAccountCountInfoList = agentList
+	return ret, nil
 }
 
 //LogDeleteList 日志异常删除数量列表
@@ -204,7 +294,28 @@ func LogDeleteList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	if args.State != 0 && args.State != 7 {
 		return list, fmt.Errorf("处理状态参数错误")
 	}
-	return riskList(_const.Risk_log_delete_api_url, args)
+	agentList := make([]map[string]interface{}, 0)
+	//查询当前用户所添加个agent
+	agents, total, err := agent.GetList(&agent.ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
+	if err != nil || total == 0 {
+		return list, err
+	}
+	contain := map[string]bool{}
+	for _, v := range agents {
+		contain[v.IP] = true
+	}
+	ret, err := riskList(_const.Risk_log_delete_api_url, args)
+
+	if err != nil {
+		return list, err
+	}
+	for _, item := range ret.LogDeleteCountInfoList {
+		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			agentList = append(agentList, item)
+		}
+	}
+	ret.LogDeleteCountInfoList = agentList
+	return ret, nil
 }
 
 //AbnormalLoginList 异常登录数量列表
@@ -212,7 +323,28 @@ func AbnormalLoginList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	if args.State != 0 && args.State != 7 {
 		return list, fmt.Errorf("处理状态参数错误")
 	}
-	return riskList(_const.Risk_abnormal_login_api_url, args)
+	agentList := make([]map[string]interface{}, 0)
+	//查询当前用户所添加个agent
+	agents, total, err := agent.GetList(&agent.ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
+	if err != nil || total == 0 {
+		return list, err
+	}
+	contain := map[string]bool{}
+	for _, v := range agents {
+		contain[v.IP] = true
+	}
+	ret, err := riskList(_const.Risk_abnormal_login_api_url, args)
+
+	if err != nil {
+		return list, err
+	}
+	for _, item := range ret.AbnormalLoginCountInfoList {
+		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			agentList = append(agentList, item)
+		}
+	}
+	ret.AbnormalLoginCountInfoList = agentList
+	return ret, nil
 }
 
 //AbnormalProcessList 异常进程数量列表
@@ -220,13 +352,54 @@ func AbnormalProcessList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	if args.State != 0 && args.State != 7 {
 		return list, fmt.Errorf("处理状态参数错误")
 	}
-	return riskList(_const.Risk_abnormal_process_api_url, args)
+	agentList := make([]map[string]interface{}, 0)
+	//查询当前用户所添加个agent
+	agents, total, err := agent.GetList(&agent.ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
+	if err != nil || total == 0 {
+		return list, err
+	}
+	contain := map[string]bool{}
+	for _, v := range agents {
+		contain[v.IP] = true
+	}
+	ret, err := riskList(_const.Risk_abnormal_process_api_url, args)
+
+	if err != nil {
+		return list, err
+	}
+	for _, item := range ret.AbnormalProcessCountInfoList {
+		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			agentList = append(agentList, item)
+		}
+	}
+	ret.AbnormalProcessCountInfoList = agentList
+	return ret, nil
 }
 
 //SystemCmdList 命令篡改数量列表
 func SystemCmdList(args *RiskSearchReq) (list RiskSearchResp, err error) {
+	agentList := make([]map[string]interface{}, 0)
+	//查询当前用户所添加个agent
+	agents, total, err := agent.GetList(&agent.ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
+	if err != nil || total == 0 {
+		return list, err
+	}
+	contain := map[string]bool{}
+	for _, v := range agents {
+		contain[v.IP] = true
+	}
+	ret, err := riskList(_const.Risk_system_cmd_api_url, args)
 
-	return riskList(_const.Risk_system_cmd_api_url, args)
+	if err != nil {
+		return list, err
+	}
+	for _, item := range ret.SystemCmdInfoList {
+		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			agentList = append(agentList, item)
+		}
+	}
+	ret.SystemCmdInfoList = agentList
+	return ret, nil
 }
 
 //SystemDistributed 风险概览 ： 系统漏洞总数
@@ -240,6 +413,15 @@ func SystemDistributed(args *SearchReq) (info SystemDistributedResp, err error) 
 		args.PageNo = 1
 	}
 
+	//查询当前用户所添加个agent
+	agents, total, err := agent.GetList(&agent.ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
+	if err != nil || total == 0 {
+		return info, err
+	}
+	contain := map[string]bool{}
+	for _, v := range agents {
+		contain[v.IP] = true
+	}
 	req, err := request.NewRequest()
 	if err != nil {
 		return info, err
@@ -247,6 +429,7 @@ func SystemDistributed(args *SearchReq) (info SystemDistributedResp, err error) 
 	req.Method = "get"
 	req.Path = _const.Risk_distributed_api_url
 	req.Headers["signNonce"] = util.RandomNum(10)
+	args.UserName = model.HidsUserNameAPI
 	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
@@ -261,6 +444,10 @@ func SystemDistributed(args *SearchReq) (info SystemDistributedResp, err error) 
 	info.Host, _ = util.Interface2Int(ret["totalData"])
 	for _, v := range ret["systemRiskDistributionInfoList"].([]interface{}) {
 		node := v.(map[string]interface{})
+
+		if _, isExist := contain[node["serverIp"].(string)]; !isExist {
+			continue
+		}
 		low, _ := util.Interface2Int(node["lowRiskCount"])
 		middle, _ := util.Interface2Int(node["middleRiskCount"])
 		high, _ := util.Interface2Int(node["highRiskCount"])
@@ -286,6 +473,15 @@ func WeakList(args *SearchReq) (info SystemDistributedResp, err error) {
 		args.PageNo = 1
 	}
 
+	//查询当前用户所添加个agent
+	agents, total, err := agent.GetList(&agent.ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
+	if err != nil || total == 0 {
+		return info, err
+	}
+	contain := map[string]bool{}
+	for _, v := range agents {
+		contain[v.IP] = true
+	}
 	req, err := request.NewRequest()
 	if err != nil {
 		return info, err
@@ -293,6 +489,7 @@ func WeakList(args *SearchReq) (info SystemDistributedResp, err error) {
 	req.Method = "get"
 	req.Path = _const.Risk_weak_api_url
 	req.Headers["signNonce"] = util.RandomNum(10)
+	args.UserName = model.HidsUserNameAPI
 	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
@@ -307,6 +504,10 @@ func WeakList(args *SearchReq) (info SystemDistributedResp, err error) {
 	info.Host, _ = util.Interface2Int(ret["totalData"])
 	for _, v := range ret["weakDistributionInfoList"].([]interface{}) {
 		node := v.(map[string]interface{})
+
+		if _, isExist := contain[node["serverIp"].(string)]; !isExist {
+			continue
+		}
 		low, _ := util.Interface2Int(node["lowRiskCount"])
 		middle, _ := util.Interface2Int(node["middleRiskCount"])
 		high, _ := util.Interface2Int(node["highRiskCount"])
@@ -331,7 +532,15 @@ func DangerAccountList(args *SearchReq) (info SystemDistributedResp, err error) 
 	if args.PageNo == 0 {
 		args.PageNo = 1
 	}
-
+	//查询当前用户所添加个agent
+	agents, total, err := agent.GetList(&agent.ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
+	if err != nil || total == 0 {
+		return info, err
+	}
+	contain := map[string]bool{}
+	for _, v := range agents {
+		contain[v.IP] = true
+	}
 	req, err := request.NewRequest()
 	if err != nil {
 		return info, err
@@ -339,6 +548,7 @@ func DangerAccountList(args *SearchReq) (info SystemDistributedResp, err error) 
 	req.Method = "get"
 	req.Path = _const.Risk_danger_account_api_url
 	req.Headers["signNonce"] = util.RandomNum(10)
+	args.UserName = model.HidsUserNameAPI
 	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
@@ -354,6 +564,10 @@ func DangerAccountList(args *SearchReq) (info SystemDistributedResp, err error) 
 	info.Host, _ = util.Interface2Int(ret["totalData"])
 	for _, v := range ret["dangerAccountDistributionInfoList"].([]interface{}) {
 		node := v.(map[string]interface{})
+
+		if _, isExist := contain[node["serverIp"].(string)]; !isExist {
+			continue
+		}
 		low, _ := util.Interface2Int(node["lowRiskCount"])
 		middle, _ := util.Interface2Int(node["middleRiskCount"])
 		high, _ := util.Interface2Int(node["highRiskCount"])
@@ -378,7 +592,15 @@ func ConfigDefectList(args *SearchReq) (info SystemDistributedResp, err error) {
 	if args.PageNo == 0 {
 		args.PageNo = 1
 	}
-
+	//查询当前用户所添加个agent
+	agents, total, err := agent.GetList(&agent.ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
+	if err != nil || total == 0 {
+		return info, err
+	}
+	contain := map[string]bool{}
+	for _, v := range agents {
+		contain[v.IP] = true
+	}
 	req, err := request.NewRequest()
 	if err != nil {
 		return info, err
@@ -386,6 +608,7 @@ func ConfigDefectList(args *SearchReq) (info SystemDistributedResp, err error) {
 	req.Method = "get"
 	req.Path = _const.Risk_config_defect_api_url
 	req.Headers["signNonce"] = util.RandomNum(10)
+	args.UserName = model.HidsUserNameAPI
 	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
@@ -400,6 +623,10 @@ func ConfigDefectList(args *SearchReq) (info SystemDistributedResp, err error) {
 	info.Host, _ = util.Interface2Int(ret["totalData"])
 	for _, v := range ret["configDefectDistributionInfoList"].([]interface{}) {
 		node := v.(map[string]interface{})
+
+		if _, isExist := contain[node["serverIp"].(string)]; !isExist {
+			continue
+		}
 		low, _ := util.Interface2Int(node["lowRiskCount"])
 		middle, _ := util.Interface2Int(node["middleRiskCount"])
 		high, _ := util.Interface2Int(node["highRiskCount"])
@@ -539,19 +766,16 @@ func ConfigDefectDetail(macCode, riskId string, state bool) (info map[string]int
 
 //WeakDetailList 弱口令详情列表
 func WeakDetailList(args *DetailReq) (info DetailResp, err error) {
-
 	return detailList(args, _const.Risk_weak_server_api_url)
 }
 
 //DangerAccountDetailList 高危账号详情列表
 func DangerAccountDetailList(args *DetailReq) (info DetailResp, err error) {
-
 	return detailList(args, _const.Risk_danger_account_detail_list_api_url)
 }
 
 //ConfigDefectDetailList 配置缺陷详情列表
 func ConfigDefectDetailList(args *DetailReq) (info DetailResp, err error) {
-
 	return detailList(args, _const.Risk_config_defect_detail_list_api_url)
 }
 
@@ -573,21 +797,25 @@ func ReboundDetailList(args *DetailReq) (info DetailResp, err error) {
 //AbnormalAccountDetailList 入侵威胁异常账号详情列表
 func AbnormalAccountDetailList(args *DetailReq) (info DetailResp, err error) {
 	return detailList(args, _const.Risk_abnormal_account_detail_list_api_url)
+
 }
 
 //LogDeleteDetailList 入侵威胁日志异常删除详情列表
 func LogDeleteDetailList(args *DetailReq) (info DetailResp, err error) {
+
 	return detailList(args, _const.Risk_log_delete_detail_list_api_url)
 }
 
 //AbnormalLoginDetailList 入侵威胁异常登录详情列表
 func AbnormalLoginDetailList(args *DetailReq) (info DetailResp, err error) {
 	return detailList(args, _const.Risk_abnormal_login_detail_list_api_url)
+
 }
 
 //AbnormalProcessDetailList 入侵威胁异常进程详情列表
 func AbnormalProcessDetailList(args *DetailReq) (info DetailResp, err error) {
 	return detailList(args, _const.Risk_abnormal_process_detail_list_api_url)
+
 }
 
 //SystemCmdDetailList 入侵威胁命令篡改详情列表

@@ -7,6 +7,9 @@ type SearchReq struct {
 	PageSize    int    `json:"pageSize"`              //显示条数
 	State       *int   `json:"state,omitempty"`       //检查状态 0未检查 1 检查中  2 已完成 3 检查失败
 	ResultState int    `json:"resultState,omitempty"` //检查结论 1 基线异常 2 基线正常
+
+	UserId      uint64 `json:"-"`
+	AdminUserId uint64 `json:"-"`
 }
 
 type SearchResp struct {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/hids/const"
 	"github.com/1uLang/zhiannet-api/hids/model"
+	"github.com/1uLang/zhiannet-api/hids/model/agent"
 	"github.com/1uLang/zhiannet-api/hids/model/risk"
 	"github.com/1uLang/zhiannet-api/hids/request"
 	"github.com/1uLang/zhiannet-api/hids/util"
@@ -13,6 +14,15 @@ import (
 
 //List 体检列表
 func List(args *SearchReq, online ...bool) (list SearchResp, err error) {
+	agentList := make([]map[string]interface{},0)
+	agents,total ,err := agent.GetList(&agent.ListReq{UserId: args.UserId,AdminUserId: args.AdminUserId})
+	if err != nil || total == 0{
+		return list,err
+	}
+	contain := map[string]int{}
+	for k,v := range agents{
+		contain[v.IP] = k
+	}
 
 	list = SearchResp{}
 
@@ -34,6 +44,7 @@ func List(args *SearchReq, online ...bool) (list SearchResp, err error) {
 	}
 	req.Method = "get"
 	req.Path = _const.Examine_api_url
+	args.UserName = model.HidsUserNameAPI
 	req.Headers["signNonce"] = util.RandomNum(10)
 	if len(online) > 0 {
 		req.Params = model.ToMap(OnlineSearchReq{SearchReq: *args, Online: online[0]})
@@ -45,6 +56,14 @@ func List(args *SearchReq, online ...bool) (list SearchResp, err error) {
 		return list, err
 	}
 	_, err = model.ParseResp(resp, &list)
+	for _,v := range list.ServerExamineResultInfoList{
+		item := v["serverExamineResultInfo"].(map[string]interface{})
+		item["macCode"] = v["macCode"].(string)
+		if _,isExist := contain[item["serverIp"].(string)];isExist{
+			agentList = append(agentList,item)
+		}
+	}
+	list.ServerExamineResultInfoList = agentList
 	return list, err
 }
 
@@ -103,10 +122,12 @@ func ScanServerCancel(macCodes []string) error {
 }
 
 //Details 体检详情
-func Details(macCode string) (info DetailsResp, err error) {
+func Details(args *DetailsReq) (info DetailsResp, err error) {
 
 	//获取系统漏洞
-	req := &risk.SearchReq{MacCode: macCode}
+	req := &risk.SearchReq{MacCode: args.MacCode}
+	req.UserId = args.UserId
+	req.AdminUserId = args.AdminUserId
 	riskInfo, err := risk.SystemDistributed(req)
 	if err != nil {
 		return info, fmt.Errorf("获取系统漏洞失败：%v", err)

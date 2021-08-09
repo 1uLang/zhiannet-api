@@ -4,6 +4,7 @@ import (
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/hids/const"
 	"github.com/1uLang/zhiannet-api/hids/model"
+	"github.com/1uLang/zhiannet-api/hids/model/agent"
 	"github.com/1uLang/zhiannet-api/hids/request"
 	"github.com/1uLang/zhiannet-api/hids/util"
 	"strconv"
@@ -14,11 +15,15 @@ import (
 //List 合规基线列表
 func List(args *SearchReq) (list SearchResp, err error) {
 
-	if args.PageSize == 0 {
-		args.PageSize = 10
+	agentList := make([]map[string]interface{},0)
+	agents,total ,err := agent.GetList(&agent.ListReq{UserId: args.UserId,AdminUserId: args.AdminUserId})
+	if err != nil || total == 0{
+		return list,err
 	}
-	if args.PageNo == 0 {
-		args.PageNo = 1
+	contain := map[string]int{}
+	for k,v := range agents{
+		contain[v.IP] = k
+		agentList = append(agentList, map[string]interface{}{"serverIp":v.IP})
 	}
 
 	req, err := request.NewRequest()
@@ -28,6 +33,9 @@ func List(args *SearchReq) (list SearchResp, err error) {
 	req.Method = "get"
 	req.Path = _const.Baseline_check_list_api_url
 	req.Headers["signNonce"] = util.RandomNum(10)
+	args.PageSize = 100
+	args.PageNo = 1
+	args.UserName = model.HidsUserNameAPI
 	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
@@ -35,6 +43,13 @@ func List(args *SearchReq) (list SearchResp, err error) {
 		return list, err
 	}
 	_, err = model.ParseResp(resp, &list)
+
+	for _,item := range list.List{
+		if idx,isExist := contain[item["serverIp"].(string)];isExist{
+			agentList[idx] = item
+		}
+	}
+	list.List = agentList
 	return list, err
 }
 

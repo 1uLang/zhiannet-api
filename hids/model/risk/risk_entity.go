@@ -1,10 +1,14 @@
 package risk
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type searchReq struct {
-	PageNo   int `json:"pageNo"`
-	PageSize int `json:"pageSize"`
+	PageNo      int    `json:"pageNo"`
+	PageSize    int    `json:"pageSize"`
+	UserId      uint64 `json:"-"`
+	AdminUserId uint64 `json:"-"`
 }
 
 type SearchReq struct {
@@ -18,6 +22,7 @@ type SearchReq struct {
 }
 
 func (this *SearchReq) Check() (bool, error) {
+
 	if this.Level != 0 && this.Level != 1 && this.Level != 2 && this.Level != 3 && this.Level != 4 {
 		return false, fmt.Errorf("风险等级参数错误")
 	}
@@ -32,13 +37,21 @@ func (this *SearchReq) Check() (bool, error) {
 
 type RiskSearchReq struct {
 	searchReq
-	UserName    string `json:"userName,omitempty"`
-	ServerIp    string `json:"serverIp,omitempty"`
+	UserName string `json:"userName,omitempty"`
+	ServerIp string `json:"serverIp,omitempty"`
 	//IsProcessed bool   `json:"isProcessed,omitempty"` //待处理 false，已处理 true
-	OnLine      bool   `json:"onLine,omitempty"`      //待处理 false，已处理 true	针对异常登录
-	State       int    `json:"state,omitempty"`       //未处理 已关闭 0 、 1、7
+	OnLine bool `json:"onLine,omitempty"` //待处理 false，已处理 true	针对异常登录
+	State  int  `json:"state,omitempty"`  //未处理 已关闭 0 、 1、7
+
+	UserId      uint64 `json:"-"`
+	AdminUserId uint64 `json:"-"`
 }
 
+type DashboardReq struct {
+
+	UserId      uint64 `json:"-"`
+	AdminUserId uint64 `json:"-"`
+}
 type DashboardResp struct {
 	Host       int `json:"host"`        //主机
 	OnlineHost int `json:"online_host"` //在线主机数

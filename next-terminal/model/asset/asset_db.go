@@ -28,11 +28,11 @@ func addAsset(req *nextTerminalAssets)(err error  ){
 	return  db_model.MysqlConn.Create(&req).Error
 }
 func updateAsset(req *nextTerminalAssets)(err error  ){
-	if req == nil || req.Id == 0 {
+	if req == nil || req.AssetsId == "" {
 		return fmt.Errorf("参数错误")
 	}
 	ent := nextTerminalAssets{}
-	md := db_model.MysqlConn.Model(req).Where("asset_id=?", req.Id)
+	md := db_model.MysqlConn.Model(req).Where("asset_id=?", req.AssetsId)
 	if req.UserId != 0 {
 		md = md.Where("user_id=?",req.UserId)
 	}else if req.AdminUserId != 0 {
@@ -46,7 +46,7 @@ func updateAsset(req *nextTerminalAssets)(err error  ){
 	ent.Name = req.Name
 	ent.Proto = req.Proto
 
-	return db_model.MysqlConn.Model(ent).Where("id=?", req.Id).Save(&ent).Error
+	return db_model.MysqlConn.Model(ent).Where("id=?", ent.Id).Save(&ent).Error
 }
 func deleteAsset(assetId string)error {
 	res := db_model.MysqlConn.Model(&nextTerminalAssets{}).Where("asset_id = ?", assetId).Update("is_delete", 1)

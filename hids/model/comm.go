@@ -7,6 +7,8 @@ import (
 	"github.com/1uLang/zhiannet-api/utils"
 )
 
+var HidsUserNameAPI = ""
+
 func ToMap(obj interface{}) map[string]interface{} {
 
 	ret := map[string]interface{}{}

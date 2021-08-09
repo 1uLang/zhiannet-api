@@ -10,8 +10,8 @@ func SystemRiskList(req *risk.SearchReq) (risk.SearchResp, error) {
 func SystemRiskDetail(macCode, riskId string, state bool) (info map[string]interface{}, err error) {
 	return risk.SystemRiskDetail(macCode, riskId, state)
 }
-func Dashboard(userName string) (risk.DashboardResp, error) {
-	return risk.Dashboard(userName)
+func Dashboard(args *risk.DashboardReq) (risk.DashboardResp, error) {
+	return risk.Dashboard(args)
 }
 
 //漏洞风险

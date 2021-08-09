@@ -11,7 +11,7 @@ import (
 //agent 管理
 
 //Download agent下载
-func Download(username, osType string) (string, error) {
+func Download( osType string) (string, error) {
 
 	if osType != "Windows" && osType != "Linux32" && osType != "Linux64" {
 		return "", fmt.Errorf("操作系统类型参数错误")
@@ -21,7 +21,7 @@ func Download(username, osType string) (string, error) {
 		return "", err
 	}
 	req.Method = "get"
-	req.Path = fmt.Sprintf(_const.Ageent_download_api_url, username, osType)
+	req.Path = fmt.Sprintf(_const.Ageent_download_api_url, model.HidsUserNameAPI, osType)
 	req.Headers["signNonce"] = util.RandomNum(10)
 	req.Params = nil
 
@@ -35,7 +35,7 @@ func Download(username, osType string) (string, error) {
 }
 
 //Install 安装
-func Install(username, osType string) (string, error) {
+func Install( osType string) (string, error) {
 	if osType != "Windows" && osType != "Linux" {
 		return "", fmt.Errorf("操作系统类型参数错误")
 	}
@@ -44,7 +44,7 @@ func Install(username, osType string) (string, error) {
 		return "", err
 	}
 	req.Method = "get"
-	req.Path = fmt.Sprintf(_const.Ageent_install_api_url, username, osType)
+	req.Path = fmt.Sprintf(_const.Ageent_install_api_url, model.HidsUserNameAPI, osType)
 	req.Headers["signNonce"] = util.RandomNum(10)
 	req.Params = nil
 
@@ -59,12 +59,15 @@ func Install(username, osType string) (string, error) {
 
 //List agent安装主机列表
 func List(args *SearchReq) (list SearchResp, err error) {
-
-	if args.PageSize == 0 {
-		args.PageSize = 10
+	agentList := make([]map[string]interface{},0)
+	agents,total ,err := GetList(&ListReq{UserId: args.UserId,AdminUserId: args.AdminUserId})
+	if err != nil || total == 0{
+		return list,err
 	}
-	if args.PageNo == 0 {
-		args.PageNo = 1
+	contain := map[string]int{}
+	for k,v := range agents{
+		contain[v.IP] = k
+		agentList = append(agentList, map[string]interface{}{"serverIp":v.IP})
 	}
 
 	req, err := request.NewRequest()
@@ -74,13 +77,24 @@ func List(args *SearchReq) (list SearchResp, err error) {
 	req.Method = "get"
 	req.Path = _const.Ageent_list_api_url
 	req.Headers["signNonce"] = util.RandomNum(10)
+	args.UserName = model.HidsUserNameAPI
+	args.PageSize = 10
+	args.PageNo = 1
 	req.Params = model.ToMap(args)
 
 	resp, err := req.Do()
 	if err != nil {
 		return list, err
 	}
+
 	_, err = model.ParseResp(resp, &list)
+
+	for _,item := range list.List{
+		if idx,isExist := contain[item["serverIp"].(string)];isExist{
+			agentList[idx] = item
+		}
+	}
+	list.List = agentList
 	return list, err
 }
 
@@ -106,4 +120,25 @@ func Disport(macCode, opt string) error {
 	resp, err := req.Do()
 	fmt.Println(string(resp))
 	return err
+}
+
+//Create 新增agent ip 用户输入
+func Create(args *CreateReq) (err error) {
+
+	if args.AgentIp == "" || args.UserId == 0 && args.AdminUserId == 0 {
+		return fmt.Errorf("参数错误")
+	}
+	return addAgent(&hidsAgents{IP: args.AgentIp, UserId: args.UserId, AdminUserId: args.AdminUserId})
+}
+func Update(args *UpdateReq) (err error) {
+	if args.Id == 0 || args.AgentIp == "" || args.UserId == 0 && args.AdminUserId == 0 {
+		return fmt.Errorf("参数错误")
+	}
+	return updateAgent(&hidsAgents{Id: args.Id, IP: args.AgentIp, UserId: args.UserId, AdminUserId: args.AdminUserId})
+}
+func Delete(args *DeleteReq)error  {
+	if args.Id == 0 {
+		return fmt.Errorf("参数错误")
+	}
+	return deleteAgent(args.Id)
 }

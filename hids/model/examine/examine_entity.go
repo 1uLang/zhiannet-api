@@ -14,6 +14,9 @@ type SearchReq struct {
 	StartTime    string   `json:"startTime,omitempty"`    //体检开始时间
 	EndTime      string   `json:"endTime,omitempty"`      //体检结束时间
 	ExamineItems []string `json:"examineItems,omitempty"` //体检项目集合
+
+	UserId      uint64 `json:"-"`
+	AdminUserId uint64 `json:"-"`
 }
 
 func (this *SearchReq) Check() (bool, error) {
@@ -83,6 +86,12 @@ func (this *ScanReq) Check() (bool, error) {
 		return false, fmt.Errorf("机器码集合不能为空")
 	}
 	return true, nil
+}
+
+type DetailsReq struct {
+	MacCode     string
+	UserId      uint64 `json:"-"`
+	AdminUserId uint64 `json:"-"`
 }
 
 //DetailsResp 系统漏洞 - 弱口令 - 风险账号 - 配置缺陷
