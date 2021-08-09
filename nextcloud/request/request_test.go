@@ -14,8 +14,11 @@ import (
 var (
 	req = &model.LoginReq{
 		User: "admin",
+		// User: "admin_zhoumj",
 		// Password: "Dengbao123!@#",
 		Password: "admin",
+		// Password: "21ops.com",
+		// Password: "adminAd#@2021",
 	}
 	fileName = "Nextcloud.png"
 	//go:embed Nextcloud.png
@@ -74,6 +77,7 @@ func TestDownLoadFileWithURL(t *testing.T) {
 }
 
 func TestUploadFile(t *testing.T) {
+	// param.BASE_URL = `https://bptest.dengbao.cloud`
 	token := GenerateToken(req)
 	by, err := os.ReadFile("golang.png")
 	if err != nil {

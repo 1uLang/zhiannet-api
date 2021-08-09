@@ -148,7 +148,7 @@ func UploadFile(token, fileName string, f io.Reader) error {
 
 	// 拼接上传路径，默认为根目录
 	uf := fmt.Sprintf(param.UPLOAD_FILES, user)
-	uRL := fmt.Sprintf("%s/%s/%s", param.BASE_URL, uf, fileName)
+	uRL := fmt.Sprintf("%s/%s%s", param.BASE_URL, uf, fileName)
 
 	// 跳过证书验证
 	tr := &http.Transport{
