@@ -3,13 +3,16 @@ package _const
 const (
 	OPNSENSE_GLOBAL_STATUS_URL = "/widgets/api/get.php?load=system%2Cinterfaces&_=" //全局状态
 
-	OPNSENSE_LOGS_URL       = "/api/diagnostics/log/core/suricata"       //请求日志列表
-	OPNSENSE_CLEAR_LOGS_URL = "/api/diagnostics/log/core/suricata/clear" //清空日志
-	OPNSENSE_IPS_LIST_URL   = "/api/ids/settings/searchinstalledrules"   //ips规则
-	OPNSENSE_IPS_EDIT_URL   = "/api/ids/settings/toggleRule"             //ips规则 启动停止
-	OPNSENSE_IPS_DEL_URL    = "/api/ids/settings/toggleRule/%v/drop"     //ips规则 删除
-	OPNSENSE_IPS_APPLY_URL  = "/api/ids/service/reloadRules"             //ips规则 应用
-	OPNSENSE_IPS_ACTIOB_URL = "/api/ids/settings/setRule"                //ips规则 操作修改
+	OPNSENSE_LOGS_URL            = "/api/diagnostics/log/core/suricata"           //请求日志列表
+	OPNSENSE_CLEAR_LOGS_URL      = "/api/diagnostics/log/core/suricata/clear"     //清空日志
+	OPNSENSE_IPS_LIST_URL        = "/api/ids/settings/searchinstalledrules"       //ips规则
+	OPNSENSE_IPS_EDIT_URL        = "/api/ids/settings/toggleRule"                 //ips规则 启动停止
+	OPNSENSE_IPS_DEL_URL         = "/api/ids/settings/toggleRule/%v/drop"         //ips规则 删除
+	OPNSENSE_IPS_APPLY_URL       = "/api/ids/service/reloadRules"                 //ips规则 应用
+	OPNSENSE_IPS_ACTIOB_URL      = "/api/ids/settings/setRule"                    //ips规则 操作修改
+	OPNSENSE_IPS_ALARM_LIST_URL  = "/api/ids/service/queryAlerts"                 //ips-报警
+	OPNSENSE_IPS_ALARM_TIME_URL  = "/api/ids/service/getAlertLogs"                //ips-下拉时间
+	OPNSENSE_IPS_ALARM_IFACE_URL = "/api/diagnostics/interface/getInterfaceNames" //ips-接口名称
 
 	OPNSENSE_FILTER_SEARCH_URL = "/api/firewall/filter/searchRule" //过滤规则 搜索
 	OPNSENSE_FILTER_ENABLE_URL = "/api/firewall/filter/toggleRule" //过滤规则 启用停用

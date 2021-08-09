@@ -59,6 +59,47 @@ type (
 	ApplyResp struct {
 		Status string `json:"status"`
 	}
+	IpsAlarmReq struct {
+		IpsReq
+		FileId string `json:"fileid"`
+	}
+	IpsAlarmListResp struct {
+		Rows []struct {
+			Timestamp string `json:"timestamp"`
+			FlowID    int64  `json:"flow_id"`
+			InIface   string `json:"in_iface"`
+			EventType string `json:"event_type"`
+			SrcIP     string `json:"src_ip"`
+			SrcPort   int    `json:"src_port"`
+			DestIP    string `json:"dest_ip"`
+			DestPort  int    `json:"dest_port"`
+			Proto     string `json:"proto"`
+			Alert     string `json:"alert"`
+			AppProto  string `json:"app_proto"`
+			Flow      struct {
+				PktsToserver  int    `json:"pkts_toserver"`
+				PktsToclient  int    `json:"pkts_toclient"`
+				BytesToserver int    `json:"bytes_toserver"`
+				BytesToclient int    `json:"bytes_toclient"`
+				Start         string `json:"start"`
+			} `json:"flow"`
+			Filepos     int    `json:"filepos"`
+			Fileid      string `json:"fileid"`
+			AlertSid    int    `json:"alert_sid"`
+			AlertAction string `json:"alert_action"`
+		} `json:"rows"`
+		TotalRows int    `json:"total_rows"`
+		Origin    string `json:"origin"`
+		RowCount  int    `json:"rowCount"`
+		Total     int    `json:"total"`
+		Current   int    `json:"current"`
+	}
+	IpsAlarmTimeResp struct {
+		Size     int         `json:"size"`
+		Modified string      `json:"modified"`
+		Filename string      `json:"filename"`
+		Sequence interface{} `json:"sequence"`
+	}
 )
 
 //var client = resty.New() //.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).SetTimeout(time.Second * 2)
@@ -177,4 +218,68 @@ func EditActionIps(req *EditActionIpsReq, apiKey *request.ApiKey) (res bool, err
 	}
 	go ApplyIps(apiKey)
 	return editRes.Result == "saved", err
+}
+
+//获取ips-报警 列表
+func GetIpsAlarmList(req *IpsAlarmReq, apiKey *request.ApiKey) (list *IpsAlarmListResp, err error) {
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_IPS_ALARM_LIST_URL)
+	client := request.GetHttpClient(apiKey)
+	resp, err := client.R().
+		//SetBasicAuth(apiKey.Username, apiKey.Password).
+		SetHeader("x-csrftoken", apiKey.XCsrfToken).
+		SetCookie(&http.Cookie{
+			Name:  "PHPSESSID",
+			Value: apiKey.Cookie,
+		}).
+		SetFormData(map[string]string{
+			"current":      req.Current, //
+			"rowCount":     req.RowCount,
+			"searchPhrase": req.SearchPhrase,
+			"fileid":       req.FileId,
+		}).
+		Post(url)
+	//fmt.Println(string(resp.Body()), err)
+	err = json.Unmarshal(resp.Body(), &list)
+	if err != nil {
+		return list, err
+	}
+	return list, err
+}
+
+//报警下拉时间
+func GetIpsAlarmTime(apiKey *request.ApiKey) (list []*IpsAlarmTimeResp, err error) {
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_IPS_ALARM_TIME_URL)
+	client := request.GetHttpClient(apiKey)
+	resp, err := client.R().
+		//SetBasicAuth(apiKey.Username, apiKey.Password).
+		SetHeader("x-csrftoken", apiKey.XCsrfToken).
+		SetCookie(&http.Cookie{
+			Name:  "PHPSESSID",
+			Value: apiKey.Cookie,
+		}).
+		Get(url)
+	//fmt.Println(string(resp.Body()), err)
+	err = json.Unmarshal(resp.Body(), &list)
+	if err != nil {
+		return list, err
+	}
+	return list, err
+}
+
+//获取接口名
+func GetIpsAlarmIface(apiKey *request.ApiKey) (list string, err error) {
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_IPS_ALARM_IFACE_URL)
+	client := request.GetHttpClient(apiKey)
+	resp, err := client.R().
+		//SetBasicAuth(apiKey.Username, apiKey.Password).
+		SetHeader("x-csrftoken", apiKey.XCsrfToken).
+		SetCookie(&http.Cookie{
+			Name:  "PHPSESSID",
+			Value: apiKey.Cookie,
+		}).
+		Get(url)
+	//fmt.Println(string(resp.Body()), err)
+	//json 的key不固定，所以返回json字符串，用时按需取
+	list = string(resp.Body())
+	return list, err
 }
