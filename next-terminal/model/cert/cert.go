@@ -174,7 +174,7 @@ func AuthorizeUserList(args *AuthorizeUserListReq) (resp *AuthorizeUserListResp,
 		if v.UserId != 0 {
 			resp.UserIds = append(resp.UserIds, v.UserId)
 		}else {
-			resp.UserIds = append(resp.AdminUserId, v.AdminUserId)
+			resp.AdminUserId = append(resp.AdminUserId, v.AdminUserId)
 		}
 	}
 	return
