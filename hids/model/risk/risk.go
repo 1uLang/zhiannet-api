@@ -197,7 +197,7 @@ func VirusList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 		}
 	}
 	ret.VirusCountInfoList = agentList
-
+	ret.TotalData = len(agentList)
 	return ret, nil
 }
 
@@ -227,7 +227,7 @@ func WebShellList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 		}
 	}
 	ret.WebshellCountInfoList = agentList
-
+	ret.TotalData = len(agentList)
 	return ret, nil
 }
 
@@ -257,6 +257,7 @@ func ReboundList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 		}
 	}
 	ret.ReboundshellCountInfoList = agentList
+	ret.TotalData = len(agentList)
 	return ret, nil
 }
 
@@ -286,6 +287,7 @@ func AbnormalAccountList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 		}
 	}
 	ret.AbnormalAccountCountInfoList = agentList
+	ret.TotalData = len(agentList)
 	return ret, nil
 }
 
@@ -315,6 +317,7 @@ func LogDeleteList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 		}
 	}
 	ret.LogDeleteCountInfoList = agentList
+	ret.TotalData = len(agentList)
 	return ret, nil
 }
 
@@ -344,6 +347,7 @@ func AbnormalLoginList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 		}
 	}
 	ret.AbnormalLoginCountInfoList = agentList
+	ret.TotalData = len(agentList)
 	return ret, nil
 }
 
@@ -373,6 +377,7 @@ func AbnormalProcessList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 		}
 	}
 	ret.AbnormalProcessCountInfoList = agentList
+	ret.TotalData = len(agentList)
 	return ret, nil
 }
 
@@ -399,6 +404,7 @@ func SystemCmdList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 		}
 	}
 	ret.SystemCmdInfoList = agentList
+	ret.TotalData = len(agentList)
 	return ret, nil
 }
 

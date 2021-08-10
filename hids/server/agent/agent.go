@@ -18,3 +18,6 @@ func List(req *agent.SearchReq) (agent.SearchResp, error) {
 func Disport(macCode, opt string) error {
 	return agent.Disport(macCode, opt)
 }
+func Delete(req *agent.DeleteReq) error {
+	return agent.Delete(req)
+}

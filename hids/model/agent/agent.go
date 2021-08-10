@@ -67,7 +67,7 @@ func List(args *SearchReq) (list SearchResp, err error) {
 	contain := map[string]int{}
 	for k,v := range agents{
 		contain[v.IP] = k
-		agentList = append(agentList, map[string]interface{}{"serverIp":v.IP})
+		agentList = append(agentList, map[string]interface{}{"serverIp":v.IP,"id":v.Id})
 	}
 
 	req, err := request.NewRequest()
@@ -91,6 +91,7 @@ func List(args *SearchReq) (list SearchResp, err error) {
 
 	for _,item := range list.List{
 		if idx,isExist := contain[item["serverIp"].(string)];isExist{
+			item["id"] = agentList[idx]["id"]
 			agentList[idx] = item
 		}
 	}
