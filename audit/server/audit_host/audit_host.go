@@ -237,9 +237,11 @@ func GetAuthEmail(req *server.AuthReq) (resp *server.AuthEmailResp, err error) {
 		return
 	}
 	logReq.Addr = fmt.Sprintf("%v%v", logReq.Addr, _const.AUDIT_AUTH_EMAIL_LIST)
-	logReq.QueryParams = map[string]string{
-		"type":  "1", //0数据库 1主机 2应用
-		"value": fmt.Sprintf("%v", req.Id),
+	logReq.QueryParams = map[string]interface{}{
+		"emails": req.Email,
+		"ids":    req.Ids,
+		"type":   "1", //0数据库 1主机 2应用
+		"value":  fmt.Sprintf("%v", req.Id),
 	}
 	logReq.ReqType = "post"
 	var res []byte

@@ -26,6 +26,7 @@ type (
 	AuthReq struct {
 		User  *request.UserReq `json:"user" `
 		Email []string         `json:"email"`
+		Ids   []uint64         `json:"ids"`
 		Id    uint64           `json:"id"`
 	}
 
@@ -38,6 +39,7 @@ type (
 				Id   uint64 `json:"id"`
 				Name string `json:"name"`
 				IsOn bool   `json:"is_on"`
+				My   bool   `json:"my"`
 			} `json:"user_list"`
 		} `json:"data"`
 		Msg string `json:"msg"`

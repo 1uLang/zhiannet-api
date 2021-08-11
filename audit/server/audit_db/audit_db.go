@@ -223,6 +223,7 @@ func AuthDb(req *server.AuthReq) (resp *server.Resp, err error) {
 	logReq.Addr = fmt.Sprintf("%v%v", logReq.Addr, _const.AUDIT_AUTH_EMAIL)
 	logReq.QueryParams = map[string]interface{}{
 		"emails": req.Email,
+		"ids":    req.Ids,
 		"type":   "0", //0数据库 1主机 2应用
 		"value":  fmt.Sprintf("%v", req.Id),
 	}
