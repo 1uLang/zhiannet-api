@@ -18,6 +18,7 @@ func ToMap(obj interface{}) map[string]interface{} {
 
 type (
 	NextTerminalResp struct {
+		Id       uint64 `json:"id"`
 		Addr     string `json:"addr"`
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -42,6 +43,7 @@ func GetNextTerminalInfo() (resp *NextTerminalResp, err error) {
 		Addr:     addr,
 		Username: info.Key,
 		Password: info.Secret,
+		Id:       info.Id,
 	}
 	return resp, err
 }

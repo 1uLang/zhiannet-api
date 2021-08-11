@@ -1,7 +1,10 @@
 package server
 
 import (
+	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
+	"github.com/1uLang/zhiannet-api/hids/model/user"
 	"github.com/1uLang/zhiannet-api/next-terminal/model"
+	asset_model "github.com/1uLang/zhiannet-api/next-terminal/model/asset"
 	"github.com/1uLang/zhiannet-api/next-terminal/request"
 )
 
@@ -32,4 +35,35 @@ func NewServerRequest(url, username, password string) (*Request, error) {
 }
 func GetFortCloud() (resp *model.NextTerminalResp, err error) {
 	return model.GetNextTerminalInfo()
+}
+func Check(AdminUserId int64) (bool, uint64, error) {
+	info, err := GetFortCloud()
+	if err != nil {
+		return false, 0, err
+	}
+	req,err := NewServerRequest(info.Addr,info.Username,info.Password)
+	if err != nil {
+		return false, info.Id, err
+	}
+	_,_,err = req.Assets.List(&asset_model.ListReq{AdminUserId: AdminUserId})
+	if err != nil {
+		return false, info.Id, err
+	}
+	_, err = user.List(&user.SearchReq{})
+	if err != nil {
+		return false, info.Id, err
+	}
+	return true, info.Id, nil
+}
+type CheckRequest struct {}
+
+func (this *CheckRequest) Run(AdminUserId int64) {
+	var conn int = 1
+	res, id, _ := Check(AdminUserId)
+	if !res {
+		conn = 0
+	}
+	if id > 0 {
+		subassemblynode.UpdateConnState(id, conn)
+	}
 }
