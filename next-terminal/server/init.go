@@ -11,7 +11,7 @@ import (
 type Request struct {
 	Assets  asset   //资产接口
 	Session session //会话管理
-	Cert 	cert 	//授权凭证
+	Cert    cert    //授权凭证
 }
 
 var req *Request
@@ -36,16 +36,16 @@ func NewServerRequest(url, username, password string) (*Request, error) {
 func GetFortCloud() (resp *model.NextTerminalResp, err error) {
 	return model.GetNextTerminalInfo()
 }
-func Check(AdminUserId int64) (bool, uint64, error) {
+func Check() (bool, uint64, error) {
 	info, err := GetFortCloud()
 	if err != nil {
 		return false, 0, err
 	}
-	req,err := NewServerRequest(info.Addr,info.Username,info.Password)
+	req, err := NewServerRequest(info.Addr, info.Username, info.Password)
 	if err != nil {
 		return false, info.Id, err
 	}
-	_,_,err = req.Assets.List(&asset_model.ListReq{UserId: 1})
+	_, _, err = req.Assets.List(&asset_model.ListReq{UserId: 1})
 	if err != nil {
 		return false, info.Id, err
 	}
@@ -55,7 +55,8 @@ func Check(AdminUserId int64) (bool, uint64, error) {
 	}
 	return true, info.Id, nil
 }
-type CheckRequest struct {}
+
+type CheckRequest struct{}
 
 func (this *CheckRequest) Run() {
 	var conn int = 1

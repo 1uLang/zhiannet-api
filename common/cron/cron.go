@@ -4,6 +4,7 @@ import (
 	audit_request "github.com/1uLang/zhiannet-api/audit/request"
 	ddos_request "github.com/1uLang/zhiannet-api/ddos/request"
 	hids_request "github.com/1uLang/zhiannet-api/hids/server"
+	term_request "github.com/1uLang/zhiannet-api/hids/server"
 	monitor_cron "github.com/1uLang/zhiannet-api/monitor/cron"
 	nessus_request "github.com/1uLang/zhiannet-api/nessus/server"
 	awvs_request "github.com/1uLang/zhiannet-api/nextcloud/request"
@@ -36,6 +37,7 @@ func InitCron() {
 	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&awvs_request.CheckRequest{}))
 	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&nessus_request.CheckRequest{}))
 	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&hids_request.CheckRequest{}))
+	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&term_request.CheckRequest{}))
 
 	c.Start()
 }

@@ -7,6 +7,7 @@ require (
 	github.com/dlclark/regexp2 v1.4.0
 	github.com/go-redis/redis/v8 v8.10.0
 	github.com/go-resty/resty/v2 v2.6.0
+	github.com/iwind/TeaGo v0.0.0-20210809112119-a57ed0e84e34
 	github.com/loveleshsharma/gohive v0.0.0-20191008095549-7eec91c92993
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/robfig/cron/v3 v3.0.1
