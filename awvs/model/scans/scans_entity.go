@@ -52,6 +52,10 @@ type VulnerabilitiesReq struct {
 	ScanSessionId string
 	VulId         string
 }
+type VulnerabilitiesListReq struct {
+	ScanId        string
+	ScanSessionId string
+}
 
 func (this *VulnerabilitiesReq) Check() (bool, error) {
 
@@ -63,6 +67,16 @@ func (this *VulnerabilitiesReq) Check() (bool, error) {
 	}
 	if this.VulId == "" {
 		return false,fmt.Errorf("漏洞id不能为空")
+	}
+	return true,nil
+}
+func (this *VulnerabilitiesListReq) Check() (bool, error) {
+
+	if this.ScanId == "" {
+		return false,fmt.Errorf("扫描id不能为空")
+	}
+	if this.ScanSessionId == "" {
+		return false,fmt.Errorf("扫描会话id不能为空")
 	}
 	return true,nil
 }

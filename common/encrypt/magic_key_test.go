@@ -15,7 +15,7 @@ func TestMagicKeyEncode(t *testing.T) {
 	var hour int
 	var err error
 	code = "1f0eea9db4384439b4c7e1d230d9f2af"
-	hour = 1
+	year = 1
 	now := time.Now()
 	nowt := now.Unix()
 	//addt := now.AddDate(year,month,day).Add(time.Duration(hour) * time.Hour)

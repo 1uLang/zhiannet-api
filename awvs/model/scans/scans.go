@@ -249,3 +249,29 @@ func Vulnerabilities(args *VulnerabilitiesReq) (map[string]interface{}, error) {
 	}
 	return model.ParseResp(resp)
 }
+func VulnerabilitiesList(args *VulnerabilitiesListReq) ([]interface{}, error) {
+
+	ok, err := args.Check()
+	if err != nil || !ok {
+		return nil, fmt.Errorf("参数错误：%v", err)
+	}
+
+	req, err := request.NewRequest()
+	if err != nil {
+		return nil, err
+	}
+
+	req.Method = "get"
+	req.Url += _const.Scans_api_url + "/" + args.ScanId + "/results/" + args.ScanSessionId + "/vulnerabilities?l=100"
+	req.Params = nil
+
+	resp, err := req.Do()
+	if err != nil {
+		return nil, err
+	}
+	ret,err:= model.ParseResp(resp)
+	if err != nil {
+		return nil, err
+	}
+	return ret["vulnerabilities"].([]interface{}),nil
+}
