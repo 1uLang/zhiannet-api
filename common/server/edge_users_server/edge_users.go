@@ -28,3 +28,9 @@ func UpdatePwdAt(id uint64) (res int64, err error) {
 	return edge_users.UpdatePwdAt(id)
 
 }
+
+func GetUserInfo(id uint64) (info *edge_users.EdgeUsers, err error) {
+	info, err = edge_users.GetInfoById(id)
+
+	return
+}
