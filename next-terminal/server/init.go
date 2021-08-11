@@ -45,7 +45,7 @@ func Check(AdminUserId int64) (bool, uint64, error) {
 	if err != nil {
 		return false, info.Id, err
 	}
-	_,_,err = req.Assets.List(&asset_model.ListReq{AdminUserId: AdminUserId})
+	_,_,err = req.Assets.List(&asset_model.ListReq{UserId: 1})
 	if err != nil {
 		return false, info.Id, err
 	}
@@ -57,9 +57,9 @@ func Check(AdminUserId int64) (bool, uint64, error) {
 }
 type CheckRequest struct {}
 
-func (this *CheckRequest) Run(AdminUserId int64) {
+func (this *CheckRequest) Run() {
 	var conn int = 1
-	res, id, _ := Check(AdminUserId)
+	res, id, _ := Check()
 	if !res {
 		conn = 0
 	}
