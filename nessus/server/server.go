@@ -2,8 +2,8 @@ package server
 
 import (
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
-	"github.com/1uLang/zhiannet-api/hids/model/user"
 	"github.com/1uLang/zhiannet-api/nessus/model"
+	"github.com/1uLang/zhiannet-api/nessus/model/scans"
 	"github.com/1uLang/zhiannet-api/nessus/request"
 )
 
@@ -41,7 +41,7 @@ func Check() (bool, uint64, error) {
 	if err != nil {
 		return false, info.Id, err
 	}
-	_, err = user.List(&user.SearchReq{})
+	_, err = scans.List(&scans.ListReq{UserId: 1})
 	if err != nil {
 		return false, info.Id, err
 	}

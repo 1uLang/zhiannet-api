@@ -201,7 +201,7 @@ func APIKeys(id string) (accessKey, secretKey string, err error) {
 
 	resp, err := req.Do()
 	if err != nil {
-		return err
+		return "","",err
 	}
 
 	ret, err := model.ParseResp(resp)
