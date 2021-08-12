@@ -2,6 +2,7 @@ package edge_users_server
 
 import (
 	"github.com/1uLang/zhiannet-api/common/model/edge_users"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -32,5 +33,13 @@ func UpdatePwdAt(id uint64) (res int64, err error) {
 func GetUserInfo(id uint64) (info *edge_users.EdgeUsers, err error) {
 	info, err = edge_users.GetInfoById(id)
 
+	return
+}
+
+func GetUserInfoByName(name string) (info *edge_users.EdgeUsers, err error) {
+	info, err = edge_users.GetInfoByUsername(name)
+	if err == gorm.ErrRecordNotFound { //可能找不到数据
+		err = nil
+	}
 	return
 }
