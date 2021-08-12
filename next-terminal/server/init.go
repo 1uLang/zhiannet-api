@@ -36,7 +36,7 @@ func NewServerRequest(url, username, password string) (*Request, error) {
 func GetFortCloud() (resp *model.NextTerminalResp, err error) {
 	return model.GetNextTerminalInfo()
 }
-func Check(AdminUserId int64) (bool, uint64, error) {
+func Check() (bool, uint64, error) {
 	info, err := GetFortCloud()
 	if err != nil {
 		return false, 0, err

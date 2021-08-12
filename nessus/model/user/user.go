@@ -65,7 +65,7 @@ func Delete(id string) error {
 	req.Params = nil
 	resp, err := req.Do()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	_, err = model.ParseResp(resp)
 	return err
@@ -104,7 +104,7 @@ func Update(args *UpdateReq) error {
 
 	resp, err := req.Do()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	_, err = model.ParseResp(resp)
@@ -139,7 +139,7 @@ func ChangePassword(args *ChangePasswordReq) error {
 	}
 	resp, err := req.Do()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	_, err = model.ParseResp(resp)
@@ -172,7 +172,7 @@ func Enable(args *EnableReq) error {
 	}
 	resp, err := req.Do()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	_, err = model.ParseResp(resp)
@@ -201,7 +201,7 @@ func APIKeys(id string) (accessKey, secretKey string, err error) {
 
 	resp, err := req.Do()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	ret, err := model.ParseResp(resp)

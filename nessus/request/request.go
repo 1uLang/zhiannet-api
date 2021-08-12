@@ -111,7 +111,7 @@ func (this *request) Do() (respBody []byte, err error) {
 	//请求
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer resp.Body.Close()
 
