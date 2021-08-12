@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/cache"
 	"github.com/1uLang/zhiannet-api/common/model/edge_admins"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -71,4 +72,12 @@ func LoginErrIncr(name string) (res bool, err error) {
 		}
 	}
 	return true, err
+}
+
+func GetUserInfoByName(name string) (info *edge_admins.EdgeAdmins, err error) {
+	info, err = edge_admins.GetInfoByUsername(name)
+	if err == gorm.ErrRecordNotFound { //可能找不到数据
+		err = nil
+	}
+	return
 }
