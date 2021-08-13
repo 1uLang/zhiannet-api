@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -26,6 +27,7 @@ type request struct {
 	Secret  string
 }
 
+var req_mutex sync.RWMutex
 var req = request{
 	Method: "get",
 	Headers: map[string]string{
@@ -51,6 +53,8 @@ func (this *APIKeys) Check() (bool, error) {
 	return true, nil
 }
 func InitServerUrl(url string) error {
+	req_mutex.Lock()
+	defer req_mutex.Unlock()
 	req.url = url
 	return nil
 }
@@ -61,8 +65,10 @@ func InitRequestAPIKeys(api *APIKeys) error {
 		return err
 	}
 	if ok {
+		req_mutex.Lock()
 		req.Headers["appId"] = api.AppId
 		req.Secret = api.Secret
+		req_mutex.Unlock()
 		return nil
 	} else {
 		return fmt.Errorf("参数错误")
@@ -70,14 +76,23 @@ func InitRequestAPIKeys(api *APIKeys) error {
 }
 
 func NewRequest() (*request, error) {
+	req_mutex.RLock()
 	if req.url == "" {
+		req_mutex.RUnlock()
 		return nil, fmt.Errorf("未配置主机防护 服务器地址")
 	}
 	if _, isExist := req.Headers["appId"]; !isExist {
+		req_mutex.RUnlock()
 		return nil, fmt.Errorf("未配置appId")
 	}
+	req_mutex.RUnlock()
 	//删除签名
+	req_mutex.Lock()
 	delete(req.Headers, "sign")
+	req_mutex.Unlock()
+
+	req_mutex.RLock()
+	defer req_mutex.RUnlock()
 	return &request{Headers: req.Headers, url: req.url, Secret: req.Secret}, nil
 }
 func NewRequest2() (*request, error) {
@@ -132,7 +147,6 @@ func (this *request) sign() string {
 	}
 	//加上私钥key
 	stringSignTemp += "key=" + this.Secret
-	fmt.Println(stringSignTemp)
 	//rsa加密
 	h := hmac.New(sha256.New, []byte(this.Secret))
 	h.Write([]byte(stringSignTemp))
@@ -171,7 +185,6 @@ func (this *request) sign2() string {
 	}
 	//加上私钥key
 	stringSignTemp += "key=" + this.Secret
-	fmt.Println(stringSignTemp)
 	//rsa加密
 	h := hmac.New(sha256.New, []byte(this.Secret))
 	h.Write([]byte(stringSignTemp))
@@ -209,7 +222,6 @@ func (this *request) Do2() (respBody []byte, err error) {
 	if strings.ToUpper(this.Method) != "GET" {
 		buf, _ := json.Marshal(this.Params)
 		body = bytes.NewReader(buf)
-		fmt.Println(string(buf))
 	}
 	req, err := http.NewRequest(this.Method, this.url+this.Path, body)
 	if err != nil {
@@ -226,15 +238,13 @@ func (this *request) Do2() (respBody []byte, err error) {
 		}
 		req.URL.RawQuery = q.Encode()
 	}
-	fmt.Println("http audit_db :" + req.URL.String())
 	for k, v := range this.Headers {
 		req.Header.Add(k, v)
 	}
-	fmt.Println("audit_db info : \n", this.ToString())
 	//请求
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
@@ -255,7 +265,6 @@ func (this *request) Do() (respBody []byte, err error) {
 	if strings.ToUpper(this.Method) != "GET" {
 		buf, _ := json.Marshal(this.Params)
 		body = bytes.NewReader(buf)
-		fmt.Println(string(buf))
 	}
 	req, err := http.NewRequest(this.Method, this.url+this.Path, body)
 	if err != nil {
@@ -272,7 +281,6 @@ func (this *request) Do() (respBody []byte, err error) {
 		}
 		req.URL.RawQuery = q.Encode()
 	}
-	fmt.Println("http audit_db :" + req.URL.String())
 	//毫秒时间戳
 	this.Headers["time"] = fmt.Sprintf("%d", time.Now().UnixNano()/1e6)
 	//签名
@@ -280,11 +288,10 @@ func (this *request) Do() (respBody []byte, err error) {
 	for k, v := range this.Headers {
 		req.Header.Add(k, v)
 	}
-	fmt.Println("audit_db info : \n", this.ToString())
 	//请求
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	defer resp.Body.Close()
 

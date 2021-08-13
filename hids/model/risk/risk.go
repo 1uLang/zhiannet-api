@@ -277,7 +277,6 @@ func AbnormalAccountList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 		contain[v.IP] = true
 	}
 	ret, err := riskList(_const.Risk_abnormal_account_api_url, args)
-
 	if err != nil {
 		return list, err
 	}
@@ -367,7 +366,6 @@ func AbnormalProcessList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 		contain[v.IP] = true
 	}
 	ret, err := riskList(_const.Risk_abnormal_process_api_url, args)
-
 	if err != nil {
 		return list, err
 	}
@@ -668,7 +666,6 @@ func process(args *ProcessReq, path string) error {
 		return err
 	}
 	_, err = model.ParseResp(resp)
-	fmt.Println(string(resp))
 	return err
 }
 

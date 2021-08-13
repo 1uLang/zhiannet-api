@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -35,6 +36,8 @@ type request struct {
 	Headers map[string]string
 }
 
+var req_mutex sync.RWMutex
+
 var req = request{
 	Method: "get",
 	Headers: map[string]string{
@@ -44,7 +47,9 @@ var req = request{
 }
 
 func InitServerUrl(url string) error {
+	req_mutex.Lock()
 	req.Url = url
+	req_mutex.Unlock()
 	return nil
 }
 func InitRequestAPIKeys(api *APIKeys) error {
@@ -54,20 +59,23 @@ func InitRequestAPIKeys(api *APIKeys) error {
 		return err
 	}
 	if ok {
+		req_mutex.Lock()
 		req.Headers["x-apikeys"] = "accessKey=" + api.Access + ";secretKey=" + api.Secret
+		req_mutex.Unlock()
 		return nil
 	} else {
 		return fmt.Errorf("参数错误")
 	}
 }
 func NewRequest() (*request, error) {
+	req_mutex.RLock()
 	if req.Url == "" {
 		return nil, fmt.Errorf("未配置nessus 服务器地址")
 	}
 	if _, isExist := req.Headers["x-apikeys"]; !isExist {
 		return nil, fmt.Errorf("未配置APIKey")
 	}
-
+	defer req_mutex.RUnlock()
 	return &request{Headers: req.Headers, Url: req.Url}, nil
 }
 func (this *request) ToString() string {
