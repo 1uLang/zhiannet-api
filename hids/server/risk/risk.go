@@ -14,6 +14,9 @@ func Dashboard(args *risk.DashboardReq) (risk.DashboardResp, error) {
 	return risk.Dashboard(args)
 }
 
+func SystemRiskDetailList(req *risk.DetailReq)(info risk.DetailResp, err error) {
+	return risk.SystemRiskDetailList(req)
+}
 //漏洞风险
 
 func ProcessRisk(req *risk.ProcessReq) error {

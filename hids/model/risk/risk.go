@@ -713,6 +713,10 @@ func ProcessConfigDefect(args *ProcessReq) error {
 	return process(args, _const.Risk_config_defect_process_api_url)
 }
 
+func SystemRiskDetailList(args *DetailReq) (info DetailResp, err error) {
+	return detailList(args, _const.Risk_system_detail_list_api_url)
+}
+
 func detailList(args *DetailReq, path string) (info DetailResp, err error) {
 	ok, err := args.Check()
 	if err != nil || !ok {

@@ -165,6 +165,10 @@ type DetailResp struct {
 	PageSize  int `json:"pageSize"`
 	TotalData int `json:"totalData"`
 	TotalPage int `json:"totalPage"`
+
+	//系统漏洞
+	SystemRiskInfoList []map[string]interface{} `json:"systemRiskInfoList"`
+
 	//弱口令列表
 	WeakInfoList []map[string]interface{} `json:"weakInfoList"`
 	//高危账号列表

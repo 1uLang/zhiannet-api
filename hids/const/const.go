@@ -15,6 +15,8 @@ const (
 
 	Risk_system_detail_api_url = "/sdapi/cloudeyes/risk/system/detail"
 
+	Risk_system_detail_list_api_url = "/sdapi/cloudeyes/risk/system/server/"
+
 	Risk_process_api_url = "/sdapi/cloudeyes/risk/system/process"
 
 	Risk_weak_api_url = "/sdapi/cloudeyes/risk/weak/server-distributed/list"
