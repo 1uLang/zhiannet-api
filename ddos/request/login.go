@@ -106,6 +106,11 @@ func GetHttpClient(req *LoginReq) *resty.Client {
 
 //检测是否可用
 func (this *LoginReq) Run() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("ddos-----------------------------------------------", err)
+		}
+	}()
 	nodes, _, err := subassemblynode.GetList(&subassemblynode.NodeReq{
 		//State:    "1",
 		Type:     1,

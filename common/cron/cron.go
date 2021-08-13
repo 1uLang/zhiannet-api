@@ -2,12 +2,12 @@ package cron
 
 import (
 	audit_request "github.com/1uLang/zhiannet-api/audit/request"
+	awvs_request "github.com/1uLang/zhiannet-api/awvs/server"
 	ddos_request "github.com/1uLang/zhiannet-api/ddos/request"
 	hids_request "github.com/1uLang/zhiannet-api/hids/server"
-	term_request "github.com/1uLang/zhiannet-api/hids/server"
 	monitor_cron "github.com/1uLang/zhiannet-api/monitor/cron"
 	nessus_request "github.com/1uLang/zhiannet-api/nessus/server"
-	awvs_request "github.com/1uLang/zhiannet-api/nextcloud/request"
+	term_request "github.com/1uLang/zhiannet-api/next-terminal/server"
 	nextcloud_request "github.com/1uLang/zhiannet-api/nextcloud/request"
 	opnsense_request "github.com/1uLang/zhiannet-api/opnsense/request"
 	"github.com/robfig/cron/v3"
@@ -24,20 +24,20 @@ func InitCron() {
 	//	time.Sleep(time.Second * 5)
 	//})
 	//运行结构体中的Run 方法,每次任务之间不重复 每5分钟执行一次
-	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&monitor_cron.PortCheck{}))
-	c.AddJob("3 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&monitor_cron.CodeCheck{}))
+	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&monitor_cron.PortCheck{}))
+	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&monitor_cron.CodeCheck{}))
 	//安全审计组件定时检测状态是否可用
-	c.AddJob("6 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&audit_request.LoginReq{}))
+	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&audit_request.LoginReq{}))
 	//ddos金盾 组件定时检测状态是否可用
-	c.AddJob("9 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&ddos_request.LoginReq{}))
+	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&ddos_request.LoginReq{}))
 	//下一代防火墙 组件定时检测状态是否可用
-	c.AddJob("12 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&opnsense_request.ApiKey{}))
+	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&opnsense_request.ApiKey{}))
 	//数据备份系统 组件定时检测状态是否可用
-	c.AddJob("15 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&nextcloud_request.CheckRequest{}))
-	c.AddJob("18 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&awvs_request.CheckRequest{}))
-	c.AddJob("21 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&nessus_request.CheckRequest{}))
-	c.AddJob("24 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&hids_request.CheckRequest{}))
-	c.AddJob("27 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&term_request.CheckRequest{}))
+	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&nextcloud_request.CheckRequest{}))
+	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&awvs_request.CheckRequest{}))
+	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&nessus_request.CheckRequest{}))
+	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&hids_request.CheckRequest{}))
+	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&term_request.CheckRequest{}))
 
 	c.Start()
 }
