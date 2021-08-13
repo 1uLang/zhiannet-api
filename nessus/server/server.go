@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/nessus/model"
 	"github.com/1uLang/zhiannet-api/nessus/model/scans"
@@ -48,6 +49,11 @@ func Check() (bool, uint64, error) {
 	return true, info.Id, nil
 }
 func (this *CheckRequest) Run() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("nessus-----------------------------------------------", err)
+		}
+	}()
 	var conn int = 1
 	res, id, _ := Check()
 	if !res {

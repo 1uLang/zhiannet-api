@@ -32,6 +32,11 @@ func HttpCode() {
 
 //端口ping 检测
 func (*PortCheck) Run() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("monitor-port-----------------------------------------------", err)
+		}
+	}()
 	addressChan = make(chan PortCheck, 100)
 	var begin = time.Now()
 	//线程池大小

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/hids/model"
 	"github.com/1uLang/zhiannet-api/hids/model/user"
@@ -51,6 +52,11 @@ func Check() (bool, uint64, error) {
 }
 
 func (this *CheckRequest) Run() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("hids-----------------------------------------------", err)
+		}
+	}()
 	var conn int = 1
 	res, id, _ := Check()
 	if !res {

@@ -60,6 +60,11 @@ func Check() (bool, uint64, error) {
 }
 
 func (this *CheckRequest) Run() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("awvs-----------------------------------------------", err)
+		}
+	}()
 	var conn int = 1
 	res, id, _ := Check()
 	if !res {

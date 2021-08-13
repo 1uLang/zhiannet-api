@@ -147,6 +147,11 @@ func CheckConf(name, passwd, url string) error {
 }
 
 func (this *CheckRequest) Run() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("next-cloud-----------------------------------------------", err)
+		}
+	}()
 	nodes, _, err := subassemblynode.GetList(&subassemblynode.NodeReq{
 		//State:    "1",
 		Type:     8,

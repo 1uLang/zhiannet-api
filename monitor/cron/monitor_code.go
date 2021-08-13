@@ -28,6 +28,11 @@ type (
 
 //状态吗响应 检测
 func (*CodeCheck) Run() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("monitor-code----------------------------------------------", err)
+		}
+	}()
 	urlChan = make(chan CodeCheck, 100)
 	var begin = time.Now()
 	//线程池大小
