@@ -165,7 +165,7 @@ func List(args *ListReq) ([]interface{}, error) {
 	}
 	//解析返回值
 	result := make(map[string]interface{}, 0)
-
+	fmt.Println(string(ret))
 	err = json.Unmarshal(ret, &result)
 	if err != nil {
 		return nil, err
@@ -185,7 +185,9 @@ func List(args *ListReq) ([]interface{}, error) {
 	}
 
 	resList := make([]interface{}, 0)
-
+	if result["scans"] == nil {
+		return nil,nil
+	}
 	for _, v := range result["scans"].([]interface{}) {
 		scan := v.(map[string]interface{})
 		id, _ := util.Interface2Uint64(scan["id"])

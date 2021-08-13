@@ -122,6 +122,5 @@ func (this *request) Do() (respBody []byte, err error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-
 	return ioutil.ReadAll(resp.Body)
 }
