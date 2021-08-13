@@ -193,11 +193,12 @@ func VirusList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	}
 	for _, item := range ret.VirusCountInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			count,_ := util.Interface2Int(item["count"])
+			ret.TotalData += count
 			agentList = append(agentList, item)
 		}
 	}
 	ret.VirusCountInfoList = agentList
-	ret.TotalData = len(agentList)
 	return ret, nil
 }
 
@@ -223,11 +224,12 @@ func WebShellList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	}
 	for _, item := range ret.WebshellCountInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			count,_ := util.Interface2Int(item["count"])
+			ret.TotalData += count
 			agentList = append(agentList, item)
 		}
 	}
 	ret.WebshellCountInfoList = agentList
-	ret.TotalData = len(agentList)
 	return ret, nil
 }
 
@@ -253,11 +255,12 @@ func ReboundList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	}
 	for _, item := range ret.ReboundshellCountInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			count,_ := util.Interface2Int(item["count"])
+			ret.TotalData += count
 			agentList = append(agentList, item)
 		}
 	}
 	ret.ReboundshellCountInfoList = agentList
-	ret.TotalData = len(agentList)
 	return ret, nil
 }
 
@@ -282,11 +285,12 @@ func AbnormalAccountList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	}
 	for _, item := range ret.AbnormalAccountCountInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			count,_ := util.Interface2Int(item["count"])
+			ret.TotalData += count
 			agentList = append(agentList, item)
 		}
 	}
 	ret.AbnormalAccountCountInfoList = agentList
-	ret.TotalData = len(agentList)
 	return ret, nil
 }
 
@@ -307,16 +311,23 @@ func LogDeleteList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	}
 	ret, err := riskList(_const.Risk_log_delete_api_url, args)
 
+	var totalData int
 	if err != nil {
 		return list, err
 	}
+	fmt.Println(contain)
+	fmt.Println(ret.LogDeleteCountInfoList )
 	for _, item := range ret.LogDeleteCountInfoList {
+		fmt.Println(item)
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			count,_ := util.Interface2Int(item["count"])
+			totalData += count
+			fmt.Println(count,totalData,item["count"])
 			agentList = append(agentList, item)
 		}
 	}
 	ret.LogDeleteCountInfoList = agentList
-	ret.TotalData = len(agentList)
+	ret.TotalData = totalData
 	return ret, nil
 }
 
@@ -342,11 +353,12 @@ func AbnormalLoginList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	}
 	for _, item := range ret.AbnormalLoginCountInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			count,_ := util.Interface2Int(item["count"])
+			ret.TotalData += count
 			agentList = append(agentList, item)
 		}
 	}
 	ret.AbnormalLoginCountInfoList = agentList
-	ret.TotalData = len(agentList)
 	return ret, nil
 }
 
@@ -371,11 +383,12 @@ func AbnormalProcessList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	}
 	for _, item := range ret.AbnormalProcessCountInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			count,_ := util.Interface2Int(item["count"])
+			ret.TotalData += count
 			agentList = append(agentList, item)
 		}
 	}
 	ret.AbnormalProcessCountInfoList = agentList
-	ret.TotalData = len(agentList)
 	return ret, nil
 }
 
@@ -398,11 +411,12 @@ func SystemCmdList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	}
 	for _, item := range ret.SystemCmdInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			count,_ := util.Interface2Int(item["count"])
+			ret.TotalData += count
 			agentList = append(agentList, item)
 		}
 	}
 	ret.SystemCmdInfoList = agentList
-	ret.TotalData = len(agentList)
 	return ret, nil
 }
 
