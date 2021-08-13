@@ -39,7 +39,7 @@ func TestDisport(t *testing.T) {
 	}
 }
 func TestDownload(t *testing.T) {
-	download, err := Download("LUSIR2", "Linux64")
+	download, err := Download( "Linux64")
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()
