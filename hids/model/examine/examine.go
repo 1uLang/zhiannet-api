@@ -14,13 +14,13 @@ import (
 
 //List 体检列表
 func List(args *SearchReq, online ...bool) (list SearchResp, err error) {
-	agentList := make([]map[string]interface{},0)
-	agents,total ,err := agent.GetList(&agent.ListReq{UserId: args.UserId,AdminUserId: args.AdminUserId})
-	if err != nil || total == 0{
-		return list,err
+	agentList := make([]map[string]interface{}, 0)
+	agents, total, err := agent.GetList(&agent.ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
+	if err != nil || total == 0 {
+		return list, err
 	}
 	contain := map[string]int{}
-	for k,v := range agents{
+	for k, v := range agents {
 		contain[v.IP] = k
 	}
 
@@ -56,11 +56,11 @@ func List(args *SearchReq, online ...bool) (list SearchResp, err error) {
 		return list, err
 	}
 	_, err = model.ParseResp(resp, &list)
-	for _,v := range list.ServerExamineResultInfoList{
+	for _, v := range list.ServerExamineResultInfoList {
 		item := v["serverExamineResultInfo"].(map[string]interface{})
 		item["macCode"] = v["macCode"].(string)
-		if _,isExist := contain[item["serverIp"].(string)];isExist{
-			agentList = append(agentList,item)
+		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+			agentList = append(agentList, item)
 		}
 	}
 	list.ServerExamineResultInfoList = agentList
@@ -88,8 +88,7 @@ func ScanServerNow(args *ScanReq) error {
 	if err != nil {
 		return err
 	}
-	info, err := model.ParseResp(resp)
-	fmt.Println(info)
+	_, err = model.ParseResp(resp)
 	return err
 }
 

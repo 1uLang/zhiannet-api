@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -34,6 +35,8 @@ type RetInfo struct {
 	Message string      `json:"message"`
 }
 
+var req_mutex sync.RWMutex
+
 var req = Request{
 	Method: "get",
 	Headers: map[string]string{
@@ -44,7 +47,9 @@ var req = Request{
 
 //InitServerUrl 初始化next-terminal服务器地址
 func InitServerUrl(url string) error {
+	req_mutex.Lock()
 	req.url = url
+	req_mutex.Unlock()
 	return nil
 }
 
@@ -52,8 +57,10 @@ func InitServerUrl(url string) error {
 func InitToken(username, password string) error {
 
 	//将改用户的账号密码存入程序缓存中。重启时自动清空
+	req_mutex.Lock()
 	req.UserName = username
 	req.Password = password
+	req_mutex.Unlock()
 	//_, err := req.token()
 	//if err != nil {
 	//	return fmt.Errorf("初始化token失败：%v", err)
@@ -63,6 +70,8 @@ func InitToken(username, password string) error {
 
 //NewRequest 创建一个请求头
 func NewRequest() (*Request, error) {
+	req_mutex.Lock()
+	defer req_mutex.Unlock()
 	if req.url == "" {
 		return nil, fmt.Errorf("未配置堡垒机 服务器地址")
 	}

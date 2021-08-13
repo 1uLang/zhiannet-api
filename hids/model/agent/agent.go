@@ -11,7 +11,7 @@ import (
 //agent 管理
 
 //Download agent下载
-func Download( osType string) (string, error) {
+func Download(osType string) (string, error) {
 
 	if osType != "Windows" && osType != "Linux32" && osType != "Linux64" {
 		return "", fmt.Errorf("操作系统类型参数错误")
@@ -35,7 +35,7 @@ func Download( osType string) (string, error) {
 }
 
 //Install 安装
-func Install( osType string) (string, error) {
+func Install(osType string) (string, error) {
 	if osType != "Windows" && osType != "Linux" {
 		return "", fmt.Errorf("操作系统类型参数错误")
 	}
@@ -59,15 +59,15 @@ func Install( osType string) (string, error) {
 
 //List agent安装主机列表
 func List(args *SearchReq) (list SearchResp, err error) {
-	agentList := make([]map[string]interface{},0)
-	agents,total ,err := GetList(&ListReq{UserId: args.UserId,AdminUserId: args.AdminUserId})
-	if err != nil || total == 0{
-		return list,err
+	agentList := make([]map[string]interface{}, 0)
+	agents, total, err := GetList(&ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})
+	if err != nil || total == 0 {
+		return list, err
 	}
 	contain := map[string]int{}
-	for k,v := range agents{
+	for k, v := range agents {
 		contain[v.IP] = k
-		agentList = append(agentList, map[string]interface{}{"serverIp":v.IP,"id":v.Id})
+		agentList = append(agentList, map[string]interface{}{"serverIp": v.IP, "id": v.Id})
 	}
 
 	req, err := request.NewRequest()
@@ -89,8 +89,8 @@ func List(args *SearchReq) (list SearchResp, err error) {
 
 	_, err = model.ParseResp(resp, &list)
 
-	for _,item := range list.List{
-		if idx,isExist := contain[item["serverIp"].(string)];isExist{
+	for _, item := range list.List {
+		if idx, isExist := contain[item["serverIp"].(string)]; isExist {
 			item["id"] = agentList[idx]["id"]
 			agentList[idx] = item
 		}
@@ -117,9 +117,7 @@ func Disport(macCode, opt string) error {
 		"opt":     opt,
 		"macCode": macCode,
 	}
-
-	resp, err := req.Do()
-	fmt.Println(string(resp))
+	_, err = req.Do()
 	return err
 }
 
@@ -137,7 +135,7 @@ func Update(args *UpdateReq) (err error) {
 	}
 	return updateAgent(&hidsAgents{Id: args.Id, IP: args.AgentIp, UserId: args.UserId, AdminUserId: args.AdminUserId})
 }
-func Delete(args *DeleteReq)error  {
+func Delete(args *DeleteReq) error {
 	if args.Id == 0 {
 		return fmt.Errorf("参数错误")
 	}

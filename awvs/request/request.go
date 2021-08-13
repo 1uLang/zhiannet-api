@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -31,6 +32,7 @@ type request struct {
 	Headers map[string]string
 }
 
+var req_mutx sync.RWMutex
 var req = request{
 	Method: "get",
 	Headers: map[string]string{
@@ -41,18 +43,24 @@ var req = request{
 
 //InitServerUrl 初始化awvs服务器地址
 func InitServerUrl(url string) error {
+	req_mutx.Lock()
 	req.Url = url
+	defer req_mutx.Unlock()
 	return nil
 }
 
 //InitRequestXAuth 初始化X-Auth
 func InitRequestXAuth(api *APIKeys) error {
+	req_mutx.Lock()
 	req.Headers["X-Auth"] = api.XAuth
+	req_mutx.Unlock()
 	return nil
 }
 
 //NewRequest 创建一个请求头
 func NewRequest() (*request, error) {
+	req_mutx.RLock()
+	defer req_mutx.RUnlock()
 	if req.Url == "" {
 		return nil, fmt.Errorf("未配置awvs 服务器地址")
 	}
