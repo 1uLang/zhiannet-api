@@ -114,8 +114,10 @@ func ScanServerCancel(macCodes []string) error {
 	if err != nil {
 		return err
 	}
-	_, err = model.ParseResp(resp)
-
+	info, err := model.ParseResp(resp)
+	if info["resultCode"].(float64) == 400 {
+		return fmt.Errorf(info["resultMsg"].(string))
+	}
 	return err
 
 }
