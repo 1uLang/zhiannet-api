@@ -744,6 +744,8 @@ func detailList(args *DetailReq, path string) (info DetailResp, err error) {
 		return info, err
 	}
 	_, err = model.ParseResp(resp, &info)
+	fmt.Println(info)
+	fmt.Println(string(resp))
 	return info, err
 }
 

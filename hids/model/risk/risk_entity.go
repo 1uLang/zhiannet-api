@@ -179,7 +179,7 @@ type DetailResp struct {
 	//木马病毒列表
 	ServerVirusInfoList []map[string]interface{} `json:"virusInfoList"`
 	//网页后门列表
-	WebshellInfoLis []map[string]interface{} `json:"webshellInfoLis"`
+	WebshellInfoList []map[string]interface{} `json:"serverWebshellInfoList"`
 	//反弹shell列表
 	ReboundshellInfoList []map[string]interface{} `json:"reboundshellInfoList"`
 	//异常账号列表
