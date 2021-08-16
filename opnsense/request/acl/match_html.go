@@ -186,6 +186,50 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 		})
 		info.Srcmask = srcmask
 
+		//源端口 开始
+		srcBeginPort := make([]SelectedParams, 0)
+		s.Find("tr").Find("select[name='srcbeginport'] option").Each(func(x int, sel *goquery.Selection) {
+			dataOther := false
+			if _, ok := sel.Attr("data-other"); ok {
+				dataOther = true
+			}
+			value, _ := sel.Attr("value")
+			par := SelectedParams{
+				Selected:  sel.Is("[selected='selected']"),
+				Name:      strings.TrimSpace(sel.Text()),
+				Value:     strings.TrimSpace(value),
+				DataOther: dataOther,
+			}
+			//添加时  把（单个主机网络）目标置空
+			if dataOther && !par.Selected {
+				par.Value = ""
+			}
+			srcBeginPort = append(srcBeginPort, par)
+		})
+		info.SrcBeginPort = srcBeginPort
+
+		//源端口 开始
+		srcEndPort := make([]SelectedParams, 0)
+		s.Find("tr").Find("select[name='srcendport'] option").Each(func(x int, sel *goquery.Selection) {
+			dataOther := false
+			if _, ok := sel.Attr("data-other"); ok {
+				dataOther = true
+			}
+			value, _ := sel.Attr("value")
+			par := SelectedParams{
+				Selected:  sel.Is("[selected='selected']"),
+				Name:      strings.TrimSpace(sel.Text()),
+				Value:     strings.TrimSpace(value),
+				DataOther: dataOther,
+			}
+			//添加时  把（单个主机网络）目标置空
+			if dataOther && !par.Selected {
+				par.Value = ""
+			}
+			srcEndPort = append(srcEndPort, par)
+		})
+		info.SrcEndPort = srcEndPort
+
 		//目标 反转
 		_, info.Dstnot = s.Find("tr #help_for_dst_invert").ParentFiltered("tr").Find("input[name='dstnot']").Attr("checked")
 
@@ -224,6 +268,50 @@ func InfoMatch(data io.Reader) (info *AclInfoResp, err error) {
 			dstmask = append(dstmask, par)
 		})
 		info.Dstmask = dstmask
+
+		//目标端口 开始
+		dstBeginPort := make([]SelectedParams, 0)
+		s.Find("tr").Find("select[name='dstbeginport'] option").Each(func(x int, sel *goquery.Selection) {
+			dataOther := false
+			if _, ok := sel.Attr("data-other"); ok {
+				dataOther = true
+			}
+			value, _ := sel.Attr("value")
+			par := SelectedParams{
+				Selected:  sel.Is("[selected='selected']"),
+				Name:      strings.TrimSpace(sel.Text()),
+				Value:     strings.TrimSpace(value),
+				DataOther: dataOther,
+			}
+			//添加时  把（单个主机网络）目标置空
+			if dataOther && !par.Selected {
+				par.Value = ""
+			}
+			dstBeginPort = append(dstBeginPort, par)
+		})
+		info.DstBeginPort = dstBeginPort
+
+		//目标端口 结束
+		DstEndPort := make([]SelectedParams, 0)
+		s.Find("tr").Find("select[name='srcendport'] option").Each(func(x int, sel *goquery.Selection) {
+			dataOther := false
+			if _, ok := sel.Attr("data-other"); ok {
+				dataOther = true
+			}
+			value, _ := sel.Attr("value")
+			par := SelectedParams{
+				Selected:  sel.Is("[selected='selected']"),
+				Name:      strings.TrimSpace(sel.Text()),
+				Value:     strings.TrimSpace(value),
+				DataOther: dataOther,
+			}
+			//添加时  把（单个主机网络）目标置空
+			if dataOther && !par.Selected {
+				par.Value = ""
+			}
+			DstEndPort = append(DstEndPort, par)
+		})
+		info.DstEndPort = DstEndPort
 
 		//日志
 		_, info.Log = s.Find("tr").Find("input[name='log']").Attr("checked")
