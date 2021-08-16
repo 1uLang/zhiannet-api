@@ -20,11 +20,35 @@ type (
 	}
 )
 
+func checkAgentIP(req *hidsAgents) (bool, error) {
+
+	model := db_model.MysqlConn.Model(&hidsAgents{}).Where("is_delete=?", 0).Where("ip=?", req.IP)
+	if req != nil {
+		if req.UserId > 0 {
+			model = model.Where("user_id=?", req.UserId)
+		}
+		if req.AdminUserId > 0 {
+			model = model.Where("admin_user_id=?", req.AdminUserId)
+		}
+	}
+
+	var total int64
+	err := model.Count(&total).Error
+	return total > 0, err
+}
+
 func addAgent(req *hidsAgents) (err error) {
 
 	if req == nil {
 		err = fmt.Errorf("参数错误")
 		return
+	}
+	ok, err := checkAgentIP(req)
+	if err != nil {
+		return err
+	}
+	if ok {
+		return fmt.Errorf("该IP已添加")
 	}
 	return db_model.MysqlConn.Create(&req).Error
 }
