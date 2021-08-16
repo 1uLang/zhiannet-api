@@ -229,3 +229,13 @@ func TestGetDirectDownloadURL(t *testing.T) {
 
 	t.Log(dURL)
 }
+
+func TestCreateUserV2(t *testing.T) {
+	token := GenerateToken(req)
+	param.BASE_URL = "http://localhost:8088"
+
+	err := CreateUserV2(token,"test123456","Test@test12345")
+	if err != nil {
+		t.Fatal(err)
+	}
+}

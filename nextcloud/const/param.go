@@ -25,6 +25,7 @@ const (
 
 	// 创建用户 method: POST
 	CREATE_USER = `ocs/v1.php/cloud/users`
+	CREATE_USER_V2 = `ocs/v2.php/cloud/users`
 	// 删除用户 method: DELETE
 	DELETE_USER = `ocs/v1.php/cloud/users/%s`
 	// 用户信息 method: GET
