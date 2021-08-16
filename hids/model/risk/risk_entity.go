@@ -187,9 +187,26 @@ type DetailResp struct {
 	//日志异常删除列表
 	LogDeleteInfoList []map[string]interface{} `json:"logDeleteInfoList"`
 	//异常登录列表
-	ServerAbnormalLoginInfoList []map[string]interface{} `json:"serverAbnormalLoginInfoList"`
+	ServerAbnormalLoginInfoList []map[string]interface{} `json:"abnormalLoginInfoList"`
 	//异常进程列表
 	AbnormalProcessInfoList []map[string]interface{} `json:"abnormalProcessInfoList"`
 	//系统命令篡改列表
 	SystemCmdInfoList []map[string]interface{} `json:"systemCmdInfoList"`
+}
+
+func (this *DetailResp)append(add DetailResp)  {
+	append := func(des *[]map[string]interface{},item ...map[string]interface{}) {
+		if des != nil {
+			*des = append(*des, item...)
+		}
+	}
+
+	append(&this.ServerVirusInfoList,add.ServerVirusInfoList...)
+	append(&this.WebshellInfoList,add.WebshellInfoList...)
+	append(&this.ReboundshellInfoList,add.ReboundshellInfoList...)
+	append(&this.AbnormalAccountInfoList,add.AbnormalAccountInfoList...)
+	append(&this.LogDeleteInfoList,add.LogDeleteInfoList...)
+	append(&this.ServerAbnormalLoginInfoList,add.ServerAbnormalLoginInfoList...)
+	append(&this.AbnormalProcessInfoList,add.AbnormalProcessInfoList...)
+	append(&this.SystemCmdInfoList,add.SystemCmdInfoList...)
 }
