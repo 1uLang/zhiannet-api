@@ -27,23 +27,26 @@ type (
 		ID string `json:"id"`
 	}
 	AclInfoResp struct {
-		ID         string           `json:"id"`
-		Type       []SelectedParams `json:"type"`       //操作
-		Disabled   bool             `json:"disabled"`   //状态 禁用
-		Quick      bool             `json:"quick"`      //快速
-		Interface  []SelectedParams `json:"interface"`  //接口
-		Direction  []SelectedParams `json:"direction"`  //方向
-		Ipprotocol []SelectedParams `json:"ipprotocol"` //tcp/IP版本
-		Protocol   []SelectedParams `json:"protocol"`   //协议
-		Srcnot     bool             `json:"srcnot"`     //源 反转
-		Src        []SelectedParams `json:"src"`        //源
-		Srcmask    []SelectedParams `json:"srcmask"`    //源 掩码
+		ID           string           `json:"id"`
+		Type         []SelectedParams `json:"type"`         //操作
+		Disabled     bool             `json:"disabled"`     //状态 禁用
+		Quick        bool             `json:"quick"`        //快速
+		Interface    []SelectedParams `json:"interface"`    //接口
+		Direction    []SelectedParams `json:"direction"`    //方向
+		Ipprotocol   []SelectedParams `json:"ipprotocol"`   //tcp/IP版本
+		Protocol     []SelectedParams `json:"protocol"`     //协议
+		Srcnot       bool             `json:"srcnot"`       //源 反转
+		Src          []SelectedParams `json:"src"`          //源
+		Srcmask      []SelectedParams `json:"srcmask"`      //源 掩码
+		SrcBeginPort []SelectedParams `json:"srcbeginport"` //源 开始端口范围
+		SrcEndPort   []SelectedParams `json:"srcendport"`   //源 结束端口范围
 
-		Dstnot  bool             `json:"dstnot"`  //目标反转
-		Dst     []SelectedParams `json:"dst"`     //目标
-		Dstmask []SelectedParams `json:"dstmask"` //目标 掩码
-
-		Log bool `json:"log"` //日志
+		Dstnot       bool             `json:"dstnot"`       //目标反转
+		Dst          []SelectedParams `json:"dst"`          //目标
+		Dstmask      []SelectedParams `json:"dstmask"`      //目标 掩码
+		DstBeginPort []SelectedParams `json:"dstbeginport"` //目标 开始端口范围
+		DstEndPort   []SelectedParams `json:"dstendport"`   //目标 结束端口范围
+		Log          bool             `json:"log"`          //日志
 		//Category []SelectedParams `json:"category"` //分类
 		Descr string `json:"descr"` //描述
 
@@ -75,7 +78,6 @@ func GetAclList(Interface string, apiKey *request.ApiKey) (list []*AclListResp, 
 		return ListMatch(Interface, bytes.NewReader(resp.Body()))
 	}
 	return list, err
-
 }
 
 //获取acl 详情

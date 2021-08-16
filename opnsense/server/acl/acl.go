@@ -23,11 +23,15 @@ type (
 		Ipprotocol string `json:"ipprotocol"` //tcp/IP版本
 		Protocol   string `json:"protocol"`   //协议
 		//Srcnot    bool     `json:"srcnot"`    //源 反转
-		Src     string `json:"src"`     //内部地址
-		Srcmask string `json:"srcmask"` //内部地址 掩码
+		Src          string `json:"src"`          //内部地址
+		Srcmask      string `json:"srcmask"`      //内部地址 掩码
+		SrcBeginPort string `json:"srcbeginport"` //源 开始端口
+		SrcEndPort   string `json:"srcendport"`   //源 结束端口
 		//Dstnot    bool     `json:"dstnot"`    //目标反转
-		Dst     string `json:"dst"`     //目的地
-		Dstmask string `json:"dstmask"` //目的地掩码
+		Dst          string `json:"dst"`          //目的地
+		Dstmask      string `json:"dstmask"`      //目的地掩码
+		DstBeginPort string `json:"dstbeginport"` //目标 开始端口
+		DstEndPort   string `json:"dstendport"`   //目标 结束端口
 		//Category  []string `json:"category"`  //分类 多选
 		Descr string `json:"descr"` //描述
 	}
@@ -247,6 +251,10 @@ func supplyData(req *SaveAclReq, info *acl.AclInfoResp) (res map[string]string, 
 	res["dstmask"] = req.Dstmask
 	res["descr"] = req.Descr
 	res["id"] = req.ID
+	res["srcbeginport"] = req.SrcBeginPort
+	res["srcendport"] = req.SrcEndPort
+	res["dstbeginport"] = req.DstBeginPort
+	res["dstendport"] = req.DstEndPort
 	return res, err
 }
 
