@@ -24,7 +24,7 @@ func Test_acl_list(t *testing.T) {
 
 //获取详情
 func Test_acl_info(t *testing.T) {
-	res, err := GetAclInfo(&InfoReq{NodeId: 12, ID: "3"})
+	res, err := GetAclInfo(&InfoReq{NodeId: 2, ID: "5"})
 	r, _ := json.Marshal(res)
 	fmt.Println(gjson.ParseBytes(r).Value())
 	fmt.Println(err)
@@ -32,18 +32,20 @@ func Test_acl_info(t *testing.T) {
 
 //添加修改
 func Test_acl_save(t *testing.T) {
-	res, err := SaveAcl(&SaveAclReq{NodeId: 12, ID: "7",
-		Type:       "pass",
-		Disabled:   false,
-		Interface:  "lan",
-		Direction:  "in",
-		Ipprotocol: "inet",
-		Protocol:   "any",
-		Src:        "192.1.1.1",
-		Srcmask:    "24",
-		Dst:        "112.1.1.1",
-		Dstmask:    "24",
-		Descr:      "api create 1212",
+	res, err := SaveAcl(&SaveAclReq{NodeId: 2, ID: "5",
+		Type:         "pass",
+		Disabled:     false,
+		Interface:    "lan",
+		Direction:    "in",
+		Ipprotocol:   "inet",
+		Protocol:     "tcp",
+		Src:          "192.1.1.1",
+		Srcmask:      "24",
+		Dst:          "112.1.1.1",
+		Dstmask:      "24",
+		Descr:        "api create 1212",
+		SrcBeginPort: "12345",
+		SrcEndPort:   "12345",
 	})
 	r, _ := json.Marshal(res)
 	fmt.Println(gjson.ParseBytes(r).Value())
