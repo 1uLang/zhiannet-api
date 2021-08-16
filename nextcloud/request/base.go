@@ -6,13 +6,15 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
-	"github.com/1uLang/zhiannet-api/utils"
 	"io"
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
+	"github.com/1uLang/zhiannet-api/utils"
 
 	cm_model "github.com/1uLang/zhiannet-api/common/model"
 	param "github.com/1uLang/zhiannet-api/nextcloud/const"
@@ -199,4 +201,58 @@ func ConnNextcloudWithAdmin(name, passwd string) error {
 	}
 
 	return nil
+}
+
+// InitialAdminUser 获取数据库中配置的用户名密码
+func InitialAdminUser() {
+	sn := model.Subassemblynode{}
+	cm_model.MysqlConn.Model(&model.Subassemblynode{}).Where("type = 8 AND state = 1 AND is_delete = 0").First(&sn)
+	// 判断addr是否发生了变更
+	ss := strings.Split(param.BASE_URL, `//`)
+	var flag = false
+	if ss[1] != sn.Addr {
+		flag = true
+	}
+	if sn.ID > 0 {
+		param.AdminUser = sn.Key
+		param.AdminPasswd = sn.Secret
+		// param.BASE_URL = sn.Addr
+		if sn.IsSSL == 1 {
+			param.BASE_URL = fmt.Sprintf(`https://%s`, sn.Addr)
+		} else {
+			param.BASE_URL = fmt.Sprintf(`http://%s`, sn.Addr)
+		}
+	}
+	if flag {
+		// 更新用户数据库
+		wg := sync.WaitGroup{}
+		passwd := `adminAd#@2021`
+		token := GetAdminToken()
+		ncTokens := []model.NextCloudToken{}
+		cm_model.MysqlConn.Model(&model.NextCloudToken{}).Find(&ncTokens)
+		if len(ncTokens) <= 100 {
+			wg.Add(len(ncTokens))
+		} else {
+			wg.Add(100)
+		}
+		for _, v := range ncTokens {
+			go func(user string) {
+				defer wg.Done()
+
+				updateNCToken(token, user, passwd)
+			}(v.User)
+		}
+		wg.Wait()
+	}
+}
+
+func updateNCToken(token, user, passwd string) {
+	err := CreateUser(token, user, passwd)
+	nToken := GenerateToken(&model.LoginReq{
+		User: user,
+		Password: passwd,
+	})
+	if err == nil {
+		cm_model.MysqlConn.Model(&model.NextCloudToken{}).Where("user = ?",user).UpdateColumn("token",nToken)
+	}
 }
