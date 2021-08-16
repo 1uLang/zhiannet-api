@@ -9,13 +9,12 @@ import (
 	param "github.com/1uLang/zhiannet-api/nextcloud/const"
 	//"github.com/spf13/viper"
 	//"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
-var (
-	db  *gorm.DB
-	dsn string
-)
+// var (
+// 	db  *gorm.DB
+// 	dsn string
+// )
 
 // func init() {
 // 加载配置文件
