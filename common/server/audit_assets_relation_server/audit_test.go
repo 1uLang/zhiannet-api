@@ -20,10 +20,10 @@ func Test_list(t *testing.T) {
 
 func Test_add(t *testing.T) {
 	e := Reset(&audit_assets_relation.AddReq{
-		UserId:      1,
-		AdminUserId: 0,
-		AuditId:     []string{"112312312312"},
-		AssetsType:  0,
+		//UserId:      1,
+		//AdminUserId: 0,
+		//AuditId:     []string{"112312312312"},
+		AssetsType: 0,
 	})
 	fmt.Println(e)
 }
