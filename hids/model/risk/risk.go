@@ -469,7 +469,8 @@ func SystemDistributed(args *SearchReq) (info SystemDistributedResp, err error) 
 		return info, err
 	}
 	ret = ret["data"].(map[string]interface{})
-	info.Host, _ = util.Interface2Int(ret["totalData"])
+
+	host := 0
 	for _, v := range ret["systemRiskDistributionInfoList"].([]interface{}) {
 		node := v.(map[string]interface{})
 
@@ -485,9 +486,11 @@ func SystemDistributed(args *SearchReq) (info SystemDistributedResp, err error) 
 		info.Middle += middle
 		info.High += high
 		info.Critical += critical
+		host ++
 		info.List = append(info.List, node)
 	}
 	info.Total = info.Low + info.Middle + info.High + info.Critical
+	info.Host = host
 	return info, err
 }
 
@@ -529,7 +532,7 @@ func WeakList(args *SearchReq) (info SystemDistributedResp, err error) {
 		return info, err
 	}
 	ret = ret["data"].(map[string]interface{})
-	info.Host, _ = util.Interface2Int(ret["totalData"])
+	host := 0
 	for _, v := range ret["weakDistributionInfoList"].([]interface{}) {
 		node := v.(map[string]interface{})
 
@@ -545,9 +548,11 @@ func WeakList(args *SearchReq) (info SystemDistributedResp, err error) {
 		info.Middle += middle
 		info.High += high
 		info.Critical += critical
+		host ++
 		info.List = append(info.List, node)
 	}
 	info.Total = info.Low + info.Middle + info.High + info.Critical
+	info.Host = host
 	return info, err
 }
 
@@ -589,7 +594,7 @@ func DangerAccountList(args *SearchReq) (info SystemDistributedResp, err error) 
 		return info, err
 	}
 	ret = ret["data"].(map[string]interface{})
-	info.Host, _ = util.Interface2Int(ret["totalData"])
+	host := 0
 	for _, v := range ret["dangerAccountDistributionInfoList"].([]interface{}) {
 		node := v.(map[string]interface{})
 
@@ -605,9 +610,11 @@ func DangerAccountList(args *SearchReq) (info SystemDistributedResp, err error) 
 		info.Middle += middle
 		info.High += high
 		info.Critical += critical
+		host ++
 		info.List = append(info.List, node)
 	}
 	info.Total = info.Low + info.Middle + info.High + info.Critical
+	info.Host = host
 	return info, err
 }
 

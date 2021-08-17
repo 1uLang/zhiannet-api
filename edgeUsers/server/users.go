@@ -26,3 +26,6 @@ func FindUserFeatures(req *model.FindUserFeaturesReq) ([]string, error) {
 func UpdateUserFeatures(req *model.UpdateUserFeaturesReq) error {
 	return model.UpdateUserFeatures(req)
 }
+func GetParentId(req *model.GetParentIdReq)(uint64,error)  {
+	return model.GetParentId(req)
+}

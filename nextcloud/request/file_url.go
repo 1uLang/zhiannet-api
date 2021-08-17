@@ -18,6 +18,7 @@ import (
 
 // ListFoldersWithPath 通过url获取文件列表
 func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, error) {
+	getNCInfo()
 	var lfr model.ListFoldersResp
 	var fl model.FolderList
 	if param.BASE_URL == "" || param.AdminUser == "" || param.AdminPasswd == "" {
@@ -99,6 +100,7 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 
 // DownLoadFileWithPath 下载文件 method: GET
 func DownLoadFileWithPath(token, path string) (*http.Response, error) {
+	getNCInfo()
 	// 拼接下载路径，默认为根目录
 	if string([]rune(path)[len([]rune(path))-1]) == "/" {
 		return nil, errors.New("请输入正确的文件路径")
@@ -124,6 +126,7 @@ func DownLoadFileWithPath(token, path string) (*http.Response, error) {
 
 // DownLoadFileURLWithPath 根据path获取文件url
 func DownLoadFileURLWithPath(path string) (string, error) {
+	getNCInfo()
 	if path == "" {
 		return "", errors.New("请输入正确的文件路径")
 	}
@@ -138,6 +141,7 @@ func DownLoadFileURLWithPath(path string) (string, error) {
 
 // DeleteFileWithPath 删除文件 Method: DELETE
 func DeleteFileWithPath(token, path string) error {
+	getNCInfo()
 	// 解析token获取用户名
 	_, err := ParseToken(token)
 	if err != nil {
@@ -189,6 +193,7 @@ func DeleteFileWithPath(token, path string) error {
 
 // UploadFileWithPath 上传文件，默认上传到根目录 method: PUT
 func UploadFileWithPath(token, fileName string, f io.Reader, dirPath ...string) error {
+	getNCInfo()
 	// 解析token获取用户名
 	user, err := ParseToken(token)
 	if err != nil {
@@ -231,6 +236,7 @@ func UploadFileWithPath(token, fileName string, f io.Reader, dirPath ...string) 
 
 // GetDirectDownloadURL 获取下载直链
 func GetDirectDownloadURL(fileID int64, token string) (string, error) {
+	getNCInfo()
 	// 跳过证书验证
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},

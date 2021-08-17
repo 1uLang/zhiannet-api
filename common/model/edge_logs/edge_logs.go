@@ -37,9 +37,15 @@ type (
 )
 
 func GetList(req *UserLogReq) (list []*UserLogResp, total int64, err error) {
+	parentIds := []uint64{}
+	info := &edge_users.EdgeUsers{}
+	err = model.MysqlConn.Table("edgeUsers").Where("edgeUsers.id=?", req.UserId).Find(&info).Error
+	if err != nil {
+		return
+	}
 	list = make([]*UserLogResp, 0)
 	parentId := []*edge_users.EdgeUsers{}
-	pid,err := edge_users_model.GetParentId(req.UserId)
+	pid,err := edge_users_model.GetParentId(&edge_users_model.GetParentIdReq{UserId: req.UserId})
 	if err != nil {
 		return nil, 0, err
 	}
@@ -51,7 +57,6 @@ func GetList(req *UserLogReq) (list []*UserLogResp, total int64, err error) {
 	if err != nil {
 		return
 	}
-	parentIds := []uint64{req.UserId}
 	for _, v := range parentId {
 		parentIds = append(parentIds, v.ID)
 	}
@@ -85,17 +90,15 @@ func GetList(req *UserLogReq) (list []*UserLogResp, total int64, err error) {
 }
 
 func GetNum(req *UserLogReq) (total int64, err error) {
+	parentIds := []uint64{}
 	parentId := []*edge_users.EdgeUsers{}
-	pid,err := edge_users_model.GetParentId(req.UserId)
+	pid,err := edge_users_model.GetParentId(&edge_users_model.GetParentIdReq{UserId: req.UserId})
 	sqlStr := fmt.Sprintf("edgeUsers.id=%v or edgeUsers.parentId= '%v'",req.UserId,req.UserId)
 	if pid > 0 {
 		sqlStr = fmt.Sprintf("edgeUsers.id=%v or edgeUsers.parentId= '%v'",pid,pid)
 	}
 	err = model.MysqlConn.Table("edgeUsers").Where(sqlStr).Find(&parentId).Error
-	if err != nil {
-		return
-	}
-	parentIds := []uint64{req.UserId}
+
 	for _, v := range parentId {
 		parentIds = append(parentIds, v.ID)
 	}

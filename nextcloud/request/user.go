@@ -16,6 +16,7 @@ import (
 
 // CreateUser 创建用户
 func CreateUser(token, user, passwd string) error {
+	getNCInfo()
 	uRL := fmt.Sprintf("%s/%s", param.BASE_URL, param.CREATE_USER)
 
 	tr := &http.Transport{
@@ -63,6 +64,7 @@ func CreateUser(token, user, passwd string) error {
 }
 
 func CreateUserV2(token, user, pwd string) error {
+	getNCInfo()
 	cUserURL := fmt.Sprintf("%s/%s", param.BASE_URL, param.CREATE_USER_V2)
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},

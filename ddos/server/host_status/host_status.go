@@ -60,6 +60,7 @@ type (
 		UdpConn      float64 `json:"udp_conn"`      //udp  连接数
 		UserName     string  `json:"user_name"`     //用户名
 		Remark       string  `json:"remark"`        //备注
+		NodeId 		 uint64 `json:"node_id"`
 	}
 )
 
@@ -105,14 +106,14 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 		return
 	}
 	hostMap := make(map[string]uint64, len(list))
-	remarkMap := make(map[string]string, len(list))
+	itemsMap := make(map[string]*ddos_host_ip.DdosHostIp, len(list))
 	//userMap := make(map[string]uint64, 0)
 	apiReq := &host_status.HostReq{}
 	for _, v := range list {
 		//对应IP地址
 		apiReq.Addr = append(apiReq.Addr, v.Addr)
 		hostMap[v.Addr] = v.Id
-		remarkMap[v.Addr] = v.Remark
+		itemsMap[v.Addr] = v
 		//对应用户ID
 		//userMap[v.Addr] = v.UserId
 	}
@@ -138,7 +139,8 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 	for k, v := range hostList { //所有ip的数据
 		l := &HostListResp{
 			Addr: v.Netaddr,
-			Remark: remarkMap[v.Netaddr],
+			Remark: itemsMap[v.Netaddr].Remark,
+			NodeId: itemsMap[v.Netaddr].NodeId,
 			//UserName: "",
 		} //获取用户信息
 		//if userId, ok := userMap[v.Netaddr]; ok {
@@ -201,6 +203,25 @@ func GetUserInfoByUid(req map[string]uint64) (list map[uint64]*edge_users.EdgeUs
 	return edge_users.GetListByUid(uids)
 }
 
+func UpdateAddr(req *ddos_host_ip.UpdateHost) (err error) {
+
+	o ,err := ddos_host_ip.Info(req.Id)
+	if err != nil {
+		return err
+	}
+	if o.NodeId != req.NodeId || o.Addr != req.Addr {
+		//先删除 后添加
+		err = DeleteAddr([]uint64{req.Id})
+		if err != nil {
+			return err
+		}
+		_,err  = AddAddr(&req.AddHost)
+		return err
+	}else{
+		_,err = ddos_host_ip.Edit(&req.AddHost,req.Id)
+		return err
+	}
+}
 //添加高仿IP
 func AddAddr(req *ddos_host_ip.AddHost) (id uint64, err error) {
 	//添加ip到数据库

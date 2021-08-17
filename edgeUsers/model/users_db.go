@@ -80,9 +80,12 @@ type (
 		UserId   int64
 		Features string
 	}
+	GetParentIdReq struct {
+		UserId   uint64
+	}
 )
 
-var edgeUserTableName = "edgeUsers"
+var edgeUserTableName = "edgeusers"
 
 //获取节点
 func GetList(req *ListReq) (list []*EdgeusersResp, err error) {
@@ -142,7 +145,7 @@ func CheckUserUsername(req *CheckUserNameReq) (bool, error) {
 	if req.Username == "" {
 		return false, fmt.Errorf("参数错误")
 	}
-	user_model := model.MysqlConn.Table(edgeUserTableName).Where("username=?", req.Username)
+	user_model := model.MysqlConn.Table(edgeUserTableName).Where("username=?", req.Username).Where("state=0")
 	if req.UserId != 0 {
 		user_model = user_model.Where("id!=?", req.UserId)
 	}
@@ -179,6 +182,17 @@ func UpdateUser(req *UpdateUserReq) error {
 		ent.Features = "[]"
 	}
 	return model.MysqlConn.Table(edgeUserTableName).Where("id=?", req.Id).Save(&ent).Error
+}
+func GetParentId(req *GetParentIdReq) (uint64, error) {
+	if req.UserId == 0 {
+		return 0, fmt.Errorf("参数错误")
+	}
+	user := Edgeusers{}
+	err := model.MysqlConn.Table(edgeUserTableName).Where("id=?", req.UserId).Find(&user).Error
+	if err != nil {
+		return 0, err
+	}
+	return user.ParentId,nil
 }
 func CreateUser(req *CreateUserReq) (uint64, error) {
 

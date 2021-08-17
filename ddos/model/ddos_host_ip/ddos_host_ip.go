@@ -22,6 +22,10 @@ type (
 		PageNum  int    `json:"page_num"`
 		PageSize int    `json:"page_size"`
 	}
+	UpdateHost struct {
+		Id uint64
+		AddHost
+	}
 	AddHost struct {
 		Addr   string `json:"addr" gorm:"column:addr"`       // ip地址
 		NodeId uint64 `json:"node_id" gorm:"column:node_id"` // 节点ID
@@ -112,6 +116,7 @@ func Edit(req *AddHost, id uint64) (rows int64, err error) {
 	}
 	entity.NodeId = req.NodeId
 	entity.Addr = req.Addr
+	entity.Remark = req.Remark
 	res := model.MysqlConn.Model(&DdosHostIp{}).Where("id=?", id).Save(&entity)
 	if res.Error != nil {
 		err = res.Error
@@ -119,6 +124,12 @@ func Edit(req *AddHost, id uint64) (rows int64, err error) {
 	}
 	rows = res.RowsAffected
 	return
+}
+//查询
+func Info( id uint64) (ent *DdosHostIp, err error) {
+	var entity DdosHostIp
+	err = model.MysqlConn.Where("id=?", id).Find(&entity).Error
+	return &entity,err
 }
 
 //删除
