@@ -239,20 +239,20 @@ func InitialAdminUser() {
 			go func(user string) {
 				defer wg.Done()
 
-				updateNCToken(token, user, passwd)
+				CreateUserV2(token, user, passwd)
 			}(v.User)
 		}
 		wg.Wait()
 	}
 }
 
-func updateNCToken(token, user, passwd string) {
-	err := CreateUser(token, user, passwd)
-	nToken := GenerateToken(&model.LoginReq{
-		User: user,
-		Password: passwd,
-	})
-	if err == nil {
-		cm_model.MysqlConn.Model(&model.NextCloudToken{}).Where("user = ?",user).UpdateColumn("token",nToken)
-	}
-}
+// func updateNCToken(token, user, passwd string) {
+// 	err := CreateUser(token, user, passwd)
+// 	nToken := GenerateToken(&model.LoginReq{
+// 		User: user,
+// 		Password: passwd,
+// 	})
+// 	if err == nil {
+// 		cm_model.MysqlConn.Model(&model.NextCloudToken{}).Where("user = ?",user).UpdateColumn("token",nToken)
+// 	}
+// }
