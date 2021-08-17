@@ -236,11 +236,19 @@ func InitialAdminUser() {
 			wg.Add(100)
 		}
 		for _, v := range ncTokens {
-			go func(user string) {
+			go func(v model.NextCloudToken) {
 				defer wg.Done()
-
-				CreateUserV2(token, user, passwd)
-			}(v.User)
+				// 特殊处理admin账号
+				if v.UID == 1 && v.Kind == 1 {
+					nToken := GenerateToken(&model.LoginReq{
+						User:     param.AdminUser,
+						Password: param.AdminPasswd,
+					})
+					cm_model.MysqlConn.Model(&model.NextCloudToken{}).Where("id = ?", v.ID).UpdateColumn("token", nToken)
+				} else {
+					CreateUserV2(token, v.User, passwd)
+				}
+			}(v)
 		}
 		wg.Wait()
 	}
