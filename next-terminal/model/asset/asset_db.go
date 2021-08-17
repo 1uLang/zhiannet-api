@@ -19,6 +19,15 @@ type (
 	}
 )
 
+//初始化建表
+func InitTable()  {
+	err := db_model.MysqlConn.Exec(asset_db_sql).Error
+	if err != nil {
+		fmt.Println("初始化建表，失败：",err.Error())
+		return
+	}
+}
+
 func addAsset(req *nextTerminalAssets)(err error  ){
 
 	if req == nil {

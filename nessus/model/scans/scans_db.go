@@ -35,6 +35,20 @@ type (
 	}
 )
 
+//初始化建表
+func InitTable()  {
+	err := db_model.MysqlConn.Exec(scans_db_sql).Error
+	if err != nil {
+		fmt.Println("初始化建表，失败：",err.Error())
+		return
+	}
+	err = db_model.MysqlConn.Exec(scans_report_db_sql).Error
+	if err != nil {
+		fmt.Println("初始化建表，失败：",err.Error())
+		return
+	}
+}
+
 func GetInfo(id string) (info NessusScans, err error) {
 	var entity NessusScans
 	err = db_model.MysqlConn.Model(&NessusScans{}).Where("scans_id=?", id).Where("is_delete=0").Find(&entity).Error

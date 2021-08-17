@@ -20,6 +20,15 @@ type (
 	}
 )
 
+//初始化建表
+func InitTable() {
+	err := db_model.MysqlConn.Exec(agent_db_sql).Error
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
+}
+
 func checkAgentIP(req *hidsAgents) (bool, error) {
 
 	model := db_model.MysqlConn.Model(&hidsAgents{}).Where("is_delete=?", 0).Where("ip=?", req.IP)

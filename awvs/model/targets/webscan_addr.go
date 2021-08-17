@@ -3,6 +3,7 @@ package targets
 import (
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/model"
+	db_model "github.com/1uLang/zhiannet-api/common/model"
 )
 
 type (
@@ -22,6 +23,20 @@ type (
 		TargetId    string `gorm:"column:target_id" json:"target_id" form:"target_id"`             //扫描ID
 	}
 )
+
+//初始化建表
+func InitTable() {
+	err := db_model.MysqlConn.Exec(webscan_addr_db_sql).Error
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
+	err = db_model.MysqlConn.Exec(webscan_report_db_sql).Error
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
+}
 
 //获取列表信息
 

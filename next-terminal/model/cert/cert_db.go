@@ -21,6 +21,14 @@ type (
 	}
 )
 
+//初始化建表
+func InitTable()  {
+	err := db_model.MysqlConn.Exec(cert_db_sql).Error
+	if err != nil {
+		fmt.Println("初始化建表，失败：",err.Error())
+		return
+	}
+}
 func getList(req *listReq) (list []*nextTerminalCert, total int64, err error) {
 	//从数据库获取
 	model := db_model.MysqlConn.Model(&nextTerminalCert{}).Where("is_delete=?", 0)
