@@ -35,13 +35,23 @@ type (
 )
 
 func GetList(req *UserLogReq) (list []*UserLogResp, total int64, err error) {
-	list = make([]*UserLogResp, 0)
-	parentId := []*edge_users.EdgeUsers{}
-	err = model.MysqlConn.Table("edgeUsers").Where("edgeUsers.id=? or edgeUsers.parentId=?", req.UserId, req.UserId).Find(&parentId).Error
+	info := &edge_users.EdgeUsers{}
+	err = model.MysqlConn.Table("edgeUsers").Where("edgeUsers.id=?", req.UserId).Find(&info).Error
 	if err != nil {
 		return
 	}
+	list = make([]*UserLogResp, 0)
+	parentId := []*edge_users.EdgeUsers{}
 	parentIds := []uint64{req.UserId}
+	userlist := model.MysqlConn.Table("edgeUsers").Where("edgeUsers.parentId=?", req.UserId)
+	if info.ParentId > 0 {
+		userlist = userlist.Or("edgeUsers.id=?", info.ParentId)
+	}
+	err = userlist.Find(&parentId).Error
+	if err != nil {
+		return
+	}
+
 	for _, v := range parentId {
 		parentIds = append(parentIds, v.ID)
 	}
@@ -75,12 +85,24 @@ func GetList(req *UserLogReq) (list []*UserLogResp, total int64, err error) {
 }
 
 func GetNum(req *UserLogReq) (total int64, err error) {
-	parentId := []*edge_users.EdgeUsers{}
-	err = model.MysqlConn.Table("edgeUsers").Where("edgeUsers.id=? or edgeUsers.parentId=?", req.UserId, req.UserId).Find(&parentId).Error
+	info := &edge_users.EdgeUsers{}
+	err = model.MysqlConn.Table("edgeUsers").Where("edgeUsers.id=?", req.UserId).Find(&info).Error
 	if err != nil {
 		return
 	}
+	parentId := []*edge_users.EdgeUsers{}
 	parentIds := []uint64{req.UserId}
+	userlist := model.MysqlConn.Table("edgeUsers").Where("edgeUsers.parentId=?", req.UserId)
+	if info.ParentId > 0 {
+		userlist = userlist.Or("edgeUsers.id=?", info.ParentId)
+	}
+	err = userlist.Find(&parentId).Error
+	if err != nil {
+		return
+	}
+	for _, v := range parentId {
+		parentIds = append(parentIds, v.ID)
+	}
 	//从数据库获取
 	model := model.MysqlConn.Table("edgeLogs").Where("userId in(?)", parentIds)
 	if req.Keyword != "" {
