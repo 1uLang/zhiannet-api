@@ -11,7 +11,7 @@ type (
 		ScansId     uint64 `gorm:"column:scans_id" json:"scans_id" form:"scans_id"`                //资产ID
 		UserId      uint64 `gorm:"column:user_id" json:"user_id" form:"user_id"`                   //用户ID
 		AdminUserId uint64 `gorm:"column:admin_user_id" json:"admin_user_id" form:"admin_user_id"` //admin用户ID
-		IsDelete    int    `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除
+		IsDelete    uint8  `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除
 		CreateTime  int    `gorm:"column:create_time" json:"create_time" form:"create_time"`       //创建时间
 		Description string `gorm:"column:description" json:"description" form:"description"`       //备注
 		Addr        string `gorm:"column:addr" json:"addr" form:"addr"`                            //备注
@@ -29,22 +29,22 @@ type (
 		HistoryId   uint64 `gorm:"column:history_id" json:"history_id" form:"history_id"`          //资产ID
 		UserId      uint64 `gorm:"column:user_id" json:"user_id" form:"user_id"`                   //用户ID
 		AdminUserId uint64 `gorm:"column:admin_user_id" json:"admin_user_id" form:"admin_user_id"` //admin用户ID
-		IsDelete    int    `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除
-		CreateTime  int64    `gorm:"column:create_time" json:"create_time" form:"create_time"`       //创建时间
-		Addr 		string `gorm:"column:addr" json:"addr" form:"addr"`                            //备注
+		IsDelete    uint8  `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除
+		CreateTime  int64  `gorm:"column:create_time" json:"create_time" form:"create_time"`       //创建时间
+		Addr        string `gorm:"column:addr" json:"addr" form:"addr"`                            //备注
 	}
 )
 
 //初始化建表
-func InitTable()  {
-	err := db_model.MysqlConn.Exec(scans_db_sql).Error
+func InitTable() {
+	err := db_model.MysqlConn.AutoMigrate(&NessusScans{})
 	if err != nil {
-		fmt.Println("初始化建表，失败：",err.Error())
+		fmt.Println("初始化建表，失败：", err.Error())
 		return
 	}
-	err = db_model.MysqlConn.Exec(scans_report_db_sql).Error
+	err = db_model.MysqlConn.AutoMigrate(&NessusScanReport{})
 	if err != nil {
-		fmt.Println("初始化建表，失败：",err.Error())
+		fmt.Println("初始化建表，失败：", err.Error())
 		return
 	}
 }
@@ -134,7 +134,7 @@ func DeleteByIds(ids []uint64) (err error) {
 	return res.Error
 }
 
-func AddScansReport(req *NessusScanReport)  (err error){
+func AddScansReport(req *NessusScanReport) (err error) {
 	if req == nil {
 		err = fmt.Errorf("参数错误")
 		return
@@ -146,12 +146,12 @@ func AddScansReport(req *NessusScanReport)  (err error){
 	}
 	return nil
 }
-func DeleteScansReportById(ids []string)(err error)  {
+func DeleteScansReportById(ids []string) (err error) {
 	res := db_model.MysqlConn.Model(&NessusScanReport{}).Where("id in (?)", ids).Update("is_delete", 1)
 	return res.Error
 }
 
-func DeleteScansReportByHistoryId(id,historyId string)(err error)  {
+func DeleteScansReportByHistoryId(id, historyId string) (err error) {
 	res := db_model.MysqlConn.Model(&NessusScanReport{}).Where("scans_id = ?", id).Where("history_id = ?", historyId).Update("is_delete", 1)
 	return res.Error
 }

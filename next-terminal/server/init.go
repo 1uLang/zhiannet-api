@@ -6,6 +6,7 @@ import (
 	"github.com/1uLang/zhiannet-api/hids/model/user"
 	"github.com/1uLang/zhiannet-api/next-terminal/model"
 	asset_model "github.com/1uLang/zhiannet-api/next-terminal/model/asset"
+	cert_model "github.com/1uLang/zhiannet-api/next-terminal/model/cert"
 	"github.com/1uLang/zhiannet-api/next-terminal/request"
 )
 
@@ -73,4 +74,9 @@ func (this *CheckRequest) Run() {
 	if id > 0 {
 		subassemblynode.UpdateConnState(id, conn)
 	}
+}
+
+func InitTable() {
+	cert_model.InitTable()
+	asset_model.InitTable()
 }

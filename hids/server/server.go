@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/hids/model"
+	"github.com/1uLang/zhiannet-api/hids/model/agent"
 	"github.com/1uLang/zhiannet-api/hids/model/user"
 	"github.com/1uLang/zhiannet-api/hids/request"
 )
@@ -66,4 +67,9 @@ func (this *CheckRequest) Run() {
 		subassemblynode.UpdateConnState(id, conn)
 	}
 
+}
+
+func InitTable()  {
+
+	agent.InitTable()
 }

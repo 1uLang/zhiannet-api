@@ -64,3 +64,7 @@ func (this *CheckRequest) Run() {
 	}
 
 }
+
+func InitTable() {
+	scans.InitTable()
+}
