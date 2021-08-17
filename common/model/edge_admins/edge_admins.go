@@ -5,20 +5,36 @@ import (
 	"time"
 )
 
-type EdgeAdmins struct {
-	Id        uint64 `gorm:"column:id" json:"id" form:"id"`                      //ID
-	Ison      uint8  `gorm:"column:isOn" json:"isOn" form:"isOn"`                //是否启用
-	Username  string `gorm:"column:username" json:"username" form:"username"`    //用户名
-	Password  string `gorm:"column:password" json:"password" form:"password"`    //密码
-	Fullname  string `gorm:"column:fullname" json:"fullname" form:"fullname"`    //全名
-	Issuper   uint8  `gorm:"column:isSuper" json:"isSuper" form:"isSuper"`       //是否为超级管理员
-	CreatedAt uint64 `gorm:"column:createdAt" json:"createdAt" form:"createdAt"` //创建时间
-	UpdatedAt uint64 `gorm:"column:updatedAt" json:"updatedAt" form:"updatedAt"` //修改时间
-	State     uint8  `gorm:"column:state" json:"state" form:"state"`             //状态
-	Modules   string `gorm:"column:modules" json:"modules" form:"modules"`       //允许的模块
-	CanLogin  uint8  `gorm:"column:canLogin" json:"canLogin" form:"canLogin"`    //是否可以登录
-	Theme     string `gorm:"column:theme" json:"theme" form:"theme"`             //模板设置
-	PwdAt     uint64 `gorm:"column:pwdAt" json:"pwdAt" form:"pwdAt"`             //密码修改时间
+type (
+	EdgeAdmins struct {
+		Id        uint64 `gorm:"column:id" json:"id" form:"id"`                      //ID
+		Ison      uint8  `gorm:"column:isOn" json:"isOn" form:"isOn"`                //是否启用
+		Username  string `gorm:"column:username" json:"username" form:"username"`    //用户名
+		Password  string `gorm:"column:password" json:"password" form:"password"`    //密码
+		Fullname  string `gorm:"column:fullname" json:"fullname" form:"fullname"`    //全名
+		Issuper   uint8  `gorm:"column:isSuper" json:"isSuper" form:"isSuper"`       //是否为超级管理员
+		CreatedAt uint64 `gorm:"column:createdAt" json:"createdAt" form:"createdAt"` //创建时间
+		UpdatedAt uint64 `gorm:"column:updatedAt" json:"updatedAt" form:"updatedAt"` //修改时间
+		State     uint8  `gorm:"column:state" json:"state" form:"state"`             //状态
+		Modules   string `gorm:"column:modules" json:"modules" form:"modules"`       //允许的模块
+		CanLogin  uint8  `gorm:"column:canLogin" json:"canLogin" form:"canLogin"`    //是否可以登录
+		Theme     string `gorm:"column:theme" json:"theme" form:"theme"`             //模板设置
+		PwdAt     uint64 `gorm:"column:pwdAt" json:"pwdAt" form:"pwdAt"`             //密码修改时间
+	}
+)
+
+func GetList() (list []*EdgeAdmins, total int64, err error) {
+	model := model.MysqlConn.Table("edgeAdmins").Where("isOn=?", 1)
+	err = model.Count(&total).Error
+	if err != nil || total == 0 {
+		return
+	}
+	err = model.Order("id desc").Find(&list).Error
+	if err != nil {
+		return
+	}
+
+	return
 }
 
 func GetListByUid(req []uint64) (resMap map[uint64]*EdgeAdmins, total int64, err error) {
