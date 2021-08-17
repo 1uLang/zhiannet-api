@@ -59,6 +59,7 @@ type (
 		TcpConnOut   float64 `json:"tcp_conn_out"`  //tcp out 连接数
 		UdpConn      float64 `json:"udp_conn"`      //udp  连接数
 		UserName     string  `json:"user_name"`     //用户名
+		Remark       string  `json:"remark"`        //备注
 	}
 )
 
@@ -104,14 +105,16 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 		return
 	}
 	hostMap := make(map[string]uint64, len(list))
-	userMap := make(map[string]uint64, 0)
+	remarkMap := make(map[string]string, len(list))
+	//userMap := make(map[string]uint64, 0)
 	apiReq := &host_status.HostReq{}
 	for _, v := range list {
 		//对应IP地址
 		apiReq.Addr = append(apiReq.Addr, v.Addr)
 		hostMap[v.Addr] = v.Id
+		remarkMap[v.Addr] = v.Remark
 		//对应用户ID
-		userMap[v.Addr] = v.UserId
+		//userMap[v.Addr] = v.UserId
 	}
 	//获取节点信息
 	logReq, err := server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
@@ -127,21 +130,22 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 	//	Addr: "all",
 	//}
 	//使用uid 获取用户信息
-	userList, _, err := GetUserInfoByUid(userMap)
-	if err != nil {
-		return
-	}
+	//userList, _, err := GetUserInfoByUid(userMap)
+	//if err != nil {
+	//	return
+	//}
 
 	for k, v := range hostList { //所有ip的数据
 		l := &HostListResp{
 			Addr: v.Netaddr,
+			Remark: remarkMap[v.Netaddr],
 			//UserName: "",
 		} //获取用户信息
-		if userId, ok := userMap[v.Netaddr]; ok {
-			if username, ok := userList[userId]; ok {
-				l.UserName = username.Username
-			}
-		}
+		//if userId, ok := userMap[v.Netaddr]; ok {
+		//	if username, ok := userList[userId]; ok {
+		//		l.UserName = username.Username
+		//	}
+		//}
 		if id, ok := hostMap[v.Netaddr]; ok { //ddos_host_id表的ID
 			l.HostId = id
 		}

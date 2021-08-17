@@ -194,7 +194,7 @@ func VirusList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	var totalData int
 	for _, item := range ret.VirusCountInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
-			count,_ := util.Interface2Int(item["count"])
+			count, _ := util.Interface2Int(item["count"])
 			totalData += count
 			agentList = append(agentList, item)
 		}
@@ -227,7 +227,7 @@ func WebShellList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	var totalData int
 	for _, item := range ret.WebshellCountInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
-			count,_ := util.Interface2Int(item["count"])
+			count, _ := util.Interface2Int(item["count"])
 			totalData += count
 			agentList = append(agentList, item)
 		}
@@ -260,7 +260,7 @@ func ReboundList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	var totalData int
 	for _, item := range ret.ReboundshellCountInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
-			count,_ := util.Interface2Int(item["count"])
+			count, _ := util.Interface2Int(item["count"])
 			totalData += count
 			agentList = append(agentList, item)
 		}
@@ -292,7 +292,7 @@ func AbnormalAccountList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	var totalData int
 	for _, item := range ret.AbnormalAccountCountInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
-			count,_ := util.Interface2Int(item["count"])
+			count, _ := util.Interface2Int(item["count"])
 			totalData += count
 			agentList = append(agentList, item)
 		}
@@ -325,7 +325,7 @@ func LogDeleteList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	}
 	for _, item := range ret.LogDeleteCountInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
-			count,_ := util.Interface2Int(item["count"])
+			count, _ := util.Interface2Int(item["count"])
 			totalData += count
 			agentList = append(agentList, item)
 		}
@@ -358,7 +358,7 @@ func AbnormalLoginList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	var totalData int
 	for _, item := range ret.AbnormalLoginCountInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
-			count,_ := util.Interface2Int(item["count"])
+			count, _ := util.Interface2Int(item["count"])
 			totalData += count
 			agentList = append(agentList, item)
 		}
@@ -390,7 +390,7 @@ func AbnormalProcessList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	var totalData int
 	for _, item := range ret.AbnormalProcessCountInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
-			count,_ := util.Interface2Int(item["count"])
+			count, _ := util.Interface2Int(item["count"])
 			totalData += count
 			agentList = append(agentList, item)
 		}
@@ -420,7 +420,7 @@ func SystemCmdList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	var totalData int
 	for _, item := range ret.SystemCmdInfoList {
 		if _, isExist := contain[item["serverIp"].(string)]; isExist {
-			count,_ := util.Interface2Int(item["count"])
+			count, _ := util.Interface2Int(item["count"])
 			totalData += count
 			agentList = append(agentList, item)
 		}
@@ -648,7 +648,7 @@ func ConfigDefectList(args *SearchReq) (info SystemDistributedResp, err error) {
 		return info, err
 	}
 	ret = ret["data"].(map[string]interface{})
-	info.Host, _ = util.Interface2Int(ret["totalData"])
+	info.Host = 0
 	for _, v := range ret["configDefectDistributionInfoList"].([]interface{}) {
 		node := v.(map[string]interface{})
 
@@ -664,6 +664,7 @@ func ConfigDefectList(args *SearchReq) (info SystemDistributedResp, err error) {
 		info.Middle += middle
 		info.High += high
 		info.Critical += critical
+		info.Host++
 		info.List = append(info.List, node)
 	}
 	info.Total = info.Low + info.Middle + info.High + info.Critical
@@ -714,17 +715,17 @@ func ProcessConfigDefect(args *ProcessReq) error {
 }
 
 func SystemRiskDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detailList(args, _const.Risk_system_detail_list_api_url)
+	return detailList(args, _const.Risk_system_detail_list_api_url, false)
 }
 
-func detailList(args *DetailReq, path string) (info DetailResp, err error) {
+func detailList(args *DetailReq, path string, all ...bool) (info DetailResp, err error) {
 	ok, err := args.Check()
 	if err != nil || !ok {
 		return info, err
 	}
 
 	if args.Req.PageSize == 0 {
-		args.Req.PageSize = 10
+		args.Req.PageSize = 20
 	}
 	if args.Req.PageNo == 0 {
 		args.Req.PageNo = 1
@@ -738,14 +739,32 @@ func detailList(args *DetailReq, path string) (info DetailResp, err error) {
 	req.Path = path + "/" + args.MacCode + "/detail/list"
 	req.Headers["signNonce"] = util.RandomNum(10)
 	req.Params = model.ToMap(args.Req)
-
 	resp, err := req.Do()
 	if err != nil {
 		return info, err
 	}
 	_, err = model.ParseResp(resp, &info)
-	fmt.Println(info)
-	fmt.Println(string(resp))
+	count := args.Req.PageSize
+
+	for ; len(all) > 0 && all[0] && info.TotalData > count; count += args.Req.PageSize {
+		args.Req.PageNo++
+		var ret DetailResp
+		req, err := request.NewRequest()
+		if err != nil {
+			return info, err
+		}
+		req.Method = "get"
+		req.Path = path + "/" + args.MacCode + "/detail/list"
+		req.Headers["signNonce"] = util.RandomNum(10)
+		req.Params = model.ToMap(args.Req)
+		resp, err := req.Do()
+		if err != nil {
+			return info, err
+		}
+		model.ParseResp(resp, &ret)
+		info.append(ret)
+	}
+
 	return info, err
 }
 
@@ -799,17 +818,17 @@ func ConfigDefectDetail(macCode, riskId string, state bool) (info map[string]int
 
 //WeakDetailList 弱口令详情列表
 func WeakDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detailList(args, _const.Risk_weak_server_api_url)
+	return detailList(args, _const.Risk_weak_server_api_url, false)
 }
 
 //DangerAccountDetailList 高危账号详情列表
 func DangerAccountDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detailList(args, _const.Risk_danger_account_detail_list_api_url)
+	return detailList(args, _const.Risk_danger_account_detail_list_api_url, false)
 }
 
 //ConfigDefectDetailList 配置缺陷详情列表
 func ConfigDefectDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detailList(args, _const.Risk_config_defect_detail_list_api_url)
+	return detailList(args, _const.Risk_config_defect_detail_list_api_url, false)
 }
 
 //VirusDetailList 入侵威胁病毒木马详情列表
