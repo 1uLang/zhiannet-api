@@ -203,6 +203,21 @@ func ConnNextcloudWithAdmin(name, passwd string) error {
 	return nil
 }
 
+func getNCInfo() {
+	sn := model.Subassemblynode{}
+	cm_model.MysqlConn.Model(&model.Subassemblynode{}).Where("type = 8 AND state = 1 AND is_delete = 0").First(&sn)
+	if sn.ID > 0 {
+		param.AdminUser = sn.Key
+		param.AdminPasswd = sn.Secret
+		// param.BASE_URL = sn.Addr
+		if sn.IsSSL == 1 {
+			param.BASE_URL = fmt.Sprintf(`https://%s`, sn.Addr)
+		} else {
+			param.BASE_URL = fmt.Sprintf(`http://%s`, sn.Addr)
+		}
+	}
+}
+
 // InitialAdminUser 获取数据库中配置的用户名密码
 func InitialAdminUser() {
 	sn := model.Subassemblynode{}

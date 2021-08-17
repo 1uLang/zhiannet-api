@@ -17,6 +17,7 @@ import (
 
 // ListFolders 列举用户文件 method: PROPFIND
 func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
+	getNCInfo()
 	var lfr model.ListFoldersResp
 	var fl model.FolderList
 	var fp string
@@ -96,6 +97,7 @@ func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
 
 // DownLoadFile 下载文件 method: GET
 func DownLoadFile(token, fileName string) (*http.Response, error) {
+	getNCInfo()
 	// 解析token获取用户名
 	user, err := ParseToken(token)
 	if err != nil {
@@ -125,6 +127,7 @@ func DownLoadFile(token, fileName string) (*http.Response, error) {
 
 // DownLoadFileWithURL 获取文件下载链接
 func DownLoadFileWithURL(token, fileName string) (string, error) {
+	getNCInfo()
 	// 解析token获取用户名
 	user, err := ParseToken(token)
 	if err != nil {
@@ -140,6 +143,7 @@ func DownLoadFileWithURL(token, fileName string) (string, error) {
 
 // UploadFile 上传文件，默认上传到根目录 method: PUT
 func UploadFile(token, fileName string, f io.Reader) error {
+	getNCInfo()
 	// 解析token获取用户名
 	user, err := ParseToken(token)
 	if err != nil {
@@ -169,6 +173,7 @@ func UploadFile(token, fileName string, f io.Reader) error {
 
 // DeleteFile 删除文件 Method: DELETE
 func DeleteFile(token, fileName string) error {
+	getNCInfo()
 	// 解析token获取用户名
 	user, err := ParseToken(token)
 	if err != nil {
