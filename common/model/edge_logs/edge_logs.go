@@ -1,8 +1,10 @@
 package edge_logs
 
 import (
+	"fmt"
 	"github.com/1uLang/zhiannet-api/common/model"
 	"github.com/1uLang/zhiannet-api/common/model/edge_users"
+	edge_users_model "github.com/1uLang/zhiannet-api/edgeUsers/model"
 )
 
 type (
@@ -37,7 +39,15 @@ type (
 func GetList(req *UserLogReq) (list []*UserLogResp, total int64, err error) {
 	list = make([]*UserLogResp, 0)
 	parentId := []*edge_users.EdgeUsers{}
-	err = model.MysqlConn.Table("edgeUsers").Where("edgeUsers.id=? or edgeUsers.parentId=?", req.UserId, req.UserId).Find(&parentId).Error
+	pid,err := edge_users_model.GetParentId(req.UserId)
+	if err != nil {
+		return nil, 0, err
+	}
+	sqlStr := fmt.Sprintf("edgeUsers.id=%v or edgeUsers.parentId= '%v'",req.UserId,req.UserId)
+	if pid > 0 {
+		sqlStr = fmt.Sprintf("edgeUsers.id=%v or edgeUsers.parentId= '%v'",pid,pid)
+	}
+	err = model.MysqlConn.Table("edgeUsers").Where(sqlStr).Find(&parentId).Error
 	if err != nil {
 		return
 	}
@@ -76,11 +86,19 @@ func GetList(req *UserLogReq) (list []*UserLogResp, total int64, err error) {
 
 func GetNum(req *UserLogReq) (total int64, err error) {
 	parentId := []*edge_users.EdgeUsers{}
-	err = model.MysqlConn.Table("edgeUsers").Where("edgeUsers.id=? or edgeUsers.parentId=?", req.UserId, req.UserId).Find(&parentId).Error
+	pid,err := edge_users_model.GetParentId(req.UserId)
+	sqlStr := fmt.Sprintf("edgeUsers.id=%v or edgeUsers.parentId= '%v'",req.UserId,req.UserId)
+	if pid > 0 {
+		sqlStr = fmt.Sprintf("edgeUsers.id=%v or edgeUsers.parentId= '%v'",pid,pid)
+	}
+	err = model.MysqlConn.Table("edgeUsers").Where(sqlStr).Find(&parentId).Error
 	if err != nil {
 		return
 	}
 	parentIds := []uint64{req.UserId}
+	for _, v := range parentId {
+		parentIds = append(parentIds, v.ID)
+	}
 	//从数据库获取
 	model := model.MysqlConn.Table("edgeLogs").Where("userId in(?)", parentIds)
 	if req.Keyword != "" {
