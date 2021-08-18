@@ -95,11 +95,11 @@ func FormatBytes(bytes string) string {
 	}
 
 	switch {
-	case fb > GB:
+	case fb >= GB:
 		return fmt.Sprintf("%.1fGB", fb/GB)
-	case fb > MB:
+	case fb >= MB:
 		return fmt.Sprintf("%.1fMB", fb/MB)
-	case fb > KB:
+	case fb >= KB:
 		return fmt.Sprintf("%.1fKB", fb/KB)
 	default:
 		return fmt.Sprintf("%.1fB", fb)

@@ -42,7 +42,9 @@ type FolderBody struct {
 
 // FolderList 文件列表
 type FolderList struct {
-	List []FolderBody `json:"list"`
+	Quota string       `json:"quota"`
+	Used  string       `json:"used"`
+	List  []FolderBody `json:"list"`
 }
 
 // DirectResp 直链响应体
@@ -53,5 +55,18 @@ type DirectResp struct {
 	} `xml:"meta"`
 	Data struct {
 		URL string `xml:"url"`
+	} `xml:"data"`
+}
+
+// NCUserInfo nc用户信息
+type NCUserInfo struct {
+	Data struct {
+		Quota struct {
+			Free     string `xml:"free"`
+			Used     string `xml:"used"`
+			Total    string `xml:"total"`
+			Relative string `xml:"relative"`
+			Quota    string `xml:"quota"`
+		} `xml:"quota"`
 	} `xml:"data"`
 }

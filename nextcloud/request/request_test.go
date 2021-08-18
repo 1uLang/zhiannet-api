@@ -250,3 +250,12 @@ func TestDeleteNCUser(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestGetNCUserInfo(t *testing.T) {
+	token := GenerateToken(req)
+	param.BASE_URL = "http://localhost:8088"
+
+	quota,used := GetNCUserInfo(token,"admin")
+	t.Log(quota)
+	t.Log(used)
+}

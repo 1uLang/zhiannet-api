@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 
 	cm_model "github.com/1uLang/zhiannet-api/common/model"
 	param "github.com/1uLang/zhiannet-api/nextcloud/const"
@@ -176,4 +177,46 @@ func DeleteUser(uid, kid int64) error {
 	}
 
 	return nil
+}
+
+// GetNCUserInfo 获取用户信息
+func GetNCUserInfo(token, user string) (quota, used string) {
+	uRL := fmt.Sprintf("%s/"+param.USER_INFO, param.BASE_URL, user)
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	cli := &http.Client{
+		Transport: tr,
+	}
+
+	req, err := http.NewRequest("GET", uRL, nil)
+	if err != nil {
+		return quota, used
+	}
+	req.Header.Set("Authorization", token)
+	req.Header.Add("OCS-APIRequest", "true")
+	rsp, err := cli.Do(req)
+	if err != nil {
+		return quota, used
+	}
+	body, err := io.ReadAll(rsp.Body)
+	if err != nil {
+		return quota, used
+	}
+	userInfo := model.NCUserInfo{}
+	err = xml.Unmarshal(body, &userInfo)
+	if err != nil {
+		return quota, used
+	}
+
+	quota = userInfo.Data.Quota.Quota
+	q, _ := strconv.ParseInt(quota, 10, 64)
+	if q <= 0 {
+		quota = "无限"
+	} else {
+		quota = FormatBytes(quota)
+	}
+	used = userInfo.Data.Quota.Used
+	used = FormatBytes(used)
+	return
 }
