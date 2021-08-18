@@ -83,7 +83,8 @@ func FormatTime(timeStr, format string) string {
 		return timeStr
 	}
 
-	formatTime := timestamp.Format(format)
+	var cstZone = time.FixedZone("CST", 8*3600)
+	formatTime := timestamp.In(cstZone).Format(format)
 	return formatTime
 }
 
