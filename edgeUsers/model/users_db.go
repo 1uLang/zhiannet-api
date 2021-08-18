@@ -145,7 +145,7 @@ func CheckUserUsername(req *CheckUserNameReq) (bool, error) {
 	if req.Username == "" {
 		return false, fmt.Errorf("参数错误")
 	}
-	user_model := model.MysqlConn.Table(edgeUserTableName).Where("username=?", req.Username).Where("state=0")
+	user_model := model.MysqlConn.Table(edgeUserTableName).Where("username=?", req.Username).Where("state=1")
 	if req.UserId != 0 {
 		user_model = user_model.Where("id!=?", req.UserId)
 	}
