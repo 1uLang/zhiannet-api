@@ -180,7 +180,8 @@ func DeleteUser(uid, kid int64) error {
 }
 
 // GetNCUserInfo 获取用户信息
-func GetNCUserInfo(token, user string) (quota, used string) {
+func GetNCUserInfo(token, user string) (quota, used, percent string) {
+	percent = "1%"
 	uRL := fmt.Sprintf("%s/"+param.USER_INFO, param.BASE_URL, user)
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -191,32 +192,35 @@ func GetNCUserInfo(token, user string) (quota, used string) {
 
 	req, err := http.NewRequest("GET", uRL, nil)
 	if err != nil {
-		return quota, used
+		return
 	}
 	req.Header.Set("Authorization", token)
 	req.Header.Add("OCS-APIRequest", "true")
 	rsp, err := cli.Do(req)
 	if err != nil {
-		return quota, used
+		return
 	}
 	body, err := io.ReadAll(rsp.Body)
 	if err != nil {
-		return quota, used
+		return
 	}
 	userInfo := model.NCUserInfo{}
 	err = xml.Unmarshal(body, &userInfo)
 	if err != nil {
-		return quota, used
+		return
 	}
 
 	quota = userInfo.Data.Quota.Quota
+	used = userInfo.Data.Quota.Used
 	q, _ := strconv.ParseInt(quota, 10, 64)
+	u, _ := strconv.ParseInt(used, 10, 64)
 	if q <= 0 {
 		quota = "无限"
 	} else {
 		quota = FormatBytes(quota)
+		percent = fmt.Sprintf("%d", u/q) + "%"
 	}
-	used = userInfo.Data.Quota.Used
 	used = FormatBytes(used)
+
 	return
 }

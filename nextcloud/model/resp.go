@@ -42,9 +42,10 @@ type FolderBody struct {
 
 // FolderList 文件列表
 type FolderList struct {
-	Quota string       `json:"quota"`
-	Used  string       `json:"used"`
-	List  []FolderBody `json:"list"`
+	Quota   string       `json:"quota"`
+	Used    string       `json:"used"`
+	Percent string       `json:"percent"`
+	List    []FolderBody `json:"list"`
 }
 
 // DirectResp 直链响应体

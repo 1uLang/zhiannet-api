@@ -93,8 +93,8 @@ func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
 		fl.List = append(fl.List, fb)
 	}
 
-	fl.Quota, fl.Used = GetNCUserInfo(token, user)
-	
+	fl.Quota, fl.Used, fl.Percent = GetNCUserInfo(token, user)
+
 	return &fl, nil
 }
 

@@ -255,7 +255,8 @@ func TestGetNCUserInfo(t *testing.T) {
 	token := GenerateToken(req)
 	param.BASE_URL = "http://localhost:8088"
 
-	quota,used := GetNCUserInfo(token,"admin")
+	quota, used, percent := GetNCUserInfo(token, "hanchan")
 	t.Log(quota)
 	t.Log(used)
+	t.Log(percent)
 }
