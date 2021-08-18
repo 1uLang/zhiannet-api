@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+func GetList() (list []*edge_admins.EdgeAdmins, total int64, err error) {
+	return edge_admins.GetList()
+}
+
 //判断用户密码是否过期 有效90天
 func CheckPwdInvalid(id uint64) (res bool, err error) {
 	info, err := edge_admins.GetInfoById(id)

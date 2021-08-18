@@ -3,6 +3,7 @@ package targets
 import (
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/model"
+	db_model "github.com/1uLang/zhiannet-api/common/model"
 )
 
 type (
@@ -11,7 +12,7 @@ type (
 		TargetId    string `gorm:"column:target_id" json:"target_id" form:"target_id"`             //扫描ID
 		UserId      uint64 `gorm:"column:user_id" json:"user_id" form:"user_id"`                   //用户ID
 		AdminUserId uint64 `gorm:"column:admin_user_id" json:"admin_user_id" form:"admin_user_id"` //admin用户ID
-		IsDelete    int    `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除
+		IsDelete    uint8  `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除
 		CreateTime  int    `gorm:"column:create_time" json:"create_time" form:"create_time"`       //创建时间
 	}
 	AddrListReq struct {
@@ -22,6 +23,15 @@ type (
 		TargetId    string `gorm:"column:target_id" json:"target_id" form:"target_id"`             //扫描ID
 	}
 )
+
+//初始化建表
+func InitTable() {
+	err := db_model.MysqlConn.AutoMigrate(&WebscanAddr{})
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
+}
 
 //获取列表信息
 

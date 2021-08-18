@@ -11,7 +11,7 @@ type (
 		ReportId    string `gorm:"column:report_id" json:"report_id" form:"report_id"`             //报告ID
 		UserId      uint64 `gorm:"column:user_id" json:"user_id" form:"user_id"`                   //用户ID
 		AdminUserId uint64 `gorm:"column:admin_user_id" json:"admin_user_id" form:"admin_user_id"` //admin用户ID
-		IsDelete    int    `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除 0未删除
+		IsDelete    uint8    `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除 0未删除
 		CreateTime  int    `gorm:"column:create_time" json:"create_time" form:"create_time"`       //创建时间
 	}
 	ReportListReq struct {
@@ -23,6 +23,14 @@ type (
 	}
 )
 
+//初始化建表
+func InitTable() {
+	err := model.MysqlConn.AutoMigrate(&WebscanReport{})
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
+}
 //获取列表信息
 func GetList(req *ReportListReq) (list []*WebscanReport, total int64, err error) {
 	//从数据库获取

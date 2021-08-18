@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/audit/const"
-	"github.com/1uLang/zhiannet-api/audit/model/audit_user"
-	"github.com/1uLang/zhiannet-api/audit/model/audit_user_relation"
 	"github.com/1uLang/zhiannet-api/common/cache"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/utils"
@@ -88,37 +86,37 @@ func GetLoginInfo(audit *UserReq) (logReq *LoginReq, err error) {
 	}
 	node := nodes[0]
 
-	if audit.AdminUserId == 1 { //等保云 超级管理员
-		logReq = &LoginReq{
-			Name:     node.Key,
-			Password: node.Secret,
-			Addr:     node.Addr,
-			IsSsl:    node.IsSsl == 1,
-		}
-	} else {
-		//等保平台 其他用户
-		logReq = &LoginReq{
-			//Name: node.Key,
-			//Password: node.Secret,
-			Addr:  node.Addr,
-			IsSsl: node.IsSsl == 1,
-		}
-		//获取关联的审计平台用户
-		auditInfo, err := audit_user_relation.GetInfo(&audit_user_relation.AuditReq{
-			AdminUserId: audit.AdminUserId,
-			UserId:      audit.UserId,
-		})
-		if err != nil {
-			err = fmt.Errorf("账号错误")
-		}
-		info, err := audit_user.GetInfo(&audit_user.AuditReq{UserId: auditInfo.AuditUserid})
-		if err != nil {
-			err = fmt.Errorf("获取用户信息错误")
-			return logReq, err
-		}
-		logReq.Name = info.UserName
-		logReq.Password = info.Pwd
+	//if audit.AdminUserId == 1 { //等保云 超级管理员
+	logReq = &LoginReq{
+		Name:     node.Key,
+		Password: node.Secret,
+		Addr:     node.Addr,
+		IsSsl:    node.IsSsl == 1,
 	}
+	//} else {
+	//	//等保平台 其他用户
+	//	logReq = &LoginReq{
+	//		//Name: node.Key,
+	//		//Password: node.Secret,
+	//		Addr:  node.Addr,
+	//		IsSsl: node.IsSsl == 1,
+	//	}
+	//	//获取关联的审计平台用户
+	//	auditInfo, err := audit_user_relation.GetInfo(&audit_user_relation.AuditReq{
+	//		AdminUserId: audit.AdminUserId,
+	//		UserId:      audit.UserId,
+	//	})
+	//	if err != nil {
+	//		err = fmt.Errorf("账号错误")
+	//	}
+	//	info, err := audit_user.GetInfo(&audit_user.AuditReq{UserId: auditInfo.AuditUserid})
+	//	if err != nil {
+	//		err = fmt.Errorf("获取用户信息错误")
+	//		return logReq, err
+	//	}
+	//	logReq.Name = info.UserName
+	//	logReq.Password = info.Pwd
+	//}
 
 	key := fmt.Sprintf("audit-get-token-%v:%v", logReq.Addr, logReq.Name)
 

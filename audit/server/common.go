@@ -17,9 +17,12 @@ type (
 
 	//修改 添加 公共响应参数
 	Resp struct {
-		Code int         `json:"code"`
-		Data interface{} `json:"data"`
-		Msg  string      `json:"msg"`
+		Code int `json:"code"`
+		Data struct {
+			Id    uint64 `json:"id"`
+			Audit string `json:"audit"`
+		} `json:"data"`
+		Msg string `json:"msg"`
 	}
 
 	//授权 请求参数

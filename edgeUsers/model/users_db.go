@@ -85,7 +85,7 @@ type (
 	}
 )
 
-var edgeUserTableName = "edgeusers"
+var edgeUserTableName = "edgeUsers"
 
 //获取节点
 func GetList(req *ListReq) (list []*EdgeusersResp, err error) {

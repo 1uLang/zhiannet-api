@@ -16,11 +16,19 @@ type (
 		CertId      string `gorm:"column:cert_id" json:"cert_id" form:"cert_id"`                   //资产ID
 		UserId      uint64 `gorm:"column:user_id" json:"user_id" form:"user_id"`                   //用户ID
 		AdminUserId uint64 `gorm:"column:admin_user_id" json:"admin_user_id" form:"admin_user_id"` //admin用户ID
-		IsDelete    int    `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除
+		IsDelete    uint8    `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除
 		CreateTime  int64  `gorm:"column:create_time" json:"create_time" form:"create_time"`       //创建时间
 	}
 )
 
+//初始化建表
+func InitTable()  {
+	err := db_model.MysqlConn.AutoMigrate(&nextTerminalCert{})
+	if err != nil {
+		fmt.Println("初始化建表，失败：",err.Error())
+		return
+	}
+}
 func getList(req *listReq) (list []*nextTerminalCert, total int64, err error) {
 	//从数据库获取
 	model := db_model.MysqlConn.Model(&nextTerminalCert{}).Where("is_delete=?", 0)

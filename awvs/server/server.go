@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/1uLang/zhiannet-api/awvs/model"
 	"github.com/1uLang/zhiannet-api/awvs/model/dashboard"
+	"github.com/1uLang/zhiannet-api/awvs/model/reports"
+	"github.com/1uLang/zhiannet-api/awvs/model/targets"
 	"github.com/1uLang/zhiannet-api/awvs/request"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 )
@@ -73,5 +75,8 @@ func (this *CheckRequest) Run() {
 	if id > 0 {
 		subassemblynode.UpdateConnState(id, conn)
 	}
-
+}
+func InitTable() {
+	targets.InitTable()
+	reports.InitTable()
 }
