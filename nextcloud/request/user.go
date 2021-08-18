@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 
+	cm_model "github.com/1uLang/zhiannet-api/common/model"
 	param "github.com/1uLang/zhiannet-api/nextcloud/const"
 	"github.com/1uLang/zhiannet-api/nextcloud/model"
 )
@@ -112,6 +113,66 @@ func CreateUserV2(token, user, pwd string) error {
 
 	if cuRsp.Meta.Status != "ok" || cuRsp.Meta.Statuscode != 200 {
 		return errors.New(cuRsp.Meta.Message)
+	}
+
+	return nil
+}
+
+// DeleteNCUser 删除用户
+func DeleteNCUser(user string) error {
+	getNCInfo()
+	token := GetAdminToken()
+	uRL := fmt.Sprintf("%s/"+param.DELETE_USER, param.BASE_URL, user)
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	cli := &http.Client{
+		Transport: tr,
+	}
+
+	req, err := http.NewRequest("DELETE", uRL, nil)
+	if err != nil {
+		return fmt.Errorf("删除户接口请求失败：%w", err)
+	}
+	req.Header.Set("Authorization", token)
+	req.Header.Add("OCS-APIRequest", "true")
+	rsp, err := cli.Do(req)
+	if err != nil {
+		return fmt.Errorf("请求失败：%w", err)
+	}
+	body, err := io.ReadAll(rsp.Body)
+	if err != nil {
+		return fmt.Errorf("读取响应体失败：%w", err)
+	}
+	cuRsp := model.CreateUserResp{}
+	err = xml.Unmarshal(body, &cuRsp)
+	if err != nil {
+		return fmt.Errorf("xml解析失败：%w", err)
+	}
+
+	if cuRsp.Meta.Status != "ok" || cuRsp.Meta.Statuscode != 200 {
+		return errors.New(cuRsp.Meta.Message)
+	}
+
+	return nil
+}
+
+// DeleteUser 删除用户
+func DeleteUser(uid, kid uint64) error {
+	nct := model.NextCloudToken{}
+	cm_model.MysqlConn.First(&nct, "uid = ? AND kind = ?", uid, kid)
+	if nct.ID == 0 {
+		return nil
+	}
+
+	err := DeleteNCUser(nct.User)
+	if err != nil {
+		return err
+	}
+
+	ddb := cm_model.MysqlConn.Delete(&model.NextCloudToken{}, nct.ID)
+	if ddb.RowsAffected == 0 {
+		return fmt.Errorf("删除用户失败：%w", ddb.Error)
 	}
 
 	return nil
