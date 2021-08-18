@@ -158,7 +158,7 @@ func DeleteNCUser(user string) error {
 }
 
 // DeleteUser 删除用户
-func DeleteUser(uid, kid uint64) error {
+func DeleteUser(uid, kid int64) error {
 	nct := model.NextCloudToken{}
 	cm_model.MysqlConn.First(&nct, "uid = ? AND kind = ?", uid, kid)
 	if nct.ID == 0 {
