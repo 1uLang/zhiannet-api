@@ -3,7 +3,6 @@ package server
 import (
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
-	"github.com/1uLang/zhiannet-api/hids/model/user"
 	"github.com/1uLang/zhiannet-api/next-terminal/model"
 	asset_model "github.com/1uLang/zhiannet-api/next-terminal/model/asset"
 	cert_model "github.com/1uLang/zhiannet-api/next-terminal/model/cert"
@@ -51,10 +50,10 @@ func Check() (bool, uint64, error) {
 	if err != nil {
 		return false, info.Id, err
 	}
-	_, err = user.List(&user.SearchReq{})
-	if err != nil {
-		return false, info.Id, err
-	}
+	//_, err = user.List(&user.SearchReq{})
+	//if err != nil {
+	//	return false, info.Id, err
+	//}
 	return true, info.Id, nil
 }
 
@@ -68,6 +67,7 @@ func (this *CheckRequest) Run() {
 	}()
 	var conn int = 1
 	res, id, _ := Check()
+	//fmt.Println(res, id, err)
 	if !res {
 		conn = 0
 	}
