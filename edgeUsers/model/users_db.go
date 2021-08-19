@@ -128,7 +128,7 @@ func GetList(req *ListReq) (list []*EdgeusersResp, err error) {
 		req.Size = 20
 	}
 	db_model = db_model.Joins("left join edgeLogins on edgeUsers.id=edgeLogins.userId").Select("edgeUsers.*,edgeLogins.isOn as otpIsOn,edgeLogins.params as otpParams")
-	err = db_model.Debug().Offset(req.Offset).Limit(req.Size).Order("edgeUsers.id desc").Find(&list).Error
+	err = db_model.Debug().Offset(req.Offset).Limit(req.Size).Order("edgeUsers.id asc").Find(&list).Error
 	if err != nil {
 		return
 	}
