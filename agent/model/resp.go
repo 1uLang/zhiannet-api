@@ -2,7 +2,7 @@ package model
 
 // FileListRsp 文件列表响应体
 type FileListRsp struct {
-	Total int64       `json:"total"`
+	Total int64      `json:"total"`
 	List  []FileInfo `json:"list"`
 }
 
@@ -13,5 +13,5 @@ type FileInfo struct {
 	Describe  string `json:"describe"`   // 文件描述信息
 	Size      string `json:"size"`       // 文件大小
 	Format    string `json:"format"`     // 文件格式
-	CreatedAt int64  `json:"created_at"` // 文件上传时间
+	CreatedAt string `json:"created_at"` // 文件上传时间
 }

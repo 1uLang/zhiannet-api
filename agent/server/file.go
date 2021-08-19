@@ -155,7 +155,7 @@ func ListFile(paging ...int) (*model.FileListRsp, error) {
 			Describe:  af.Describe,
 			Size:      formatBytes(af.Size),
 			Format:    af.Format,
-			CreatedAt: af.CreatedAt,
+			CreatedAt: time.Unix(af.CreatedAt, 0).Format("2006-01-02 15:04:05"),
 		}
 
 		fs = append(fs, fi)
