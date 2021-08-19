@@ -92,7 +92,7 @@ func TestUploadFile(t *testing.T) {
 
 func TestListFolders(t *testing.T) {
 	token := GenerateToken(req)
-	// param.BASE_URL = "http://localhost:8080"
+	// param.BASE_URL = "http://localhost:8088"
 	// param.AdminUser = "admin"
 	// param.AdminPasswd = "admin"
 	lf, err := ListFolders(token)
@@ -102,6 +102,7 @@ func TestListFolders(t *testing.T) {
 
 	for _, v := range lf.List {
 		t.Logf("%d %s\n", v.FileID, v.URL)
+		t.Log(v.LastModified)
 	}
 }
 
