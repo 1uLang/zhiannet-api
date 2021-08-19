@@ -75,8 +75,8 @@ func Delete(report_id string) error {
 	if err != nil {
 		return err
 	}
-	ret, err := model.ParseResp(resp)
-	fmt.Println(ret)
+	_, err = model.ParseResp(resp)
+
 	if err == nil {
 		DeleteByTargetIds([]string{report_id})
 	}
