@@ -158,8 +158,8 @@ func Delete(scan_id string) error {
 	if err != nil {
 		return err
 	}
-	ret, err := model.ParseResp(resp)
-	fmt.Println(ret)
+	_, err = model.ParseResp(resp)
+
 	return err
 }
 

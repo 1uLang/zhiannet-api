@@ -42,6 +42,7 @@ type (
 		UserId uint64
 		Offset int
 		Size   int
+		All 	bool
 	}
 	CheckUserNameReq struct {
 		UserId   uint64
@@ -93,6 +94,8 @@ func GetList(req *ListReq) (list []*EdgeusersResp, err error) {
 		return
 	}
 	//判断是否为子账号
+	all := req.All
+	uid := req.UserId
 	parent := Edgeusers{}
 	err = model.MysqlConn.Debug().Table(edgeUserTableName).Where("edgeUsers.id=?", req.UserId).Find(&parent).Error
 	if err != nil {
@@ -104,7 +107,11 @@ func GetList(req *ListReq) (list []*EdgeusersResp, err error) {
 	//从数据库获取
 	db_model := model.MysqlConn.Debug().Table(edgeUserTableName).Where("edgeUsers.state=?", 1)
 	if req != nil && req.UserId > 0 {
-		db_model = db_model.Where("edgeUsers.parentId=?", req.UserId)
+		if all {
+			db_model = db_model.Where("edgeUsers.parentId=? or edgeUsers.id=?", req.UserId,uid)
+		}else{
+			db_model = db_model.Where("edgeUsers.parentId=?", req.UserId)
+		}
 	} else {
 		return
 	}
@@ -121,7 +128,7 @@ func GetList(req *ListReq) (list []*EdgeusersResp, err error) {
 		req.Size = 20
 	}
 	db_model = db_model.Joins("left join edgeLogins on edgeUsers.id=edgeLogins.userId").Select("edgeUsers.*,edgeLogins.isOn as otpIsOn,edgeLogins.params as otpParams")
-	err = db_model.Debug().Offset(req.Offset).Limit(req.Size).Order("edgeUsers.id desc").Find(&list).Error
+	err = db_model.Debug().Offset(req.Offset).Limit(req.Size).Order("edgeUsers.id asc").Find(&list).Error
 	if err != nil {
 		return
 	}
