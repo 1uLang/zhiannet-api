@@ -7,7 +7,9 @@ import (
 	"github.com/1uLang/zhiannet-api/awvs/model/reports"
 	"github.com/1uLang/zhiannet-api/awvs/model/targets"
 	"github.com/1uLang/zhiannet-api/awvs/request"
+	"github.com/1uLang/zhiannet-api/common/model/edge_messages"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
+	"time"
 )
 
 /*
@@ -71,6 +73,17 @@ func (this *CheckRequest) Run() {
 	res, id, _ := Check()
 	if !res {
 		conn = 0
+		edge_messages.Add(&edge_messages.Edgemessages{
+			Level:     "error",
+			Subject:   "组件状态异常",
+			Body:      "Web漏洞扫描状态不可用",
+			Type:      "AdminAssembly",
+			Params:    "{}",
+			Createdat: uint64(time.Now().Unix()),
+			Day:       time.Now().Format("20060102"),
+			Hash:      "",
+			Role:      "admin",
+		})
 	}
 	if id > 0 {
 		subassemblynode.UpdateConnState(id, conn)

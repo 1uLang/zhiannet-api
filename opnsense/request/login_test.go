@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/cache"
 	"github.com/1uLang/zhiannet-api/common/model"
+	"github.com/1uLang/zhiannet-api/common/model/edge_messages"
 	"testing"
+	"time"
 )
 
 func init() {
@@ -36,22 +38,22 @@ func Test_global(t *testing.T) {
 
 //测试获取nat 1:1 接口
 func Test_nat_1to1(t *testing.T) {
-	Nat1to1(&ApiKey{
-		Username: "root",
-		Password: "21ops.com",
-		Port:     "5443",
-		Addr:     "182.150.0.109",
-	})
+	//Nat1to1(&ApiKey{
+	//	Username: "root",
+	//	Password: "21ops.com",
+	//	Port:     "5443",
+	//	Addr:     "182.150.0.109",
+	//})
 }
 
 //测试获取日志接口
 func Test_logs(t *testing.T) {
-	GetLogsList(&ApiKey{
-		Username: "root",
-		Password: "21ops.com",
-		Port:     "5443",
-		Addr:     "182.150.0.109",
-	})
+	//GetLogsList(&ApiKey{
+	//	Username: "root",
+	//	Password: "21ops.com",
+	//	Port:     "5443",
+	//	Addr:     "182.150.0.109",
+	//})
 }
 
 ////获取唯一key
@@ -76,3 +78,18 @@ func Test_logs(t *testing.T) {
 //	fmt.Println(err)
 //	/// [PHPSESSID=fd75860aa1e86e96d1d27220a7edbc29 cookie_test=a299bc1183cd5cef45ec415cfd569f9d]
 //}
+
+func Test_insert_mesg(t *testing.T) {
+	res, err := edge_messages.Add(&edge_messages.Edgemessages{
+		Level:     "error",
+		Subject:   "组件状态异常",
+		Body:      "云防火墙状态不可用",
+		Type:      "AdminAssembly",
+		Params:    "{}",
+		Createdat: uint64(time.Now().Unix()),
+		Day:       time.Now().Format("20060102"),
+		Hash:      "",
+		Role:      "admin",
+	})
+	fmt.Println(res, err)
+}

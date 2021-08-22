@@ -3,6 +3,7 @@ package request
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/1uLang/zhiannet-api/common/model/edge_messages"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	_const "github.com/1uLang/zhiannet-api/opnsense/const"
 	"github.com/1uLang/zhiannet-api/utils"
@@ -61,6 +62,17 @@ func (this *ApiKey) Run() {
 		if err != nil || resp == nil {
 			//调用接口失败 不可用
 			conn = 0
+			edge_messages.Add(&edge_messages.Edgemessages{
+				Level:     "error",
+				Subject:   "组件状态异常",
+				Body:      "云防火墙状态不可用",
+				Type:      "AdminAssembly",
+				Params:    "{}",
+				Createdat: uint64(time.Now().Unix()),
+				Day:       time.Now().Format("20060102"),
+				Hash:      "",
+				Role:      "admin",
+			})
 		}
 
 		if conn != v.ConnState {
