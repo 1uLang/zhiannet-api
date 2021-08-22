@@ -31,24 +31,24 @@ func GetNessus() (resp *model.NessusResp, err error) {
 
 //检测nessus 配置访问是否异常
 
-func Check() (bool, uint64, error) {
+func Check() (bool, uint64, int, error) {
 	info, err := GetNessus()
 	if err != nil {
-		return false, 0, err
+		return false, 0, 0, err
 	}
 	err = SetUrl(info.Addr)
 	if err != nil {
-		return false, info.Id, err
+		return false, info.Id, info.ConnState, err
 	}
 	err = SetAPIKeys(&request.APIKeys{info.Access, info.Secret})
 	if err != nil {
-		return false, info.Id, err
+		return false, info.Id, info.ConnState, err
 	}
 	_, err = scans.List(&scans.ListReq{UserId: 1})
 	if err != nil {
-		return false, info.Id, err
+		return false, info.Id, info.ConnState, err
 	}
-	return true, info.Id, nil
+	return true, info.Id, info.ConnState, nil
 }
 func (this *CheckRequest) Run() {
 	defer func() {
@@ -57,23 +57,38 @@ func (this *CheckRequest) Run() {
 		}
 	}()
 	var conn int = 1
-	res, id, _ := Check()
-	if !res {
-		conn = 0
-		edge_messages.Add(&edge_messages.Edgemessages{
-			Level:     "error",
-			Subject:   "组件状态异常",
-			Body:      "主机漏洞扫描状态不可用",
-			Type:      "AdminAssembly",
-			Params:    "{}",
-			Createdat: uint64(time.Now().Unix()),
-			Day:       time.Now().Format("20060102"),
-			Hash:      "",
-			Role:      "admin",
-		})
-	}
+	res, id, oldConn, _ := Check()
 	if id > 0 {
-		subassemblynode.UpdateConnState(id, conn)
+		if !res {
+			conn = 0
+			edge_messages.Add(&edge_messages.Edgemessages{
+				Level:     "error",
+				Subject:   "组件状态异常",
+				Body:      "主机漏洞扫描状态不可用",
+				Type:      "AdminAssembly",
+				Params:    "{}",
+				Createdat: uint64(time.Now().Unix()),
+				Day:       time.Now().Format("20060102"),
+				Hash:      "",
+				Role:      "admin",
+			})
+		}
+		if oldConn != conn {
+			subassemblynode.UpdateConnState(id, conn)
+			if conn == 1 {
+				edge_messages.Add(&edge_messages.Edgemessages{
+					Level:     "success",
+					Subject:   "组件状态恢复正常",
+					Body:      "主机漏洞扫描恢复可用状态",
+					Type:      "AdminAssembly",
+					Params:    "{}",
+					Createdat: uint64(time.Now().Unix()),
+					Day:       time.Now().Format("20060102"),
+					Hash:      "",
+					Role:      "admin",
+				})
+			}
+		}
 	}
 
 }

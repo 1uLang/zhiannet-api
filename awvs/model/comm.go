@@ -41,9 +41,10 @@ func ParseResp(resp []byte) (map[string]interface{}, error) {
 
 type (
 	WebScanResp struct {
-		Addr string `json:"addr"`
-		Key  string `json:"key"`
-		Id   uint64 `json:"id"`
+		Addr      string `json:"addr"`
+		Key       string `json:"key"`
+		Id        uint64 `json:"id"`
+		ConnState int    `json:"conn_state"`
 	}
 )
 
@@ -62,9 +63,10 @@ func GetWebScanInfo() (resp *WebScanResp, err error) {
 	info := list[0]
 	addr := utils.CheckHttpUrl(info.Addr, info.IsSsl == 1)
 	resp = &WebScanResp{
-		Addr: addr,
-		Key:  info.Key,
-		Id:   info.Id,
+		Addr:      addr,
+		Key:       info.Key,
+		Id:        info.Id,
+		ConnState: info.ConnState,
 	}
 	return resp, err
 }

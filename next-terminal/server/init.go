@@ -39,24 +39,24 @@ func NewServerRequest(url, username, password string) (*Request, error) {
 func GetFortCloud() (resp *model.NextTerminalResp, err error) {
 	return model.GetNextTerminalInfo()
 }
-func Check() (bool, uint64, error) {
+func Check() (bool, uint64, int, error) {
 	info, err := GetFortCloud()
 	if err != nil {
-		return false, 0, err
+		return false, 0, 0, err
 	}
 	req, err := NewServerRequest(info.Addr, info.Username, info.Password)
 	if err != nil {
-		return false, info.Id, err
+		return false, info.Id, info.ConnState, err
 	}
 	_, _, err = req.Assets.List(&asset_model.ListReq{UserId: 1})
 	if err != nil {
-		return false, info.Id, err
+		return false, info.Id, info.ConnState, err
 	}
 	//_, err = user.List(&user.SearchReq{})
 	//if err != nil {
 	//	return false, info.Id, err
 	//}
-	return true, info.Id, nil
+	return true, info.Id, info.ConnState, nil
 }
 
 type CheckRequest struct{}
@@ -68,24 +68,41 @@ func (this *CheckRequest) Run() {
 		}
 	}()
 	var conn int = 1
-	res, id, _ := Check()
+	res, id, oldConn, _ := Check()
 	//fmt.Println(res, id, err)
-	if !res {
-		conn = 0
-		edge_messages.Add(&edge_messages.Edgemessages{
-			Level:     "error",
-			Subject:   "组件状态异常",
-			Body:      "堡垒机状态不可用",
-			Type:      "AdminAssembly",
-			Params:    "{}",
-			Createdat: uint64(time.Now().Unix()),
-			Day:       time.Now().Format("20060102"),
-			Hash:      "",
-			Role:      "admin",
-		})
-	}
+
 	if id > 0 {
-		subassemblynode.UpdateConnState(id, conn)
+		if !res {
+			conn = 0
+			edge_messages.Add(&edge_messages.Edgemessages{
+				Level:     "error",
+				Subject:   "组件状态异常",
+				Body:      "堡垒机状态不可用",
+				Type:      "AdminAssembly",
+				Params:    "{}",
+				Createdat: uint64(time.Now().Unix()),
+				Day:       time.Now().Format("20060102"),
+				Hash:      "",
+				Role:      "admin",
+			})
+		}
+		if oldConn != conn {
+			subassemblynode.UpdateConnState(id, conn)
+			if conn == 1 {
+				edge_messages.Add(&edge_messages.Edgemessages{
+					Level:     "success",
+					Subject:   "组件状态恢复正常",
+					Body:      "堡垒机恢复可用状态",
+					Type:      "AdminAssembly",
+					Params:    "{}",
+					Createdat: uint64(time.Now().Unix()),
+					Day:       time.Now().Format("20060102"),
+					Hash:      "",
+					Role:      "admin",
+				})
+			}
+		}
+
 	}
 }
 

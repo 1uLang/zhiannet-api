@@ -187,6 +187,19 @@ func (this *CheckRequest) Run() {
 		}
 		if conn != v.ConnState {
 			subassemblynode.UpdateConnState(v.Id, conn)
+			if conn == 1 {
+				edge_messages.Add(&edge_messages.Edgemessages{
+					Level:     "success",
+					Subject:   "组件状态恢复正常",
+					Body:      "数据备份恢复可用状态",
+					Type:      "AdminAssembly",
+					Params:    "{}",
+					Createdat: uint64(time.Now().Unix()),
+					Day:       time.Now().Format("20060102"),
+					Hash:      "",
+					Role:      "admin",
+				})
+			}
 		}
 	}
 
