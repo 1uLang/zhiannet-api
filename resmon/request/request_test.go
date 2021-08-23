@@ -1,11 +1,15 @@
 package request
 
 import (
+	"github.com/1uLang/zhiannet-api/common/model"
 	"testing"
 
 	param "github.com/1uLang/zhiannet-api/resmon/const"
 )
 
+func init() {
+	model.InitMysqlLink()
+}
 func TestAgentList(t *testing.T) {
 	param.BASE_URL = "http://127.0.0.1:7777"
 	param.TEA_KEY = "63b467f790de84a3588651d7dc04c25f"
@@ -51,4 +55,8 @@ func TestDeleteAgent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+func Test_check(t *testing.T) {
+	check := new(CheckNode)
+	check.Run()
 }

@@ -10,6 +10,7 @@ import (
 	term_request "github.com/1uLang/zhiannet-api/next-terminal/server"
 	nextcloud_request "github.com/1uLang/zhiannet-api/nextcloud/request"
 	opnsense_request "github.com/1uLang/zhiannet-api/opnsense/request"
+	teaweb_request "github.com/1uLang/zhiannet-api/resmon/request"
 	"github.com/robfig/cron/v3"
 )
 
@@ -42,6 +43,8 @@ func InitCron() {
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&hids_request.CheckRequest{}))
 	//堡垒机
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&term_request.CheckRequest{}))
+	//tea web 节点监控
+	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&teaweb_request.CheckRequest{}))
 
 	c.Start()
 }

@@ -5,11 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
-
+	"github.com/1uLang/zhiannet-api/common/model/edge_messages"
+	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	param "github.com/1uLang/zhiannet-api/resmon/const"
 	"github.com/1uLang/zhiannet-api/resmon/model"
+	"github.com/1uLang/zhiannet-api/resmon/server"
+	"io"
+	"net/http"
+	"time"
 )
 
 const (
@@ -74,6 +77,7 @@ func formatByte(bytes int64) string {
 }
 
 func CheckNodeConn() error {
+	server.GetNodeInfo()
 	body, err := createReq(param.AGENT_LIST, "")
 	if err != nil {
 		return err
@@ -84,6 +88,84 @@ func CheckNodeConn() error {
 	if err != nil {
 		return errors.New("节点配置信息错误")
 	}
-
 	return nil
+}
+
+type CheckRequest struct {
+}
+
+func (*CheckRequest) Run() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("teaweb-节点监控----------------------------------------------", err)
+		}
+	}()
+	info, _ := server.GetNodeInfo()
+	if info.ID > 0 {
+		var conn int = 1
+		body, err := createReq(param.AGENT_LIST, "")
+		fmt.Println("body", string(body), "err", err)
+		if err != nil {
+			//err   {"data":{},"errors":null,"code":400,"message":"Authenticate Failed 002"}
+			conn = 0
+			if info.ConnState == 1 {
+				//修改
+				subassemblynode.UpdateConnState(uint64(info.ID), conn)
+			}
+			edge_messages.Add(&edge_messages.Edgemessages{
+				Level:     "error",
+				Subject:   "组件状态异常",
+				Body:      "节点监控状态不可用",
+				Type:      "AdminAssembly",
+				Params:    "{}",
+				Createdat: uint64(time.Now().Unix()),
+				Day:       time.Now().Format("20060102"),
+				Hash:      "",
+				Role:      "admin",
+			})
+			return
+		}
+
+		agents := &model.Agents{}
+		err = json.Unmarshal(body, &agents)
+		if err != nil || agents == nil {
+			conn = 0
+			if info.ConnState == 1 {
+				//修改
+				subassemblynode.UpdateConnState(uint64(info.ID), conn)
+			}
+			edge_messages.Add(&edge_messages.Edgemessages{
+				Level:     "error",
+				Subject:   "组件状态异常",
+				Body:      "节点监控状态不可用",
+				Type:      "AdminAssembly",
+				Params:    "{}",
+				Createdat: uint64(time.Now().Unix()),
+				Day:       time.Now().Format("20060102"),
+				Hash:      "",
+				Role:      "admin",
+			})
+			return
+		}
+
+		if info.ConnState == 0 && conn == 1 {
+			edge_messages.Add(&edge_messages.Edgemessages{
+				Level:     "success",
+				Subject:   "组件状态恢复正常",
+				Body:      "节点监控恢复可用状态",
+				Type:      "AdminAssembly",
+				Params:    "{}",
+				Createdat: uint64(time.Now().Unix()),
+				Day:       time.Now().Format("20060102"),
+				Hash:      "",
+				Role:      "admin",
+			})
+
+		}
+		if conn != info.ConnState {
+			subassemblynode.UpdateConnState(uint64(info.ID), conn)
+
+		}
+	}
+
 }
