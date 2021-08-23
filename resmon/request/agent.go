@@ -11,11 +11,12 @@ import (
 
 	param "github.com/1uLang/zhiannet-api/resmon/const"
 	"github.com/1uLang/zhiannet-api/resmon/model"
+	"github.com/1uLang/zhiannet-api/resmon/server"
 )
 
 func generatepost(reqURL, name, host, agentID string, on bool) (*model.BaseResp, error) {
 	// 获取teaweb节点信息
-	// server.GetNodeInfo()
+	server.GetNodeInfo()
 	if param.BASE_URL == "" {
 		return nil, errors.New("该节点暂未添加，请添加后重试")
 	}
@@ -94,7 +95,7 @@ func UpdateAgent(name, host, agentID string, on bool) error {
 // DeleteAgent 删除代理主机
 func DeleteAgent(agentID string) error {
 	// 获取teaweb节点信息
-	// server.GetNodeInfo()
+	server.GetNodeInfo()
 	if param.BASE_URL == "" {
 		return errors.New("该节点暂未添加，请添加后重试")
 	}

@@ -31,3 +31,8 @@ func GetNodeInfo() {
 		}
 	}
 }
+
+func GetNodeURL() string {
+	// 由于其操作肯定在列表之后，所以这里可以直接获取缓存
+	return param.BASE_URL
+}

@@ -7,13 +7,13 @@ import (
 
 	param "github.com/1uLang/zhiannet-api/resmon/const"
 	"github.com/1uLang/zhiannet-api/resmon/model"
-	// "github.com/1uLang/zhiannet-api/resmon/server"
+	"github.com/1uLang/zhiannet-api/resmon/server"
 )
 
 // AgentList agent列表
 func AgentList() (*model.AgentList, error) {
 	// 获取teaweb节点信息
-	// server.GetNodeInfo()
+	server.GetNodeInfo()
 	if param.BASE_URL == "" {
 		return nil, errors.New("该节点暂未添加，请添加后重试")
 	}
