@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/cache"
+	"github.com/1uLang/zhiannet-api/common/model/edge_messages"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	_const "github.com/1uLang/zhiannet-api/ddos/const"
 	"github.com/1uLang/zhiannet-api/utils"
@@ -134,9 +135,33 @@ func (this *LoginReq) Run() {
 		if err != nil || token == "" {
 			//登录失败 不可用
 			conn = 0
+			edge_messages.Add(&edge_messages.Edgemessages{
+				Level:     "error",
+				Subject:   "组件状态异常",
+				Body:      "DDoS防护状态不可用",
+				Type:      "AdminAssembly",
+				Params:    "{}",
+				Createdat: uint64(time.Now().Unix()),
+				Day:       time.Now().Format("20060102"),
+				Hash:      "",
+				Role:      "admin",
+			})
 		}
 		if conn != v.ConnState {
 			subassemblynode.UpdateConnState(v.Id, conn)
+			if conn == 1 {
+				edge_messages.Add(&edge_messages.Edgemessages{
+					Level:     "success",
+					Subject:   "组件状态恢复正常",
+					Body:      "DDoS防护恢复可用状态",
+					Type:      "AdminAssembly",
+					Params:    "{}",
+					Createdat: uint64(time.Now().Unix()),
+					Day:       time.Now().Format("20060102"),
+					Hash:      "",
+					Role:      "admin",
+				})
+			}
 		}
 	}
 

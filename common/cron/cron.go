@@ -34,9 +34,13 @@ func InitCron() {
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&opnsense_request.ApiKey{}))
 	//数据备份系统 组件定时检测状态是否可用
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&nextcloud_request.CheckRequest{}))
+	//web漏洞扫描
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&awvs_request.CheckRequest{}))
+	//主机漏洞扫描
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&nessus_request.CheckRequest{}))
+	//主机防护
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&hids_request.CheckRequest{}))
+	//堡垒机
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&term_request.CheckRequest{}))
 
 	c.Start()

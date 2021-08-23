@@ -18,10 +18,11 @@ func ToMap(obj interface{}) map[string]interface{} {
 
 type (
 	NextTerminalResp struct {
-		Id       uint64 `json:"id"`
-		Addr     string `json:"addr"`
-		Username string `json:"username"`
-		Password string `json:"password"`
+		Id        uint64 `json:"id"`
+		Addr      string `json:"addr"`
+		Username  string `json:"username"`
+		Password  string `json:"password"`
+		ConnState int    `json:"conn_state"`
 	}
 )
 
@@ -40,10 +41,11 @@ func GetNextTerminalInfo() (resp *NextTerminalResp, err error) {
 	info := list[0]
 	addr := utils.CheckHttpUrl(info.Addr, info.IsSsl == 1)
 	resp = &NextTerminalResp{
-		Addr:     addr,
-		Username: info.Key,
-		Password: info.Secret,
-		Id:       info.Id,
+		Addr:      addr,
+		Username:  info.Key,
+		Password:  info.Secret,
+		Id:        info.Id,
+		ConnState: info.ConnState,
 	}
 	return resp, err
 }

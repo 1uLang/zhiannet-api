@@ -49,10 +49,11 @@ func ParseResp(resp []byte, retObj ...interface{}) (map[string]interface{}, erro
 
 type (
 	HidsResp struct {
-		Addr   string `json:"addr"`
-		AppId  string `json:"app_id"`
-		Secret string `json:"secret"`
-		Id     uint64 `json:"id"`
+		Addr      string `json:"addr"`
+		AppId     string `json:"app_id"`
+		Secret    string `json:"secret"`
+		Id        uint64 `json:"id"`
+		ConnState int    `json:"conn_state"`
 	}
 )
 
@@ -74,10 +75,11 @@ func GetHidsInfo() (resp *HidsResp, err error) {
 	info := list[0]
 	addr := utils.CheckHttpUrl(info.Addr, info.IsSsl == 1)
 	resp = &HidsResp{
-		Addr:   addr,
-		AppId:  info.Key,
-		Secret: info.Secret,
-		Id:     info.Id,
+		Addr:      addr,
+		AppId:     info.Key,
+		Secret:    info.Secret,
+		Id:        info.Id,
+		ConnState: info.ConnState,
 	}
 	return resp, err
 }
