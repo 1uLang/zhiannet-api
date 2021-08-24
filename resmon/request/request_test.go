@@ -57,7 +57,20 @@ func TestDeleteAgent(t *testing.T) {
 		t.Fatal(err)
 	}
 }
-func Test_check(t *testing.T) {
-	check := new(CheckNode)
-	check.Run()
+
+// func Test_check(t *testing.T) {
+// 	check := new(CheckNode)
+// 	check.Run()
+// }
+
+func TestGetAgentState(t *testing.T) {
+	param.BASE_URL = "https://182.150.0.107:7443"
+	param.TEA_KEY = "6d71e77857c1ddf791c65d44982a6d0a"
+
+	as, err := getAgentState("51e831b35da771a9")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(as)
 }

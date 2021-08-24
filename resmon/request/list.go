@@ -37,11 +37,11 @@ func AgentList() (*model.AgentList, error) {
 		info.Id = v.Config.ID
 		info.Key = v.Config.Key
 		info.Name = v.Config.Name
-		info.Host = v.Config.Host
 		info.On = v.Config.On
 
 		as, _ := getAgentState(info.Id)
 		info.OS = as.OSName
+		info.Host = as.IP
 		info.Status = as.IsActive
 		info.Cpu, _ = getCPUUsgae(info.Id)
 		info.Mem, _ = getMemUsage(info.Id)
@@ -53,6 +53,7 @@ func AgentList() (*model.AgentList, error) {
 			info.Cpu = "-"
 			info.Mem = "-"
 			info.Disk = "-"
+			info.Host = v.Config.Host
 		}
 
 		infos[i] = info
