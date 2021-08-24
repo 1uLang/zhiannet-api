@@ -46,6 +46,7 @@ func AgentList() (*model.AgentList, error) {
 		info.Cpu, _ = getCPUUsgae(info.Id)
 		info.Mem, _ = getMemUsage(info.Id)
 		info.Disk, _ = getDiskUsage(info.Id)
+		info.OsType = server.GetResmon(info.Id)
 
 		if !info.Status {
 			info.OS = "-"

@@ -1,8 +1,9 @@
 package request
 
 import (
-	"github.com/1uLang/zhiannet-api/common/model"
 	"testing"
+
+	"github.com/1uLang/zhiannet-api/common/model"
 
 	param "github.com/1uLang/zhiannet-api/resmon/const"
 )
@@ -29,7 +30,7 @@ func TestAddAgent(t *testing.T) {
 	param.BASE_URL = "http://127.0.0.1:7777"
 	param.TEA_KEY = "63b467f790de84a3588651d7dc04c25f"
 
-	err := AddAgent("test", "127.0.0.1", true)
+	err := AddAgent("test", "127.0.0.1", true, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,7 +41,7 @@ func TestUpdateAgent(t *testing.T) {
 	param.TEA_KEY = "63b467f790de84a3588651d7dc04c25f"
 	agentID := "d8ee9357a53ca11d"
 
-	err := UpdateAgent("test1", "127.0.0.2", agentID, true)
+	err := UpdateAgent("test1", "127.0.0.2", agentID, true, 1)
 	if err != nil {
 		t.Fatal(err)
 	}

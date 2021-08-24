@@ -65,3 +65,11 @@ type BaseResp struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
+
+type AddAgentResp struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    struct {
+		AgentID string `json:"agentId"`
+	} `json:"data"`
+}
