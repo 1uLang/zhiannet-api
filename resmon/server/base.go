@@ -6,6 +6,7 @@ import (
 	"github.com/1uLang/zhiannet-api/common/model"
 	param "github.com/1uLang/zhiannet-api/resmon/const"
 	rsm "github.com/1uLang/zhiannet-api/resmon/model"
+	"gorm.io/gorm"
 )
 
 type Subassemblynode struct {
@@ -62,14 +63,8 @@ func AddResmon(id string, agentID uint8) error {
 
 // DeleteResmon 删除Resmon记录
 func DeleteResmon(id string) error {
-	rm := rsm.ResMonModel{}
-	model.MysqlConn.Model(rsm.ResMonModel{}).Where("id = ?", id).First(&rm)
-	if rm.OSType == 0 {
-		return nil
-	}
-
-	err := model.MysqlConn.Delete(&rsm.ResMonModel{}, id).Error
-	if err != nil {
+	err := model.MysqlConn.Where("id = ?", id).Delete(rsm.ResMonModel{}).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
 		return fmt.Errorf("删除记录失败：%w", err)
 	}
 
@@ -78,9 +73,10 @@ func DeleteResmon(id string) error {
 
 func GetResmon(id string) uint8 {
 	rm := rsm.ResMonModel{}
-	model.MysqlConn.Model(rsm.ResMonModel{}).Where("id = ?", id).First(&rm)
-	if rm.OSType == 0 {
+	err := model.MysqlConn.Where("id = ?", id).First(&rm).Error
+	if err == gorm.ErrRecordNotFound {
 		return 1
 	}
+
 	return rm.OSType
 }
