@@ -5,6 +5,7 @@ import (
 
 	"github.com/1uLang/zhiannet-api/common/model"
 	param "github.com/1uLang/zhiannet-api/resmon/const"
+	rsm "github.com/1uLang/zhiannet-api/resmon/model"
 )
 
 type Subassemblynode struct {
@@ -34,7 +35,52 @@ func GetNodeInfo() (sn Subassemblynode, err error) {
 	return sn, err
 }
 
-func GetNodeURL() string {
+func GetNodeURL(id string) *rsm.DownInfo {
 	// 由于其操作肯定在列表之后，所以这里可以直接获取缓存
-	return param.BASE_URL
+	di := rsm.DownInfo{
+		Host:    param.BASE_URL,
+		DownUrl: fmt.Sprintf("%s/%s", param.BASE_URL, rsm.GetCPUType(GetResmon(id))),
+	}
+
+	return &di
+}
+
+// AddResmon 增加Resmon记录
+func AddResmon(id string, agentID uint8) error {
+	rm := rsm.ResMonModel{
+		ID:     id,
+		OSType: agentID,
+	}
+
+	err := model.MysqlConn.Save(&rm).Error
+	if err != nil {
+		return fmt.Errorf("添加或修改记录失败：%w", err)
+	}
+
+	return nil
+}
+
+// DeleteResmon 删除Resmon记录
+func DeleteResmon(id string) error {
+	rm := rsm.ResMonModel{}
+	model.MysqlConn.Model(rsm.ResMonModel{}).Where("id = ?", id).First(&rm)
+	if rm.OSType == 0 {
+		return nil
+	}
+
+	err := model.MysqlConn.Delete(&rsm.ResMonModel{}, id).Error
+	if err != nil {
+		return fmt.Errorf("删除记录失败：%w", err)
+	}
+
+	return nil
+}
+
+func GetResmon(id string) uint8 {
+	rm := rsm.ResMonModel{}
+	model.MysqlConn.Model(rsm.ResMonModel{}).Where("id = ?", id).First(&rm)
+	if rm.OSType == 0 {
+		return 1
+	}
+	return rm.OSType
 }

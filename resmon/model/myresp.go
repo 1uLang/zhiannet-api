@@ -12,9 +12,15 @@ type AgentInfo struct {
 	Status bool   `json:"status"`
 	On     bool   `json:"on"`
 	Key    string `json:"key"`
+	OsType uint8  `json:"os_type"`
 }
 
 type AgentList struct {
 	Total int         `json:"total"`
 	List  []AgentInfo `json:"list"`
+}
+
+type DownInfo struct {
+	Host    string `json:"host"`
+	DownUrl string `json:"down_url"`
 }
