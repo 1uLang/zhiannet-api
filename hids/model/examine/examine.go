@@ -32,7 +32,7 @@ func List(args *SearchReq, online ...bool) (list SearchResp, err error) {
 	}
 
 	if args.PageSize == 0 {
-		args.PageSize = 10
+		args.PageSize = 50
 	}
 	if args.PageNo == 0 {
 		args.PageNo = 1
@@ -57,9 +57,10 @@ func List(args *SearchReq, online ...bool) (list SearchResp, err error) {
 	}
 	_, err = model.ParseResp(resp, &list)
 	for _, v := range list.ServerExamineResultInfoList {
+
 		item := v["serverExamineResultInfo"].(map[string]interface{})
 		item["macCode"] = v["macCode"].(string)
-		if _, isExist := contain[item["serverIp"].(string)]; isExist {
+		if _, isExist := contain[item["serverIp"].(string)]; isExist  && (args.MacCode == "" || args.MacCode == item["macCode"]){
 			agentList = append(agentList, item)
 		}
 	}
