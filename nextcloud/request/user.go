@@ -151,9 +151,9 @@ func DeleteNCUser(user string) error {
 		return fmt.Errorf("xml解析失败：%w", err)
 	}
 
-	if cuRsp.Meta.Status != "ok" || cuRsp.Meta.Statuscode != 200 {
-		return errors.New(cuRsp.Meta.Message)
-	}
+	//if cuRsp.Meta.Status != "ok" || cuRsp.Meta.Statuscode != 200 {
+	//	return errors.New(cuRsp.Meta.Message)
+	//}
 
 	return nil
 }
@@ -170,9 +170,8 @@ func DeleteUser(uid, kid int64) error {
 	if err != nil {
 		return err
 	}
-
 	ddb := cm_model.MysqlConn.Delete(&model.NextCloudToken{}, nct.ID)
-	if ddb.RowsAffected == 0 {
+	if ddb.Error != nil {
 		return fmt.Errorf("删除用户失败：%w", ddb.Error)
 	}
 
