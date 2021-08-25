@@ -8,19 +8,19 @@ import (
 
 type (
 	DdosHostIp struct {
-		Id         uint64 `json:"id" gorm:"column:id"`                   // id
-		Addr       string `json:"addr" gorm:"column:addr"`               // ip地址
-		NodeId     uint64 `json:"node_id" gorm:"column:node_id"`         // 节点ID
+		Id     uint64 `json:"id" gorm:"column:id"`           // id
+		Addr   string `json:"addr" gorm:"column:addr"`       // ip地址
+		NodeId uint64 `json:"node_id" gorm:"column:node_id"` // 节点ID
 		//UserId     uint64 `json:"user_id" gorm:"column:user_id"`         // 用户ID
-		Remark     string `json:"remark" gorm:"column:remark"`         // 备注
+		Remark     string `json:"remark" gorm:"column:remark"`           // 备注
 		CreateTime int64  `json:"create_time" gorm:"column:create_time"` // 创建时间
 	}
 	HostReq struct {
-		Addr     string `json:"addr" `
-		NodeId   uint64 `json:"node_id" `
+		Addr   string `json:"addr" `
+		NodeId uint64 `json:"node_id" `
 		//UserId   uint64 `json:"user_id" `
-		PageNum  int    `json:"page_num"`
-		PageSize int    `json:"page_size"`
+		PageNum  int `json:"page_num"`
+		PageSize int `json:"page_size"`
 	}
 	UpdateHost struct {
 		Id uint64
@@ -30,14 +30,14 @@ type (
 		Addr   string `json:"addr" gorm:"column:addr"`       // ip地址
 		NodeId uint64 `json:"node_id" gorm:"column:node_id"` // 节点ID
 		UserId uint64 `json:"user_id"`                       //所属用户
-		Remark string `json:"remark"`						 //备注
+		Remark string `json:"remark"`                        //备注
 	}
 )
 
 //获取节点
 func GetList(req *HostReq) (list []*DdosHostIp, total int64, err error) {
 	//从数据库获取
-	model := model.MysqlConn.Model(&DdosHostIp{})
+	model := model.MysqlConn.Model(&DdosHostIp{}).Where("is_delete=?", 0)
 	if req != nil {
 		if req.Addr != "" {
 			model = model.Where("addr=?", req.Addr)
@@ -84,17 +84,19 @@ func Add(req *AddHost) (insertId uint64, err error) {
 		return
 	}
 
-	var num int64
-	model.MysqlConn.Model(&DdosHostIp{}).Where("addr=? and node_id = ?", req.Addr, req.NodeId).Count(&num)
+	var num *DdosHostIp
+	model.MysqlConn.Model(&DdosHostIp{}).Where("addr=? and node_id = ?", req.Addr, req.NodeId).First(&num)
 
-	if num > 0 {
-		err = fmt.Errorf("该高防IP已添加")
-		return 0, err
+	if num != nil && num.Id > 0 {
+		//err = fmt.Errorf("该高防IP已添加")
+		err = model.MysqlConn.Model(&DdosHostIp{}).Where("id =?", num.Id).Update("is_delete", 0).Error
+
+		return num.Id, err
 	}
 
 	host := DdosHostIp{
-		Addr:       req.Addr,
-		NodeId:     req.NodeId,
+		Addr:   req.Addr,
+		NodeId: req.NodeId,
 		//UserId:     req.UserId,
 		Remark:     req.Remark,
 		CreateTime: time.Now().Unix(),
@@ -125,15 +127,16 @@ func Edit(req *AddHost, id uint64) (rows int64, err error) {
 	rows = res.RowsAffected
 	return
 }
+
 //查询
-func Info( id uint64) (ent *DdosHostIp, err error) {
+func Info(id uint64) (ent *DdosHostIp, err error) {
 	var entity DdosHostIp
 	err = model.MysqlConn.Where("id=?", id).Find(&entity).Error
-	return &entity,err
+	return &entity, err
 }
 
 //删除
 func DeleteByIds(ids []uint64) (err error) {
-	res := model.MysqlConn.Where("id in (?)", ids).Delete(&DdosHostIp{})
+	res := model.MysqlConn.Model(&DdosHostIp{}).Where("id in (?)", ids).Update("is_delete", 1)
 	return res.Error
 }
