@@ -1,6 +1,14 @@
 package edge_db_nodes
 
-import "github.com/1uLang/zhiannet-api/common/model"
+import (
+	"fmt"
+	"github.com/1uLang/zhiannet-api/common/model"
+	"github.com/1uLang/zhiannet-api/common/util"
+	gmysql "gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
+)
 
 type EdgeDBNodes struct {
 	Id          uint   `gorm:"column:id" json:"id" form:"id"`                            //ID
@@ -25,5 +33,34 @@ type EdgeDBNodes struct {
 //获取节点详细信息
 func GetNodeInfo() (info *EdgeDBNodes, err error) {
 	err = model.MysqlConn.Table("edgeDBNodes").Where("isOn=?", 1).First(&info).Error
+	return
+}
+
+func NewConn() (conn *gorm.DB, err error) {
+	node, err := GetNodeInfo()
+	if err != nil {
+		return
+	}
+	if node == nil {
+		err = fmt.Errorf("找不到数据库节点")
+		return
+	}
+	node.Password = util.DecodePassword(node.Password)
+	if node.Charset == "" {
+		node.Charset = "utf8mb4"
+	}
+	dsn := fmt.Sprintf("%v:%v@tcp(%v:%d)/%v?charset=%v&parseTime=True&loc=Local",
+		node.Username, node.Password, node.Host, node.Port, node.Database, node.Charset)
+	conn, err = gorm.Open(gmysql.Open(dsn), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix:   "",   //表前缀
+			SingularTable: true, //表名复数形式
+		},
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
+	if err != nil {
+		return
+	}
+
 	return
 }
