@@ -26,8 +26,9 @@ const (
 	OPNSENSE_NAT_1TO1_INFO_URL   = "/firewall_nat_1to1_edit.php" //nat 1:1 详情或修改
 	OPNSENSE_NAT_1TO1_STATUS_URL = "/firewall_nat_1to1.php"      //nat 1:1 启动停止,应用修改
 
-	OPNSENSE_ACL_LIST_URL    = "/firewall_rules.php"         //acl 规则列表
-	OPNSENSE_ACL_INFO_URL    = "/firewall_rules_edit.php"    //acl 规则详情
-	OPNSENSE_CLAMAV_INFO_URL = "/api/clamav/service/version" //病毒库版本
+	OPNSENSE_ACL_LIST_URL    = "/firewall_rules.php"                   //acl 规则列表
+	OPNSENSE_ACL_INFO_URL    = "/firewall_rules_edit.php"              //acl 规则详情
+	OPNSENSE_CLAMAV_INFO_URL = "/api/clamav/service/version"           //病毒库版本
+	OPNSENSE_CLAMAV_LOG_URL  = "/api/diagnostics/log/clamav/freshclam" //病毒库更新列表
 
 )

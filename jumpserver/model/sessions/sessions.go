@@ -2,7 +2,6 @@ package sessions
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/1uLang/zhiannet-api/jumpserver/model"
 	"github.com/1uLang/zhiannet-api/jumpserver/model/assets"
 	"github.com/1uLang/zhiannet-api/jumpserver/request"
@@ -69,7 +68,7 @@ func Monitor(req *request.Request, id string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(resp)
+	//fmt.Println(resp)
 
 	return err
 }

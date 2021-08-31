@@ -72,7 +72,7 @@ func AttackLogList(req *AttackLogReq, loginReq *request.LoginReq, retry bool) (r
 	}).Post(url)
 	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_LOGS_REPORT_ATTACK_URL)
 
-	fmt.Println(string(resp.Body()), err)
+	//fmt.Println(string(resp.Body()), err)
 
 	err = xml.Unmarshal(resp.Body(), &res)
 	if err != nil {

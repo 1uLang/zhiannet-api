@@ -18,3 +18,11 @@ func Test_clamav(t *testing.T) {
 	fmt.Println(list)
 	fmt.Println(err)
 }
+
+func Test_clamav_log(t *testing.T) {
+	list, err := GetLog(&LogReq{
+		NodeId: 2,
+	})
+	fmt.Println(list)
+	fmt.Println(err)
+}

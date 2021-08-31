@@ -1,7 +1,6 @@
 package black_white_list
 
 import (
-	"fmt"
 	"github.com/1uLang/zhiannet-api/ddos/request"
 	"github.com/1uLang/zhiannet-api/ddos/request/black_white_list"
 	"github.com/1uLang/zhiannet-api/ddos/server"
@@ -25,7 +24,7 @@ func GetBWList(req *BWReq) (list *black_white_list.StatusBwlist, err error) {
 	//获取节点信息
 	var logReq *request.LoginReq
 	logReq, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
-	fmt.Println("logReq==", logReq)
+	//fmt.Println("logReq==", logReq)
 	if err != nil {
 		return
 	}
@@ -39,7 +38,7 @@ func AddBW(req *EditBWReq) (res *black_white_list.Success, err error) {
 	//获取节点信息
 	var logReq *request.LoginReq
 	logReq, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
-	fmt.Println("logReq==", logReq)
+	//fmt.Println("logReq==", logReq)
 	if err != nil {
 		return
 	}
@@ -53,7 +52,7 @@ func DeleteBW(req *EditBWReq) (res *black_white_list.Success, err error) {
 	//获取节点信息
 	var logReq *request.LoginReq
 	logReq, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
-	fmt.Println("logReq==", logReq)
+	//fmt.Println("logReq==", logReq)
 	if err != nil {
 		return
 	}

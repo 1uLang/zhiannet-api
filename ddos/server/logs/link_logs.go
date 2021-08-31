@@ -1,7 +1,6 @@
 package logs
 
 import (
-	"fmt"
 	"github.com/1uLang/zhiannet-api/ddos/request"
 	"github.com/1uLang/zhiannet-api/ddos/request/logs"
 	"github.com/1uLang/zhiannet-api/ddos/server"
@@ -19,7 +18,7 @@ func GetLinkLogList(req *LinkLogReq) (list *logs.LogsReportLink, err error) {
 	//获取节点信息
 	var logReq *request.LoginReq
 	logReq, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
-	fmt.Println("logReq==", logReq)
+	//fmt.Println("logReq==", logReq)
 	if err != nil {
 		return
 	}

@@ -68,7 +68,7 @@ func GetStatusGlobal(loginReq *request.LoginReq, retry bool) (res *StatusGlobal,
 		//"param_submit_type": "add-host", //
 	}).Get(url)
 	//Get("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_GLOBAL_URL)
-	fmt.Println(string(resp.Body()), err)
+	//fmt.Println(string(resp.Body()), err)
 	if err != nil {
 		//fmt.Println(err)
 		return res, err

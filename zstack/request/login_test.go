@@ -1,4 +1,4 @@
-package global_status
+package request
 
 import (
 	"fmt"
@@ -11,12 +11,13 @@ func init() {
 	model.InitMysqlLink()
 	cache.InitClient()
 }
-
-//全局状态
-func Test_Global(t *testing.T) {
-	res, err := GetGlobalStatus(&GlobalReq{
-		NodeId: 2,
-	})
+func Test_login(t *testing.T) {
+	res, err := GetLoginInfo(&UserReq{})
 	fmt.Println(res)
 	fmt.Println(err)
+}
+
+func Test_login1(t *testing.T) {
+	login0()
+	//login1()
 }

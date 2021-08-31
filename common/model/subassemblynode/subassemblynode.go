@@ -50,7 +50,7 @@ func GetList(req *NodeReq) (list []*Subassemblynode, total int64, err error) {
 	if req.PageSize <= 0 {
 		req.PageSize = 20
 	}
-	err = model.Debug().Offset((req.PageNum - 1) * req.PageSize).Limit(req.PageSize).Order("id desc").Find(&list).Error
+	err = model.Offset((req.PageNum - 1) * req.PageSize).Limit(req.PageSize).Order("id desc").Find(&list).Error
 	if err != nil {
 		return
 	}

@@ -3,8 +3,10 @@ package cron
 import (
 	audit_request "github.com/1uLang/zhiannet-api/audit/request"
 	awvs_request "github.com/1uLang/zhiannet-api/awvs/server"
+	"github.com/1uLang/zhiannet-api/common/cron/logs"
 	"github.com/1uLang/zhiannet-api/common/server/attack_check_server"
 	ddos_request "github.com/1uLang/zhiannet-api/ddos/request"
+	ddos_host "github.com/1uLang/zhiannet-api/ddos/server/host_status"
 	hids_request "github.com/1uLang/zhiannet-api/hids/server"
 	monitor_cron "github.com/1uLang/zhiannet-api/monitor/cron"
 	nessus_request "github.com/1uLang/zhiannet-api/nessus/server"
@@ -12,6 +14,7 @@ import (
 	nextcloud_request "github.com/1uLang/zhiannet-api/nextcloud/request"
 	opnsense_request "github.com/1uLang/zhiannet-api/opnsense/request"
 	teaweb_request "github.com/1uLang/zhiannet-api/resmon/request"
+	"github.com/1uLang/zhiannet-api/zstack/server/host_server"
 	"github.com/robfig/cron/v3"
 )
 
@@ -46,6 +49,17 @@ func InitCron() {
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&term_request.CheckRequest{}))
 	//tea web 节点监控
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&teaweb_request.CheckRequest{}))
+	//定时检查云底座内的主机，并添加到ddos主机内
+	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&host_server.CheckHost{}))
+	//主机流量异常检查 ddos
+	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&ddos_host.CheckFlow{}))
+
+	//waf日志统计定时任务
+	c.AddJob("0 0 */1 * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&logs.StatisticsWAFLogs{}))
+	//ddos 日志统计定时任务
+	c.AddJob("0 0 */1 * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&logs.StatisticsDDOSLogs{}))
+	//下一代防火墙 日志统计定时任务
+	c.AddJob("0 0 */1 * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&logs.StatisticsNFWLogs{}))
 
 	//入侵事件检测
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&attack_check_server.AttackCheckRequest{}))
