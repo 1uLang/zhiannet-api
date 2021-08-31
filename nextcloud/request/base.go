@@ -79,7 +79,7 @@ func ParseToken(token string) (string, error) {
 
 // FormatTime 解析并格式化时间戳
 func FormatTime(timeStr, format string) string {
-	timestamp, err := time.Parse(time.RFC1123, timeStr)
+	timestamp, err := time.ParseInLocation(time.RFC1123, timeStr, time.Local)
 	if err != nil {
 		return timeStr
 	}

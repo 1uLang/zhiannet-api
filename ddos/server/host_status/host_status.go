@@ -1,7 +1,6 @@
 package host_status
 
 import (
-	"fmt"
 	"github.com/1uLang/zhiannet-api/common/model/edge_users"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/ddos/model/ddos_host_ip"
@@ -60,7 +59,7 @@ type (
 		UdpConn      float64 `json:"udp_conn"`      //udp  连接数
 		UserName     string  `json:"user_name"`     //用户名
 		Remark       string  `json:"remark"`        //备注
-		NodeId 		 uint64 `json:"node_id"`
+		NodeId       uint64  `json:"node_id"`
 	}
 )
 
@@ -138,7 +137,7 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 
 	for k, v := range hostList { //所有ip的数据
 		l := &HostListResp{
-			Addr: v.Netaddr,
+			Addr:   v.Netaddr,
 			Remark: itemsMap[v.Netaddr].Remark,
 			NodeId: itemsMap[v.Netaddr].NodeId,
 			//UserName: "",
@@ -205,7 +204,7 @@ func GetUserInfoByUid(req map[string]uint64) (list map[uint64]*edge_users.EdgeUs
 
 func UpdateAddr(req *ddos_host_ip.UpdateHost) (err error) {
 
-	o ,err := ddos_host_ip.Info(req.Id)
+	o, err := ddos_host_ip.Info(req.Id)
 	if err != nil {
 		return err
 	}
@@ -215,13 +214,14 @@ func UpdateAddr(req *ddos_host_ip.UpdateHost) (err error) {
 		if err != nil {
 			return err
 		}
-		_,err  = AddAddr(&req.AddHost)
+		_, err = AddAddr(&req.AddHost)
 		return err
-	}else{
-		_,err = ddos_host_ip.Edit(&req.AddHost,req.Id)
+	} else {
+		_, err = ddos_host_ip.Edit(&req.AddHost, req.Id)
 		return err
 	}
 }
+
 //添加高仿IP
 func AddAddr(req *ddos_host_ip.AddHost) (id uint64, err error) {
 	//添加ip到数据库
@@ -233,7 +233,7 @@ func AddAddr(req *ddos_host_ip.AddHost) (id uint64, err error) {
 	//获取节点信息
 	var logReq *request.LoginReq
 	logReq, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
-	fmt.Println("logReq==", logReq)
+	//fmt.Println("logReq==", logReq)
 	if err != nil {
 		return
 	}
@@ -255,7 +255,7 @@ func GetHostShieldList(req *ShieldReq) (list *host_status.StatusFblink, err erro
 	//获取节点信息
 	var logReq *request.LoginReq
 	logReq, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
-	fmt.Println("logReq==", logReq)
+	//fmt.Println("logReq==", logReq)
 	if err != nil {
 		return
 	}
@@ -271,7 +271,7 @@ func ReleaseShield(req *ReleaseShieldReq) (err error) {
 	//获取节点信息
 	var logReq *request.LoginReq
 	logReq, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
-	fmt.Println("logReq==", logReq)
+	//fmt.Println("logReq==", logReq)
 	if err != nil {
 		return
 	}
@@ -285,7 +285,7 @@ func GetLinkList(req *LinkReq) (list *host_status.StatusLink, err error) {
 	//获取节点信息
 	var logReq *request.LoginReq
 	logReq, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
-	fmt.Println("logReq==", logReq)
+	//fmt.Println("logReq==", logReq)
 	if err != nil {
 		return
 	}
@@ -299,7 +299,7 @@ func GetHostInfo(req *HostGetReq) (res *host_status.StatusHostResp, err error) {
 	//获取节点信息
 	var logReq *request.LoginReq
 	logReq, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
-	fmt.Println("logReq==", logReq)
+	//fmt.Println("logReq==", logReq)
 	if err != nil {
 		return
 	}
@@ -314,7 +314,7 @@ func SetHost(req *HostSetReq) (res *host_status.Success, err error) {
 	//获取节点信息
 	var logReq *request.LoginReq
 	logReq, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
-	fmt.Println("logReq==", logReq)
+	//fmt.Println("logReq==", logReq)
 	if err != nil {
 		return
 	}

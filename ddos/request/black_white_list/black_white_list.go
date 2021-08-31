@@ -64,7 +64,7 @@ func BWList(req *BWListReq, loginReq *request.LoginReq, retry bool) (res *Status
 	}).Post(url)
 	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_BWLIST_URL)
 
-	fmt.Println(string(resp.Body()), err)
+	//fmt.Println(string(resp.Body()), err)
 
 	err = xml.Unmarshal(resp.Body(), &res)
 	if err != nil {
@@ -102,7 +102,7 @@ func AddBW(req *EditBWReq, loginReq *request.LoginReq, retry bool) (res *Success
 	}).Post(url)
 	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_BWLIST_URL)
 
-	fmt.Println(string(resp.Body()), err)
+	//fmt.Println(string(resp.Body()), err)
 
 	err = xml.Unmarshal(resp.Body(), &res)
 	if err != nil {
@@ -129,7 +129,7 @@ func DeleteBW(req *EditBWReq, loginReq *request.LoginReq, retry bool) (res *Succ
 	}).Post(url)
 	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_BWLIST_URL)
 
-	fmt.Println(string(resp.Body()), err)
+	//fmt.Println(string(resp.Body()), err)
 
 	err = xml.Unmarshal(resp.Body(), &res)
 	if err != nil {

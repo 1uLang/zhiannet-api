@@ -68,7 +68,7 @@ func Create(req *request.Request, args *CreateReq) (map[string]interface{}, erro
 	}
 	//解析返回值
 	info := make(map[string]interface{}, 0)
-	fmt.Println(info)
+	//fmt.Println(info)
 	err = json.Unmarshal(ret, &info)
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func Create(req *request.Request, args *CreateReq) (map[string]interface{}, erro
 		AdminUserId: args.AdminUserId,
 		AdUser:      info["id"].(string),
 	})
-	fmt.Println(info, args.UserId, args.AdminUserId)
+	//fmt.Println(info, args.UserId, args.AdminUserId)
 	return info, err
 }
 func Delete(req *request.Request, id string) error {

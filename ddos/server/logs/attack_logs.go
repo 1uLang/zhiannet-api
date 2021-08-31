@@ -41,11 +41,11 @@ func GetAttackLogList(req *AttackLogReq) (list *logs.LogsReportAttack, err error
 	}
 	if req.StartTime.IsZero() {
 		timeStr := time.Now().Add(-time.Hour * 48).Format("2006-01-02")
-		req.StartTime, _ = time.Parse("2006-01-02", timeStr)
+		req.StartTime, _ = time.ParseInLocation("2006-01-02", timeStr, time.Local)
 	}
 	if req.EndTime.IsZero() {
 		timeStr := time.Now().Add(time.Hour * 24).Format("2006-01-02")
-		req.EndTime, _ = time.Parse("2006-01-02", timeStr)
+		req.EndTime, _ = time.ParseInLocation("2006-01-02", timeStr, time.Local)
 		req.EndTime = req.EndTime.Add(-time.Second)
 	}
 	nodes, _, err := host_status_server.GetHostList(&ddos_host_ip.HostReq{NodeId: req.NodeId, PageNum: 1, PageSize: 9999})
