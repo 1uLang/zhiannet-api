@@ -10,6 +10,10 @@ import (
 func List(req *targets.ListReq) (info map[string]interface{}, err error) {
 	return targets.List(req)
 }
+//条数查询所有
+func Search(req *targets.ListReq) (info []interface{}, err error) {
+	return targets.Search(req)
+}
 
 //Add 新建目标
 func Add(req *targets.AddReq) (targetId string, err error) {

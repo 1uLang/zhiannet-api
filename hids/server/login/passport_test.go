@@ -1,4 +1,4 @@
-package request
+package login
 
 import (
 	"testing"
@@ -6,11 +6,12 @@ import (
 
 func TestLogin(t *testing.T) {
 	ap := ApiKey{}
-	ap.Addr = "https://hids.zhiannet.com/manager/main"
+	ap.Addr = "https://hids.zhiannet.com"
 	ap.IsSsl = true
-	ap.Username = "admin"
-	ap.Password = "aqgDdfi72hv1!r!WNsafedog"
-	_,err := Login(&ap)
+	ap.Username = "dengbao"
+	ap.Password = "Cloud123!@#"
+	pp := Passport{}
+	_,err := pp.Login(&ap)
 	if err != nil {
 		t.Fatal(err)
 	}

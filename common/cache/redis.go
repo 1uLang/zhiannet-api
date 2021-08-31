@@ -36,6 +36,28 @@ var ApiDbPath = "./build/configs/api_db.yaml"
 //}
 
 // 初始化连接
+func InitTestClient() (err error) {
+
+	if err != nil {
+		//panic(fmt.Errorf("zhiannet package redis link yaml.Unmarshal err %v", err))
+		return err
+	}
+	Rdb = redis.NewClient(&redis.Options{
+		Addr:     "192.168.137.8:6379",     //"45.195.61.132:6379",
+		Password: "", //"1232345342675", // no password set
+		DB:       0,                   // use default DB
+		PoolSize: 100,                 // 连接池大小
+	})
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err = Rdb.Ping(ctx).Result()
+	if err != nil {
+		//panic(fmt.Errorf("zhiannet-api package link redis err %v", err))
+	}
+	return err
+}
 func InitClient() (err error) {
 	var yamlFile []byte
 	conf := new(RdbConfig)

@@ -58,9 +58,9 @@ func BWList(req *BWListReq, loginReq *request.LoginReq, retry bool) (res *Status
 			Name:  "sid",
 			Value: request.GetCookie(loginReq),
 		}).SetFormData(map[string]string{
-		"param_submit_type": "select",                    //查询
+		"param_submit_type": "select",                   //查询
 		"param_page":        fmt.Sprintf("%v", req.Page), //分页
-		"param_address":     req.Addr,                    //单个IP查询
+		"param_address":     req.Addr,                   //单个IP查询
 	}).Post(url)
 	//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_STATUS_BWLIST_URL)
 

@@ -11,7 +11,7 @@ type (
 		IP          string `gorm:"column:ip" json:"ip" form:"ip"`                                  //agent ip
 		UserId      uint64 `gorm:"column:user_id" json:"user_id" form:"user_id"`                   //用户ID
 		AdminUserId uint64 `gorm:"column:admin_user_id" json:"admin_user_id" form:"admin_user_id"` //admin用户ID
-		IsDelete    uint8    `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除
+		IsDelete    uint8  `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除
 		CreateTime  int64  `gorm:"column:create_time" json:"create_time" form:"create_time"`       //创建时间
 	}
 	ListReq struct {
@@ -95,6 +95,15 @@ func GetList(req *ListReq) (list []*hidsAgents, total int64, err error) {
 	if err != nil || total == 0 {
 		return
 	}
+	err = model.Debug().Order("id desc").Find(&list).Error
+	if err != nil {
+		return
+	}
+	return
+}
+func GetUserListByAgentIP(ip string) (list []*hidsAgents, err error) {
+	model := db_model.MysqlConn.Model(&hidsAgents{}).Where("is_delete=?", 0).Where("ip=?",ip)
+
 	err = model.Debug().Order("id desc").Find(&list).Error
 	if err != nil {
 		return

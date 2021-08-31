@@ -1,128 +1,148 @@
-package request
+package login
 
 import (
-	"bytes"
 	"crypto/md5"
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/tls"
-	"crypto/x509"
 	"encoding/json"
-	"encoding/pem"
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/cache"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/go-resty/resty/v2"
+	"github.com/1uLang/zhiannet-api/hids/server/login/util"
 	"github.com/tidwall/gjson"
+	"net/url"
+	"regexp"
+	"strings"
 	"time"
 )
 
-var Client = resty.New().SetDebug(false).SetTimeout(time.Second * 60)
+const (
+	login_html_url = "/passport/login.html"
+	login_api_url  = "/sso/login"
+)
 
-var publicKey = `-----BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCYJzVL82l9rPGTvJKtaSM2p27v
-ujEsJhlq8QgUHB9958ZVg1i0t5wPhbJsK0ASlRLPa7jIV2rNxKSoqZR8Jkhj9Xm8
-ipUX0+qlf5r6z9vHSa29UaWSBH4QznSxkKB0jhdISnwcVVlBSxuwOj0uVgqjIkK4
-6E4fNu3yGx1FfL9rXQIDAQAB
------END PUBLIC KEY-----
-`
-
-func encrypt(pswd string) string {
-	//获取public key
-	block, _ := pem.Decode([]byte(publicKey))
-	if block == nil {
-		panic("failed to parse PEM block containing the public key")
-	}
-
-	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
-	if err != nil {
-		panic("failed to parse DER encoded public key: " + err.Error())
-	}
-
-	//类型断言
-	publicKey := pub.(*rsa.PublicKey)
-	//对明文进行加密
-	cipherText, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, []byte(fmt.Sprintf("%x",md5.Sum([]byte(pswd+"safedog")))))
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(cipherText))
-	return string(cipherText)
-	//返回密文
-	//return "QoEKoQs9ichARCIlruqwinurNVr1kE14PzxBD1igRUbzIUIJYcy5Kb50p9F+DF5dGEG03rDueAE6WDcTJAje0Z1LTkCB74jeOHzOaFju4eXBhYP5gGfg2/54fs3m2gddOrYEg1E+fYoU5qSSYDIZW9gRhXDOsshjJrC9zplFCLQ="
-}
+type Passport struct{}
 
 //登陆获取cookie
-func Login(req *ApiKey) (CookieMap map[string]string, err error) {
+func (this *Passport) Login(req *ApiKey) (CookieMap map[string]string, err error) {
 	url := req.Addr
-	Client = GetHttpClient(req)
+	Client := GetHttpClient(req)
 	CookieMap = make(map[string]string)
-	// https://182.150.0.109:5443/
-	//访问登陆页 获取登陆需要的唯一凭证 key-value
-	index, err := Client.R().Get(url)
-	if err != nil {
-		return CookieMap, err
-	}
-	//fmt.Println(index.StatusCode())
-	//fmt.Println(string(index.Body()))
-
-	//解析html
-	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(index.Body()))
-	if err != nil {
-		return CookieMap, err
-	}
-	name, value := "", ""
-	//fmt.Println(doc.Html())
-	doc.Find("div class=\"yunlei_login_nr").Each(func(i int, s *goquery.Selection) {
-		// For each item found, get the band and title
-		name, _ = s.Attr("userName")
-		value, _ = s.Attr("password")
-		fmt.Printf("Review %d: %s - %s\n", i, name, value)
-	})
-	//通过标签匹配获取key - value
-	//input := doc.Find("form input[type='hidden']").First()
-	//key, _ = input.Attr("name")
-	//value, _ = input.Attr("value")
-	////登陆 返回cookies
 	resp, err := Client.R().
 		SetHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8").
 		SetHeader("Host", "hids.zhiannet.com").
-		SetHeader("Origin", "https://hids.zhiannet.com").
-		SetHeader("Referer", "https://hids.zhiannet.com/manager/login").
-		SetHeader("Referer", "https://hids.zhiannet.com/manager/login").
-		SetFormData(map[string]string{
-			"userName":     req.Username,
-			"password":     encrypt(req.Password),
-			"validateCode": "6xmb",
-		}).Post("https://hids.zhiannet.com/manager/loginSubmit" + fmt.Sprintf("?__t=0.5070945322296552"))
+		SetHeader("Origin", url).
+		SetHeader("Referer", url+login_html_url).
+		Get(url + login_html_url)
+	if err != nil {
+		return nil, err
+	}
+	re := regexp.MustCompile(`var serviceSid \= \'.*?\'`)
+	sid := re.FindString(string(resp.Body()))
+	sid = strings.TrimPrefix(sid, "var serviceSid = '")
+	sid = strings.TrimSuffix(sid, "'")
+
+	cb := fmt.Sprintf("jQuery30009331923499973542_%v", time.Now().UnixNano()/1000000)
+	//登陆 返回cookies
+	resp, err = Client.SetDebug(true).R().
+		SetHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8").
+		SetHeader("Host", "hids.zhiannet.com").
+		SetHeader("Origin", url).
+		SetHeader("Referer", url+login_html_url).
+		SetHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36").
+		SetQueryString(params2UrlEncode(map[string]string{
+			"sid":      sid,
+			"service":  "https://hids.zhiannet.com/passport/yunleiIndex",
+			"callback": cb,
+			"ajax":     "yes",
+			"_":        fmt.Sprintf("%v", time.Now().UnixNano()/1000000),
+		})).
+		Get(url + login_api_url)
+	if err != nil {
+		return CookieMap, err
+	}
+	rest := map[string]interface{}{}
+	if resp.StatusCode() == 200 {
+		re := regexp.MustCompile(cb + `\(.*?\)`)
+		jq := re.FindString(string(resp.Body()))
+		jq = strings.TrimPrefix(jq, cb+"(")
+		jq = jq[:len(jq)-1]
+		fmt.Println(jq)
+		err := json.Unmarshal([]byte(jq), &rest)
+		if err != nil {
+			return nil, err
+		}
+	}
+	//登陆 返回cookies
+	resp, err = Client.SetDebug(true).R().
+		SetHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8").
+		SetHeader("Host", "hids.zhiannet.com").
+		SetHeader("Origin", url).
+		SetHeader("Referer", url+login_html_url).
+		SetHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36").
+		SetQueryString(params2UrlEncode(map[string]string{
+			"callback":  cb,
+			"userName":  req.Username,
+			"password":  util.Encode([]byte(fmt.Sprintf("%x", md5.Sum([]byte(req.Password+"safedog"))))),
+			"vcode":     "1234",
+			"sid":       sid,
+			"service":   "https://hids.zhiannet.com/passport/yunleiIndex",
+			"execution": rest["execution"].(string),
+			"_eventId":  rest["_eventId"].(string),
+			"access":    "1",
+			"ajax":      "yes",
+			"lt":        rest["lt"].(string),
+			"_":         fmt.Sprintf("%v", time.Now().UnixNano()/1000000),
+		})).
+		Get(url + login_api_url)
 
 	if err != nil {
 		return CookieMap, err
 	}
-	fmt.Println("code========", resp.StatusCode())
 	fmt.Println(string(resp.Body()))
-	fmt.Println("key=", name, "value=", value)
-
 	if resp.StatusCode() == 200 {
 		//获取cookie
 		Cookies := resp.Cookies()
 		if len(Cookies) > 0 {
 			CookieMap["cookie"] = Cookies[0].Value
-			CookieMap["x-csrftoken"] = value //接口调用凭证
 		}
-
 		fmt.Println("cookies", Cookies)
 	}
+	fmt.Println(CookieMap["cookie"])
+	//resp, err = Client.R().
+	//	SetHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8").
+	//	SetHeader("Host", "hids.zhiannet.com").
+	//	SetHeader("Origin", url).
+	//	SetHeader("Cookie",base64.URLEncoding.EncodeToString([]byte("hy_data_2020_id=17ae6c03a058f9-0fb68e4840c342-2343360-2073600-17ae6c03a06e53;"+
+	//		" hy_data_2020_js_sdk={\"distinct_id\":\"17ae6c03a058f9-0fb68e4840c342-2343360-2073600-17ae6c03a06e53\",\"site_id\":1142,"+
+	//		"\"user_company\":1275,\"props\":{},\"device_id\":\"17ae6c03a058f9-0fb68e4840c342-2343360-2073600-17ae6c03a06e53\"}; "))+
+	//		fmt.Sprintf("SESSION=%s; JSESSIONID=934BE728FC0A6B6CE9C39F39F62AB01B.safedogserver2", CookieMap["cookie"])).
+	//	SetHeader("Referer", "https://hids.zhiannet.com/cloudeyes/riskInvade/attackAnalysis/attackAnalysisIndex?r_c_m=1").
+	//	SetFormData(map[string]string{
+	//		"pageSize":  "10",
+	//		"pageNo":    "1",
+	//		"startTime": "2021-08-19",
+	//		"endTime":   "2021-08-25",
+	//	}).Post("https://hids.zhiannet.com//cloudeyes/riskInvade/attackAnalysis/queryAttackAnalysisPage?_t_=0.7768512503905523")
+	//
+	//if err != nil {
+	//	return CookieMap, err
+	//}
+	//fmt.Println(string(resp.Body()))
+	//if resp.StatusCode() == 200 {
+	//	rest := map[string]interface{}{}
+	//	err = json.Unmarshal(resp.Body(), &rest)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//}
 	return CookieMap, err
 }
 
 //获取cookie和接口凭证 x-csrftoken
-func GetCookie(req *ApiKey) (cookie, x_csrftoken string, err error) {
+func (this *Passport) GetCookie(req *ApiKey) (cookie, x_csrftoken string, err error) {
 
 	key := fmt.Sprintf("opnsense-cookie-%v:%v", req.Addr, req.Port)
 	var resp interface{}
 	resp, err = cache.CheckCache(key, func() (interface{}, error) {
-		return Login(req)
+		return this.Login(req)
 	}, 600, true)
 	if err != nil {
 		return cookie, x_csrftoken, err
@@ -136,15 +156,15 @@ func GetCookie(req *ApiKey) (cookie, x_csrftoken string, err error) {
 }
 
 //设置cookie
-func SetCookie(req *ApiKey) (err error) {
-	req.Cookie, req.XCsrfToken, err = GetCookie(req)
+func (this *Passport) SetCookie(req *ApiKey) (err error) {
+	req.Cookie, req.XCsrfToken, err = this.GetCookie(req)
 	return err
 }
+func params2UrlEncode(params map[string]string) string {
 
-//获取请求客户端
-func GetHttpClient(req *ApiKey) *resty.Client {
-	if req.IsSsl {
-		Client = Client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	q := (&url.URL{}).Query()
+	for k, v := range params {
+		q.Add(k, fmt.Sprintf("%v", v))
 	}
-	return Client
+	return q.Encode()
 }

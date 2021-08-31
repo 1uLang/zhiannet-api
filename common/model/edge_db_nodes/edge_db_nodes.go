@@ -58,6 +58,7 @@ func NewConn() (conn *gorm.DB, err error) {
 		},
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
+
 	if err != nil {
 		return
 	}

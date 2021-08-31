@@ -1,0 +1,129 @@
+package attack_check_server
+
+import (
+	"github.com/1uLang/zhiannet-api/hids/model/risk"
+	"github.com/1uLang/zhiannet-api/hids/request"
+	hids_server "github.com/1uLang/zhiannet-api/hids/server"
+	hids_agent_server "github.com/1uLang/zhiannet-api/hids/server/agent"
+	"gopkg.in/fatih/set.v0"
+	"strings"
+)
+import hids_risk_server "github.com/1uLang/zhiannet-api/hids/server/risk"
+
+type hids struct{}
+
+//hids 主机防护入侵检测ip
+
+func (hids) AttackCheck() (ips []string, err error) {
+
+	info, err := hids_server.GetHideInfo()
+	if err != nil {
+		return nil, err
+	}
+	err = hids_server.SetUrl(info.Addr)
+	if err != nil {
+		return nil, err
+	}
+	err = hids_server.SetAPIKeys(&request.APIKeys{info.AppId, info.Secret})
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := hids_agent_server.ListAll()
+	if err != nil {
+		return nil, err
+	}
+	setMap := set.New(set.NonThreadSafe)
+	for _, item := range resp.List {
+		macCode := item["macCode"].(string)
+
+		//查询改macCode的登录异常列表
+		abl, err := hids_risk_server.AbnormalLoginDetailList(&risk.DetailReq{
+			MacCode: macCode,
+		})
+		if err != nil {
+			return nil, err
+		}
+		//查询该异常是否包含ip 有加入到ddos黑名单
+		for _, abnormal := range abl.ServerAbnormalLoginInfoList {
+			loginInfo := abnormal["loginInfo"].(string)
+			if idx := strings.Index(loginInfo, "IP："); idx > 0 {
+				ip := strings.TrimPrefix(loginInfo[idx:], "IP：")
+				setMap.Add(ip)
+			}
+		}
+	}
+	return set.StringSlice(setMap), nil
+}
+
+//hids 主机防火入侵检测 网页后门
+//自动对其进行web漏洞扫描
+func (hids) WebShellAttackCheck() (ips []string, err error) {
+	info, err := hids_server.GetHideInfo()
+	if err != nil {
+		return nil, err
+	}
+	err = hids_server.SetUrl(info.Addr)
+	if err != nil {
+		return nil, err
+	}
+	err = hids_server.SetAPIKeys(&request.APIKeys{info.AppId, info.Secret})
+	if err != nil {
+		return nil, err
+	}
+
+	list, err := risk.WebShellAllList()
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range list.WebshellCountInfoList {
+		ips = append(ips, v["serverIp"].(string))
+	}
+	return ips, err
+}
+
+//获取改agent ip 所属用户列表
+func getAgentIpUsers(ip string) (users []uint64, admins []uint64, err error) {
+	return hids_agent_server.GetUserListByAgentIP(ip)
+}
+
+//检测所有agent ip 是否异常
+func ErrorCheck() error {
+	info, err := hids_server.GetHideInfo()
+	if err != nil {
+		return err
+	}
+	err = hids_server.SetUrl(info.Addr)
+	if err != nil {
+		return err
+	}
+	err = hids_server.SetAPIKeys(&request.APIKeys{info.AppId, info.Secret})
+	if err != nil {
+		return err
+	}
+
+	resp, err := hids_agent_server.ListAll()
+	if err != nil {
+		return err
+	}
+	for _, item := range resp.List {
+		serverIp := item["serverIp"].(string)
+
+		//查询该ip所属用户列表
+		users, admins, err := getAgentIpUsers(serverIp)
+		if err != nil {
+			return err
+		}
+		//判断是否存在入侵威胁或漏洞风险
+		err = checkRiskAndCreateMessage(serverIp, users, admins)
+	}
+	return nil
+}
+func checkRiskAndCreateMessage(ip string, users, admins []uint64) error {
+
+	if len(users) > 0 || len(admins) > 0 {
+		return nil
+	}
+
+	return nil
+}

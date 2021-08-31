@@ -4,6 +4,10 @@ import "github.com/1uLang/zhiannet-api/awvs/model/scans"
 
 //scans 扫描接口层
 
+//Search 扫描查询所有
+func Search(req *scans.ListReq) (info []interface{}, err error) {
+	return scans.Search(req)
+}
 //List 扫描列表
 func List(req *scans.ListReq) (info map[string]interface{}, err error) {
 	return scans.List(req)

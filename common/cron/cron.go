@@ -3,6 +3,7 @@ package cron
 import (
 	audit_request "github.com/1uLang/zhiannet-api/audit/request"
 	awvs_request "github.com/1uLang/zhiannet-api/awvs/server"
+	"github.com/1uLang/zhiannet-api/common/server/attack_check_server"
 	ddos_request "github.com/1uLang/zhiannet-api/ddos/request"
 	hids_request "github.com/1uLang/zhiannet-api/hids/server"
 	monitor_cron "github.com/1uLang/zhiannet-api/monitor/cron"
@@ -46,5 +47,7 @@ func InitCron() {
 	//tea web 节点监控
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&teaweb_request.CheckRequest{}))
 
+	//入侵事件检测
+	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&attack_check_server.AttackCheckRequest{}))
 	c.Start()
 }

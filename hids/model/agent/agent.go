@@ -58,6 +58,27 @@ func Install(osType string) (string, error) {
 }
 
 //List agent安装主机列表
+func ListAll(args *SearchReq) (list SearchResp, err error) {
+
+	req, err := request.NewRequest()
+	if err != nil {
+		return list, err
+	}
+	req.Method = "get"
+	req.Path = _const.Ageent_list_api_url
+	req.Headers["signNonce"] = util.RandomNum(10)
+	args.UserName = model.HidsUserNameAPI
+	args.PageSize = 10
+	args.PageNo = 1
+	req.Params = model.ToMap(args)
+	resp, err := req.Do()
+	if err != nil {
+		return list, err
+	}
+
+	_, err = model.ParseResp(resp, &list)
+	return list, err
+}
 func List(args *SearchReq) (list SearchResp, err error) {
 	agentList := make([]map[string]interface{}, 0)
 	agents, total, err := GetList(&ListReq{UserId: args.UserId, AdminUserId: args.AdminUserId})

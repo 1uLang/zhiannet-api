@@ -2,8 +2,12 @@ package targets
 
 import (
 	"fmt"
+	_const "github.com/1uLang/zhiannet-api/awvs/const"
+	awvs_model "github.com/1uLang/zhiannet-api/awvs/model"
+	"github.com/1uLang/zhiannet-api/awvs/request"
 	"github.com/1uLang/zhiannet-api/common/model"
 	db_model "github.com/1uLang/zhiannet-api/common/model"
+	"github.com/tidwall/gjson"
 )
 
 type (
@@ -21,6 +25,11 @@ type (
 		PageNum     int    `json:"page_num" `                                                      //页数
 		PageSize    int    `json:"page_size" `                                                     //每页条数
 		TargetId    string `gorm:"column:target_id" json:"target_id" form:"target_id"`             //扫描ID
+	}
+	CheckAddrReq struct {
+		Addr        string `json:"-"`
+		UserId      uint64 `json:"-"`
+		AdminUserId uint64 `json:"-"`
 	}
 )
 
@@ -85,6 +94,51 @@ func GetNum(req *AddrListReq) (total int64, err error) {
 	err = model.Count(&total).Error
 
 	return
+}
+
+func CheckAddr(arg *CheckAddrReq) (id string,isExist bool, err error) {
+
+	req, err := request.NewRequest()
+	if err != nil {
+		return "",false, err
+	}
+
+	req.Method = "GET"
+	req.Url += _const.Targets_api_url
+	args := &ListReq{UserId: arg.UserId, AdminUserId: arg.AdminUserId}
+	args.Limit = 100
+	req.Params = awvs_model.ToMap(args)
+
+	resp, err := req.Do()
+	if err != nil {
+		return "",false, err
+	}
+	if args.UserId == 0 && args.AdminUserId == 0 {
+		return "",false, err
+	}
+	//获取数据库 当前用户的扫描用户
+	targetList, total, err := GetList(&AddrListReq{
+		UserId:      args.UserId,
+		AdminUserId: args.AdminUserId,
+		PageSize:    999,
+		PageNum:     1,
+	})
+	if total == 0 || err != nil {
+		return "",false, err
+	}
+	tarMap := map[string]int{}
+	for _, v := range targetList {
+		tarMap[v.TargetId] = 0
+	}
+	resList := gjson.ParseBytes(resp)
+	if resList.Get("targets").Exists() {
+		for _, v := range resList.Get("targets").Array() {
+			if _, ok := tarMap[v.Get("target_id").String()]; ok && v.Get("address").String() == arg.Addr{
+				return v.Get("target_id").String(),true,nil
+			}
+		}
+	}
+	return "",false,nil
 }
 
 //添加数据

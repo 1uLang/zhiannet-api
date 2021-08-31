@@ -9,7 +9,35 @@ import (
 	"time"
 )
 
+func Search(args *ListReq) (list []interface{}, err error) {
+	req, err := request.NewRequest()
+	if err != nil {
+		return nil, err
+	}
+
+	req.Method = "GET"
+	req.Url += _const.Targets_api_url
+	args.Limit = 100
+	req.Params = model.ToMap(args)
+
+	resp, err := req.Do()
+	if err != nil {
+		return nil, err
+	}
+	respInfo, err := model.ParseResp(resp)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(string(resp))
+	if targets,ok := respInfo["targets"]; ok {
+		return targets.([]interface{}), nil
+	}else{
+		return nil,nil
+	}
+
+}
 //List 	目标列表
+
 func List(args *ListReq) (list map[string]interface{}, err error) {
 	req, err := request.NewRequest()
 	if err != nil {
@@ -64,6 +92,10 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 //Add 添加目标
 func Add(args *AddReq) (target_id string, err error) {
 
+	if args.C {	//检测 该addr 是否已添加 是着 直接返回
+
+	}
+
 	ok, err := args.Check()
 	if err != nil || !ok {
 		return "", fmt.Errorf("参数错误：%v", err)
@@ -88,7 +120,7 @@ func Add(args *AddReq) (target_id string, err error) {
 	//TODO 暂不处理入库失败
 	//入库
 	target_id = fmt.Sprintf("%v", ret["target_id"])
-	AddAddr(&WebscanAddr{
+	_,_ = AddAddr(&WebscanAddr{
 		UserId:      args.UserId,
 		AdminUserId: args.AdminUserId,
 		TargetId:    target_id,

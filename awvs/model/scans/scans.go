@@ -9,6 +9,32 @@ import (
 	"github.com/tidwall/gjson"
 )
 
+func Search(args *ListReq) (list []interface{}, err error) {
+	req, err := request.NewRequest()
+	if err != nil {
+		return nil, err
+	}
+
+	req.Method = "GET"
+	req.Url += _const.Scans_api_url
+	args.Limit = 100
+	req.Params = model.ToMap(args)
+
+	resp, err := req.Do()
+	if err != nil {
+		return nil, err
+	}
+	respInfo, err := model.ParseResp(resp)
+	if err != nil {
+		return nil, err
+	}
+	if scans,ok := respInfo["scans"]; ok {
+		return scans.([]interface{}), nil
+	}else{
+		return nil,nil
+	}
+}
+
 //List 扫描列表
 //参数：
 //	l 显示条数 int

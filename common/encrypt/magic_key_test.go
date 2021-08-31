@@ -104,10 +104,10 @@ func TestMagicKeyEncode(t *testing.T) {
 	var day int
 	var hour int
 	var err error
-	code = "19776ce3be75401480a49cc097a93b54"
-	year = 0
-	month = 1
-	day = 4
+	code = "eb61dd90c7514b039d946cc7ec54c6b8"
+	year = 1
+	month = 0
+	day = 0
 	now := time.Now()
 	nowt := now.Unix()
 	//addt := now.AddDate(year,month,day).Add(time.Duration(hour) * time.Hour)

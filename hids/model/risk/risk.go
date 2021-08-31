@@ -13,6 +13,9 @@ import (
 )
 
 //系统漏洞 - 入侵威胁
+//func CheckAttack(ip string) (bool, error) {
+//
+//}
 
 //SystemRiskList 服务器系统漏洞信息列表
 func SystemRiskList(args *SearchReq) (list SearchResp, err error) {
@@ -202,6 +205,10 @@ func VirusList(args *RiskSearchReq) (list RiskSearchResp, err error) {
 	ret.VirusCountInfoList = agentList
 	ret.TotalData = totalData
 	return ret, nil
+}
+
+func WebShellAllList() (list RiskSearchResp, err error) {
+	return riskList(_const.Risk_webshell_api_url, &RiskSearchReq{})
 }
 
 //WebShellList 网页后门列表
@@ -486,7 +493,7 @@ func SystemDistributed(args *SearchReq) (info SystemDistributedResp, err error) 
 		info.Middle += middle
 		info.High += high
 		info.Critical += critical
-		host ++
+		host++
 		info.List = append(info.List, node)
 	}
 	info.Total = info.Low + info.Middle + info.High + info.Critical
@@ -548,7 +555,7 @@ func WeakList(args *SearchReq) (info SystemDistributedResp, err error) {
 		info.Middle += middle
 		info.High += high
 		info.Critical += critical
-		host ++
+		host++
 		info.List = append(info.List, node)
 	}
 	info.Total = info.Low + info.Middle + info.High + info.Critical
@@ -610,7 +617,7 @@ func DangerAccountList(args *SearchReq) (info SystemDistributedResp, err error) 
 		info.Middle += middle
 		info.High += high
 		info.Critical += critical
-		host ++
+		host++
 		info.List = append(info.List, node)
 	}
 	info.Total = info.Low + info.Middle + info.High + info.Critical
@@ -752,7 +759,6 @@ func detailList(args *DetailReq, path string, all ...bool) (info DetailResp, err
 	}
 	_, err = model.ParseResp(resp, &info)
 	count := args.Req.PageSize
-
 	for ; len(all) > 0 && all[0] && info.TotalData > count; count += args.Req.PageSize {
 		args.Req.PageNo++
 		var ret DetailResp
@@ -840,46 +846,46 @@ func ConfigDefectDetailList(args *DetailReq) (info DetailResp, err error) {
 
 //VirusDetailList 入侵威胁病毒木马详情列表
 func VirusDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detailList(args, _const.Risk_Virus_detail_list_api_url)
+	return detailList(args, _const.Risk_Virus_detail_list_api_url, true)
 }
 
 //WebShellDetailList 入侵威胁网页后门详情列表
 func WebShellDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detailList(args, _const.Risk_webshell_detail_list_api_url)
+	return detailList(args, _const.Risk_webshell_detail_list_api_url, true)
 }
 
 //ReboundDetailList 入侵威胁详情列表
 func ReboundDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detailList(args, _const.Risk_reboundshell_detail_list_api_url)
+	return detailList(args, _const.Risk_reboundshell_detail_list_api_url, true)
 }
 
 //AbnormalAccountDetailList 入侵威胁异常账号详情列表
 func AbnormalAccountDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detailList(args, _const.Risk_abnormal_account_detail_list_api_url)
+	return detailList(args, _const.Risk_abnormal_account_detail_list_api_url, true)
 
 }
 
 //LogDeleteDetailList 入侵威胁日志异常删除详情列表
 func LogDeleteDetailList(args *DetailReq) (info DetailResp, err error) {
 
-	return detailList(args, _const.Risk_log_delete_detail_list_api_url)
+	return detailList(args, _const.Risk_log_delete_detail_list_api_url, true)
 }
 
 //AbnormalLoginDetailList 入侵威胁异常登录详情列表
 func AbnormalLoginDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detailList(args, _const.Risk_abnormal_login_detail_list_api_url)
+	return detailList(args, _const.Risk_abnormal_login_detail_list_api_url, true)
 
 }
 
 //AbnormalProcessDetailList 入侵威胁异常进程详情列表
 func AbnormalProcessDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detailList(args, _const.Risk_abnormal_process_detail_list_api_url)
+	return detailList(args, _const.Risk_abnormal_process_detail_list_api_url, true)
 
 }
 
 //SystemCmdDetailList 入侵威胁命令篡改详情列表
 func SystemCmdDetailList(args *DetailReq) (info DetailResp, err error) {
-	return detailList(args, _const.Risk_system_cmd_detail_list_api_url)
+	return detailList(args, _const.Risk_system_cmd_detail_list_api_url, true)
 }
 
 //riskDetail 入侵威胁详情
