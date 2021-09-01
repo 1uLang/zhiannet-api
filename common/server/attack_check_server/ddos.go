@@ -80,6 +80,8 @@ func (ddos) AttackCheck() error {
 			if len(ips) > 0 {
 				//将ip加入改节点黑名单
 				_, err = black_white_list_server.AddBW(&black_white_list_server.EditBWReq{NodeId: v.Id, Addr: ips})
+				//将ip加到hids 黑名单中
+				_ = addBlackList(ips)
 				if err != nil {
 					return err
 				}

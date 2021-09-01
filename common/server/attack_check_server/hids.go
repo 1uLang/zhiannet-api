@@ -1,6 +1,7 @@
 package attack_check_server
 
 import (
+	"github.com/1uLang/zhiannet-api/hids/model/bwlist"
 	"github.com/1uLang/zhiannet-api/hids/model/risk"
 	"github.com/1uLang/zhiannet-api/hids/request"
 	hids_server "github.com/1uLang/zhiannet-api/hids/server"
@@ -86,44 +87,18 @@ func (hids) WebShellAttackCheck() (ips []string, err error) {
 func getAgentIpUsers(ip string) (users []uint64, admins []uint64, err error) {
 	return hids_agent_server.GetUserListByAgentIP(ip)
 }
-
-//检测所有agent ip 是否异常
-func ErrorCheck() error {
-	info, err := hids_server.GetHideInfo()
-	if err != nil {
-		return err
-	}
-	err = hids_server.SetUrl(info.Addr)
-	if err != nil {
-		return err
-	}
-	err = hids_server.SetAPIKeys(&request.APIKeys{info.AppId, info.Secret})
-	if err != nil {
-		return err
-	}
-
-	resp, err := hids_agent_server.ListAll()
-	if err != nil {
-		return err
-	}
-	for _, item := range resp.List {
-		serverIp := item["serverIp"].(string)
-
-		//查询该ip所属用户列表
-		users, admins, err := getAgentIpUsers(serverIp)
+func addBlackList(ips []string) error {
+	for _, ip := range ips {
+		users, admins, err := getAgentIpUsers(ip)
 		if err != nil {
 			return err
 		}
-		//判断是否存在入侵威胁或漏洞风险
-		err = checkRiskAndCreateMessage(serverIp, users, admins)
+		for _, user := range users {
+			_ = bwlist.AddBWList(&bwlist.HIDSBWList{Black: true, IP: ip, UserId: user})
+		}
+		for _, admin := range admins {
+			_ = bwlist.AddBWList(&bwlist.HIDSBWList{Black: true, IP: ip, AdminUserId: admin})
+		}
 	}
-	return nil
-}
-func checkRiskAndCreateMessage(ip string, users, admins []uint64) error {
-
-	if len(users) > 0 || len(admins) > 0 {
-		return nil
-	}
-
 	return nil
 }

@@ -12,5 +12,8 @@ func (*AttackMessageRequest) Run() {
 			fmt.Println("hids-入侵事件告警----------------------------------------------", err)
 		}
 	}()
-
+	err := hids{}.AttackCheck()
+	if err != nil {
+		fmt.Println("hids 入侵检测告警失败：", err)
+	}
 }
