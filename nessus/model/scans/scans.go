@@ -99,7 +99,7 @@ func getScanTemplateUUid() (string, error) {
 	templates := ret["templates"].([]interface{})
 	for _, node := range templates {
 		template := node.(map[string]interface{})
-		if template["title"] == "Host Discovery" { //主机漏洞扫描 模板
+		if template["title"] == "Basic Network Scan" { //主机漏洞扫描 模板
 			id = template["uuid"].(string)
 		}
 	}
