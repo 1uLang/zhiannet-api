@@ -27,11 +27,17 @@ func (ddos) AddBlackIP(ips []string) error {
 			needMessage := true
 			list, _ := black_white_list_server.GetBWList(&black_white_list_server.BWReq{Addr: ip, NodeId: v.Id})
 			for _, item := range list.Bwlist {
+
 				if item.Address == ip && item.Flags == "blacklist" { //黑名单 - 不告警
 					needMessage = false
 				}
 			}
 			if needMessage {
+
+				_, err = black_white_list_server.AddBW(&black_white_list_server.EditBWReq{NodeId: v.Id, Addr: []string{ip}})
+				if err != nil {
+					return err
+				}
 				edge_messages.Add(&edge_messages.Edgemessages{
 					Level:     "error",
 					Subject:   "入侵检测",
@@ -44,11 +50,6 @@ func (ddos) AddBlackIP(ips []string) error {
 					Role:      "admin",
 				})
 			}
-		}
-
-		_, err = black_white_list_server.AddBW(&black_white_list_server.EditBWReq{NodeId: v.Id, Addr: ips})
-		if err != nil {
-			return err
 		}
 
 	}
@@ -70,7 +71,6 @@ func (ddos) AttackCheck() error {
 			return err
 		}
 		for _, attack := range attacks.Report {
-			fmt.Println(attack.FromAddress)
 			//去掉无效ip
 			attack.FromAddress = strings.ReplaceAll(attack.FromAddress, "0.0.0.0/0", "")
 
@@ -80,8 +80,9 @@ func (ddos) AttackCheck() error {
 			ips := strings.Split(attack.FromAddress, " ")
 			if len(ips) > 0 {
 				//将ip加入改节点黑名单
-				fmt.Println("add ddos black ip : ", ips)
-				_, err = black_white_list_server.AddBW(&black_white_list_server.EditBWReq{NodeId: v.Id, Addr: ips})
+				for _, ip := range ips {
+					_, err = black_white_list_server.AddBW(&black_white_list_server.EditBWReq{NodeId: v.Id, Addr: []string{ip}})
+				}
 				//将ip加到hids 黑名单中
 				_ = addBlackList(ips)
 				if err != nil {
