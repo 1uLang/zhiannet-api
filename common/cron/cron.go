@@ -8,12 +8,14 @@ import (
 	ddos_request "github.com/1uLang/zhiannet-api/ddos/request"
 	ddos_host "github.com/1uLang/zhiannet-api/ddos/server/host_status"
 	hids_request "github.com/1uLang/zhiannet-api/hids/server"
+	maltrail_request "github.com/1uLang/zhiannet-api/maltrail/request"
 	monitor_cron "github.com/1uLang/zhiannet-api/monitor/cron"
 	nessus_request "github.com/1uLang/zhiannet-api/nessus/server"
 	term_request "github.com/1uLang/zhiannet-api/next-terminal/server"
 	nextcloud_request "github.com/1uLang/zhiannet-api/nextcloud/request"
 	opnsense_request "github.com/1uLang/zhiannet-api/opnsense/request"
 	teaweb_request "github.com/1uLang/zhiannet-api/resmon/request"
+	zstack_request "github.com/1uLang/zhiannet-api/zstack/request"
 	"github.com/1uLang/zhiannet-api/zstack/server/host_server"
 	"github.com/robfig/cron/v3"
 )
@@ -49,6 +51,11 @@ func InitCron() {
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&term_request.CheckRequest{}))
 	//tea web 节点监控
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&teaweb_request.CheckRequest{}))
+	//云底座
+	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&zstack_request.LoginReq{}))
+	//apt节点
+	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&maltrail_request.LoginReq{}))
+
 	//定时检查云底座内的主机，并添加到ddos主机内
 	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&host_server.CheckHost{}))
 	//主机流量异常检查 ddos

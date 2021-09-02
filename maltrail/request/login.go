@@ -1,19 +1,17 @@
 package request
 
 import (
-	"crypto/sha512"
 	"crypto/tls"
-	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/cache"
 	"github.com/1uLang/zhiannet-api/common/model/edge_messages"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
+	"github.com/1uLang/zhiannet-api/common/util"
+	_const "github.com/1uLang/zhiannet-api/maltrail/const"
 	"github.com/1uLang/zhiannet-api/utils"
-	_const "github.com/1uLang/zhiannet-api/zstack/const"
 	"github.com/go-resty/resty/v2"
 	"github.com/sirupsen/logrus"
-	"net/url"
+	"math/rand"
 	"time"
 )
 
@@ -24,89 +22,71 @@ type (
 		Addr     string
 		Port     string
 		IsSsl    bool
-		UUID     string
+		Cookie   string
+		Nonce    string
 
-		ReqType     string      //请求方式
-		QueryParams interface{} //请求参数
-	}
-	LoginRes struct {
-		Inventory struct {
-			UUID        string `json:"uuid"`
-			AccountUUID string `json:"accountUuid"`
-			UserUUID    string `json:"userUuid"`
-			ExpiredDate string `json:"expiredDate"`
-			CreateDate  string `json:"createDate"`
-		} `json:"inventory"`
-	}
-
-	UserReq struct { //节点
-		UserId      uint64 `json:"user_id"`
-		AdminUserId uint64 `json:"admin_user_id"`
-	}
-
-	//登录请求参数
-	LogAccount struct {
-		LogInByAccount LogInByAccount `json:"logInByAccount"`
-	}
-	LogInByAccount struct {
-		Password    string `json:"password"`
-		AccountName string `json:"accountName"`
+		ReqType     string            //请求方式
+		QueryParams map[string]string //请求参数
 	}
 )
 
 var Client = resty.New().SetDebug(false).SetTimeout(time.Second * 60)
 
 //登陆获取token
-func Login(req *LoginReq) (uuid string, err error) {
+func Login(req *LoginReq) (token string, err error) {
+	req.Nonce, req.Password = GetNonce(req.Password)
+
 	client := GetHttpClient(req)
-	url := utils.CheckHttpUrl(req.Addr+_const.ZSTACK_LOGIN, req.IsSsl)
-
-	login := LogAccount{
-		LogInByAccount: LogInByAccount{
-			Password:    Sha512(req.Password),
-			AccountName: req.Name,
-		},
-	}
-
+	url := utils.CheckHttpUrl(req.Addr+_const.MALTRAIL_LOGIN, req.IsSsl)
 	resp, err := client.R().
-		SetHeader("Content-Type", "application/json").
-		SetBody(login).Put(url)
+		SetHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8").
+		SetHeader("X-Requested-With", "XMLHttpRequest").
+		SetHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36").
+		//SetHeader("Accept", "text/plain, */*; q=0.01").
+		//SetHeader("Accept-Encoding", "gzip, deflate").
+		//SetHeader("Accept-Language", "zh-CN,zh;q=0.9").
+		//SetHeader("Connection", "keep-alive").
+		//SetHeader("Cookie", "maltrail_sessid=c8088ac7c7d7ffeb776e71082a804e5e").
+		//SetHeader("Host", "156.240.95.221:8338").
+		//SetHeader("Origin", "http://156.240.95.221:8338").
+		//SetHeader("Referer", "http://156.240.95.221:8338/").
+		//SetBody("username=admin&hash=9d9c3e66d1f2ca9f3bf834f05f0dc7fcf05dfaf29d2dc9a64e1ef29c5efd6560&nonce=RjhhNHbycyj7").
+		SetQueryParams(map[string]string{
+			"username": req.Name,
+			"hash":     req.Password,
+			"nonce":    req.Nonce,
+		}).
+		Post(url)
 	//Post("https://" + req.Addr + ":" + req.Port + _const.DDOS_LOGIN_URL)
 	if err != nil {
 		logrus.Error("err1=", err)
-		return uuid, err
+		return token, err
 	}
+	if resp.StatusCode() == 200 {
+		//获取cookie
+		Cookies := resp.Cookies()
+		if len(Cookies) > 0 {
+			token = Cookies[0].Name + "=" + Cookies[0].Value
+		}
 
-	//fmt.Println("respon ", string(resp.Body()), "code", resp.StatusCode())
-	var data = LoginRes{}
-	err = json.Unmarshal(resp.Body(), &data)
-	if err != nil {
-		logrus.Error("err2=", err)
-		return uuid, err
+		//fmt.Println("login in Cookie=", Cookie)
 	}
-	if data.Inventory.UUID == "" {
-		return uuid, err
-	}
-	uuid = data.Inventory.UUID
-	req.UUID = uuid
-	//fmt.Println("UUID+",uuid)
-	return uuid, err
+	return token, err
 }
 
-func GetLoginInfo(audit *UserReq) (logReq *LoginReq, err error) {
+func GetLoginInfo() (logReq *LoginReq, err error) {
 	nodes, _, err := subassemblynode.GetList(&subassemblynode.NodeReq{
 		State:    "1",
-		Type:     10,
+		Type:     11,
 		PageNum:  1,
 		PageSize: 1,
 	})
 	if err != nil || len(nodes) == 0 {
-		err = fmt.Errorf("获取云底座节点信息失败")
+		err = fmt.Errorf("获取apt检测节点信息失败")
 		return logReq, err
 	}
 	node := nodes[0]
 
-	//等保云 超级管理员
 	logReq = &LoginReq{
 		Name:     node.Key,
 		Password: node.Secret,
@@ -114,7 +94,7 @@ func GetLoginInfo(audit *UserReq) (logReq *LoginReq, err error) {
 		IsSsl:    node.IsSsl == 1,
 	}
 
-	key := fmt.Sprintf("zstack-get-token-%v:%v", logReq.Addr, logReq.Name)
+	key := fmt.Sprintf("apt-get-token-%v:%v", logReq.Addr, logReq.Name)
 
 	var resp interface{}
 	resp, err = cache.CheckCache(key, func() (interface{}, error) {
@@ -123,7 +103,7 @@ func GetLoginInfo(audit *UserReq) (logReq *LoginReq, err error) {
 	if err != nil {
 		return
 	}
-	logReq.UUID = fmt.Sprintf("%v", resp)
+	logReq.Cookie = fmt.Sprintf("%v", resp)
 	return
 }
 
@@ -135,21 +115,41 @@ func GetHttpClient(req *LoginReq) *resty.Client {
 	return Client
 }
 
+func GetNonce(password string) (nonce, pass string) {
+	NONCE_ALPHABET := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+	rand.Seed(time.Now().UnixNano())
+	for i := 0; i < 12; i++ {
+
+		num := rand.Intn(62)
+		if num > 62 {
+			num = 62
+		}
+
+		nonce += string(NONCE_ALPHABET[num])
+
+	}
+	//nonce = "4JAuDFEXxr77"
+	//pa := util.GetSHA256HashCode([]byte(password))
+	pass = util.GetSHA256HashCode([]byte(password + nonce))
+	//fmt.Println(nonce)
+	return
+}
+
 //检测是否可用
 func (this *LoginReq) Run() {
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println("zstack-----------------------------------------------", err)
+			fmt.Println("maltrail-----------------------------------------------", err)
 		}
 	}()
 	nodes, _, err := subassemblynode.GetList(&subassemblynode.NodeReq{
 		//State:    "1",
-		Type:     10,
+		Type:     11,
 		PageNum:  1,
-		PageSize: 99,
+		PageSize: 1,
 	})
 	if err != nil || len(nodes) == 0 {
-		err = fmt.Errorf("获取云底座节点信息失败")
+		err = fmt.Errorf("获取apt节点信息失败")
 		return
 	}
 	for _, v := range nodes {
@@ -167,7 +167,7 @@ func (this *LoginReq) Run() {
 			edge_messages.Add(&edge_messages.Edgemessages{
 				Level:     "error",
 				Subject:   "组件状态异常",
-				Body:      "云底座状态不可用",
+				Body:      "apt节点状态不可用",
 				Type:      "AdminAssembly",
 				Params:    "{}",
 				Createdat: uint64(time.Now().Unix()),
@@ -182,7 +182,7 @@ func (this *LoginReq) Run() {
 				edge_messages.Add(&edge_messages.Edgemessages{
 					Level:     "success",
 					Subject:   "组件状态恢复正常",
-					Body:      "云底座恢复可用状态",
+					Body:      "apt节点恢复可用状态",
 					Type:      "AdminAssembly",
 					Params:    "{}",
 					Createdat: uint64(time.Now().Unix()),
@@ -194,28 +194,4 @@ func (this *LoginReq) Run() {
 		}
 	}
 
-}
-
-func Sha512(pass string) (str string) {
-	//方法一：
-	//创建一个基于SHA256算法的hash.Hash接口的对象
-	hash := sha512.New()
-	//输入数据
-	hash.Write([]byte(pass))
-	//计算哈希值
-	bytes := hash.Sum(nil)
-	//将字符串编码为16进制格式,返回字符串
-	str = hex.EncodeToString(bytes)
-	//返回哈希值
-	return str
-}
-
-func params2UrlEncode(params map[string]string) string {
-
-	q := (&url.URL{}).Query()
-	for k, v := range params {
-		fmt.Println(k, v)
-		q.Add(k, fmt.Sprintf("%v", v))
-	}
-	return q.Encode()
 }

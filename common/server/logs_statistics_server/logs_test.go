@@ -12,7 +12,7 @@ func init() {
 }
 
 func Test_log_statistice(t *testing.T) {
-	res, err := GetWafStatistics([]int64{1}, 0)
+	res, err := GetWafStatistics([]int64{1}, 0, 1)
 
 	logs.Println(res, err)
 	for _, v := range res {

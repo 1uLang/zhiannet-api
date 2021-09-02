@@ -11,8 +11,8 @@ func init() {
 	model.InitMysqlLink()
 	cache.InitClient()
 }
+
 func Test_login(t *testing.T) {
-	res, err := GetLoginInfo(&UserReq{})
-	fmt.Println(res)
-	fmt.Println(err)
+	token, err := GetLoginInfo()
+	fmt.Println(token, err)
 }
