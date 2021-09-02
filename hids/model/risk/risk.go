@@ -13,9 +13,144 @@ import (
 )
 
 //系统漏洞 - 入侵威胁
-//func CheckAttack(ip string) (bool, error) {
-//
-//}
+func CheckRiskAttack(ips []string) ([]string, error) {
+	contain := map[string]bool{}
+	for _, v := range ips {
+		contain[v] = false
+	}
+	checkCount := len(ips)
+	var riskIps []string
+	checkConfigs := map[string]string{
+		_const.Risk_distributed_api_url:    "systemRiskDistributionInfoList",
+		_const.Risk_weak_api_url:           "weakDistributionInfoList",
+		_const.Risk_danger_account_api_url: "dangerAccountDistributionInfoList",
+		_const.Risk_config_defect_api_url:  "configDefectDistributionInfoList",
+	}
+	args := &SearchReq{}
+
+	if args.PageSize == 0 {
+		args.PageSize = 10
+	}
+	if args.PageNo == 0 {
+		args.PageNo = 1
+	}
+
+	req, err := request.NewRequest()
+	if err != nil {
+		return nil, err
+	}
+	for url, argsname := range checkConfigs {
+		//弱口令
+		if checkCount <= 0 {
+			return riskIps, nil
+		}
+		req.Method = "get"
+		req.Path = url
+		req.Headers["signNonce"] = util.RandomNum(10)
+		args.UserName = model.HidsUserNameAPI
+		req.Params = model.ToMap(args)
+
+		resp, err := req.Do()
+		if err != nil {
+			return nil, err
+		}
+		ret, err := model.ParseResp(resp)
+
+		if _, isExist := ret["data"]; !isExist || err != nil {
+			return nil, err
+		}
+		ret = ret["data"].(map[string]interface{})
+		for _, v := range ret[argsname].([]interface{}) {
+			node := v.(map[string]interface{})
+			if checkCount <= 0 {
+				return riskIps, nil
+			}
+			if check, isExist := contain[node["serverIp"].(string)]; !isExist && !check {
+				continue
+			}
+			low, _ := util.Interface2Int(node["lowRiskCount"])
+			middle, _ := util.Interface2Int(node["middleRiskCount"])
+			high, _ := util.Interface2Int(node["highRiskCount"])
+			critical, _ := util.Interface2Int(node["criticalCount"])
+
+			total := low + middle + high + critical
+			if total > 0 {
+				riskIps = append(riskIps, node["serverIp"].(string))
+				contain[node["serverIp"].(string)] = true
+				checkCount--
+			}
+		}
+	}
+	return riskIps, nil
+}
+
+//系统漏洞 - 漏洞风险
+func CheckInvadeAttack(ips []string) ([]string, error) {
+	contain := map[string]bool{}
+	for _, v := range ips {
+		contain[v] = false
+	}
+	checkCount := len(ips)
+	var riskIps []string
+	checkConfigs := []string{
+		_const.Risk_Virus_api_url,
+		_const.Risk_webshell_api_url,
+		_const.Risk_reboundshell_api_url,
+		_const.Risk_abnormal_account_api_url,
+		_const.Risk_log_delete_api_url,
+		_const.Risk_abnormal_login_api_url,
+		_const.Risk_abnormal_process_api_url,
+		_const.Risk_system_cmd_api_url,
+	}
+	args := &RiskSearchReq{}
+	args.PageSize = 100
+	for _, url := range checkConfigs {
+		//弱口令
+		if checkCount <= 0 {
+			return riskIps, nil
+		}
+		ret, err := riskList(url, args)
+		if err != nil {
+			return riskIps, err
+		}
+		list := func() []map[string]interface{} {
+			switch url {
+			case _const.Risk_Virus_api_url:
+				return ret.VirusCountInfoList
+			case _const.Risk_webshell_api_url:
+				return ret.WebshellCountInfoList
+			case _const.Risk_system_cmd_api_url:
+				return ret.SystemCmdInfoList
+			case _const.Risk_abnormal_process_api_url:
+				return ret.AbnormalProcessCountInfoList
+			case _const.Risk_abnormal_login_api_url:
+				return ret.AbnormalLoginCountInfoList
+			case _const.Risk_log_delete_api_url:
+				return ret.LogDeleteCountInfoList
+			case _const.Risk_abnormal_account_api_url:
+				return ret.AbnormalAccountCountInfoList
+			case _const.Risk_reboundshell_api_url:
+				return ret.ReboundshellCountInfoList
+			}
+			return nil
+		}()
+		for _, node := range list {
+			if checkCount <= 0 {
+				return riskIps, nil
+			}
+			if check, isExist := contain[node["serverIp"].(string)]; !isExist && !check {
+				continue
+			}
+			total, _ := util.Interface2Int(node["count"])
+			if total > 0 {
+				riskIps = append(riskIps, node["serverIp"].(string))
+				contain[node["serverIp"].(string)] = true
+				checkCount--
+			}
+		}
+	}
+	return riskIps, nil
+}
 
 //SystemRiskList 服务器系统漏洞信息列表
 func SystemRiskList(args *SearchReq) (list SearchResp, err error) {

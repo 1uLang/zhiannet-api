@@ -24,7 +24,6 @@ func (webscan) WebScanCheckTLSVul(address []string) (adds []string, err error) {
 			return nil, err
 		}
 		vulFflag := false
-		fmt.Println(list)
 		for _, item := range list {
 			target := item.(map[string]interface{})
 			scs, err := scans_server.Search(&scans.ListReq{Limit: 100, Query: "target_id:" + target["target_id"].(string) + ";"})

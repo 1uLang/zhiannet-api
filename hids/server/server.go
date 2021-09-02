@@ -6,6 +6,7 @@ import (
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/hids/model"
 	"github.com/1uLang/zhiannet-api/hids/model/agent"
+	"github.com/1uLang/zhiannet-api/hids/model/bwlist"
 	"github.com/1uLang/zhiannet-api/hids/model/user"
 	"github.com/1uLang/zhiannet-api/hids/request"
 	"time"
@@ -100,4 +101,6 @@ func (this *CheckRequest) Run() {
 func InitTable() {
 
 	agent.InitTable()
+
+	bwlist.InitTable()
 }

@@ -4,6 +4,13 @@ import (
 	"github.com/1uLang/zhiannet-api/hids/model/risk"
 )
 
+func CheckRiskAttack(ips []string) ([]string, error) {
+	return risk.CheckRiskAttack(ips)
+}
+func CheckInvadeAttack(ips []string) ([]string, error) {
+	return risk.CheckInvadeAttack(ips)
+}
+
 func SystemRiskList(req *risk.SearchReq) (risk.SearchResp, error) {
 	return risk.SystemRiskList(req)
 }
@@ -14,9 +21,10 @@ func Dashboard(args *risk.DashboardReq) (risk.DashboardResp, error) {
 	return risk.Dashboard(args)
 }
 
-func SystemRiskDetailList(req *risk.DetailReq)(info risk.DetailResp, err error) {
+func SystemRiskDetailList(req *risk.DetailReq) (info risk.DetailResp, err error) {
 	return risk.SystemRiskDetailList(req)
 }
+
 //漏洞风险
 
 func ProcessRisk(req *risk.ProcessReq) error {

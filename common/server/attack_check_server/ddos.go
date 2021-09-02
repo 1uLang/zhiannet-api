@@ -27,11 +27,17 @@ func (ddos) AddBlackIP(ips []string) error {
 			needMessage := true
 			list, _ := black_white_list_server.GetBWList(&black_white_list_server.BWReq{Addr: ip, NodeId: v.Id})
 			for _, item := range list.Bwlist {
+
 				if item.Address == ip && item.Flags == "blacklist" { //黑名单 - 不告警
 					needMessage = false
 				}
 			}
 			if needMessage {
+
+				_, err = black_white_list_server.AddBW(&black_white_list_server.EditBWReq{NodeId: v.Id, Addr: []string{ip}})
+				if err != nil {
+					return err
+				}
 				edge_messages.Add(&edge_messages.Edgemessages{
 					Level:     "error",
 					Subject:   "入侵检测",
@@ -46,11 +52,6 @@ func (ddos) AddBlackIP(ips []string) error {
 			}
 		}
 
-		_, err = black_white_list_server.AddBW(&black_white_list_server.EditBWReq{NodeId: v.Id, Addr: ips})
-		if err != nil {
-			return err
-		}
-
 	}
 	return nil
 }
@@ -62,7 +63,7 @@ func (ddos) AttackCheck() error {
 	if err != nil {
 		return err
 	}
-	start, _ := time.Parse("2006-01-02", time.Now().AddDate(0, 0, -1).Format("2006-01-02"))
+	start, _ := time.Parse("2006-01-02", time.Now().Format("2006-01-02"))
 	for _, v := range ds {
 		attacks, err := logs_server.GetAttackLogList(&logs_server.AttackLogReq{NodeId: v.Id,
 			StartTime: start, EndTime: start.AddDate(0, 0, 1)})
@@ -79,7 +80,11 @@ func (ddos) AttackCheck() error {
 			ips := strings.Split(attack.FromAddress, " ")
 			if len(ips) > 0 {
 				//将ip加入改节点黑名单
-				_, err = black_white_list_server.AddBW(&black_white_list_server.EditBWReq{NodeId: v.Id, Addr: ips})
+				for _, ip := range ips {
+					_, err = black_white_list_server.AddBW(&black_white_list_server.EditBWReq{NodeId: v.Id, Addr: []string{ip}})
+				}
+				//将ip加到hids 黑名单中
+				_ = addBlackList(ips)
 				if err != nil {
 					return err
 				}

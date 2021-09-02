@@ -43,15 +43,15 @@ func (*AttackCheckRequest) Run() {
 		}
 		//初始化 hdis 系统管理员账号apikeys
 		err = server.SetAPIKeys(&request.APIKeys{
-			AppId:  "39rkz",
-			Secret: "tkvgpvjuht2625mo",
+			AppId:  info.AppId,
+			Secret: info.Secret,
 		})
 		ips, err := hids{}.AttackCheck()
 		if err != nil {
 			fmt.Println("hids入侵检测失败:", err)
 			return
 		}
-
+		fmt.Println("add ddos black ip : ", ips)
 		err = ddos{}.AddBlackIP(ips)
 		if err != nil {
 			fmt.Println("hids入侵检测 自动添加ddos黑名单失败:", err)
