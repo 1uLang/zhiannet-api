@@ -47,8 +47,10 @@ func (hids) AttackCheck() (ips []string, err error) {
 			return nil, err
 		}
 		//查询该异常是否包含ip 有加入到ddos黑名单
+		fmt.Println(macCode, abl.ServerAbnormalLoginInfoList)
 		for _, abnormal := range abl.ServerAbnormalLoginInfoList {
 			loginInfo := abnormal["loginInfo"].(string)
+			fmt.Println(loginInfo)
 			if idx := strings.Index(loginInfo, "IP："); idx > 0 {
 				ip := strings.TrimPrefix(loginInfo[idx:], "IP：")
 				setMap.Add(ip)
