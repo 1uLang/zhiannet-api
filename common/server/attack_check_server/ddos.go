@@ -62,7 +62,7 @@ func (ddos) AttackCheck() error {
 	if err != nil {
 		return err
 	}
-	start, _ := time.Parse("2006-01-02", time.Now().AddDate(0, 0, -1).Format("2006-01-02"))
+	start, _ := time.Parse("2006-01-02", time.Now().Format("2006-01-02"))
 	for _, v := range ds {
 		attacks, err := logs_server.GetAttackLogList(&logs_server.AttackLogReq{NodeId: v.Id,
 			StartTime: start, EndTime: start.AddDate(0, 0, 1)})
@@ -70,6 +70,7 @@ func (ddos) AttackCheck() error {
 			return err
 		}
 		for _, attack := range attacks.Report {
+			fmt.Println(attack.FromAddress)
 			//去掉无效ip
 			attack.FromAddress = strings.ReplaceAll(attack.FromAddress, "0.0.0.0/0", "")
 
@@ -79,6 +80,7 @@ func (ddos) AttackCheck() error {
 			ips := strings.Split(attack.FromAddress, " ")
 			if len(ips) > 0 {
 				//将ip加入改节点黑名单
+				fmt.Println("add ddos black ip : ", ips)
 				_, err = black_white_list_server.AddBW(&black_white_list_server.EditBWReq{NodeId: v.Id, Addr: ips})
 				//将ip加到hids 黑名单中
 				_ = addBlackList(ips)

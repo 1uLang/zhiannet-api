@@ -1,6 +1,7 @@
 package attack_check_server
 
 import (
+	"fmt"
 	"github.com/1uLang/zhiannet-api/hids/model/bwlist"
 	"github.com/1uLang/zhiannet-api/hids/model/risk"
 	"github.com/1uLang/zhiannet-api/hids/request"
@@ -88,6 +89,7 @@ func getAgentIpUsers(ip string) (users []uint64, admins []uint64, err error) {
 	return hids_agent_server.GetUserListByAgentIP(ip)
 }
 func addBlackList(ips []string) error {
+	fmt.Println("add hids black ip : ", ips)
 	for _, ip := range ips {
 		users, admins, err := getAgentIpUsers(ip)
 		if err != nil {
