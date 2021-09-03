@@ -28,10 +28,18 @@ type (
 	}
 )
 
+func check(req *Edgemessages) bool {
+	var count int64
+	_ = model.MysqlConn.Table("edgeMessages").Where("day=?", req.Day).Where("body=?", req.Body).Count(&count).Error
+	return count > 0
+}
 func Add(req *Edgemessages) (insertId uint64, err error) {
 	if req == nil {
 		err = fmt.Errorf("参数错误")
 		return
+	}
+	if check(req) {
+		return 0, nil
 	}
 	req.Hash = calHash(req.Role, req.Clusterid, req.Nodeid, req.Subject, req.Body, []byte(req.Params))
 	res := model.MysqlConn.Table("edgeMessages").Create(&req)
