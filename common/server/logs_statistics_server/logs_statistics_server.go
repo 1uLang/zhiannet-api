@@ -47,7 +47,7 @@ func GetWafStatistics(serverIds []int64, report, logsType int) (res []*Statistic
 			//timeMap[sTime.Format("2006-01-02 15")] = sTime.Format("2006-01-02 15")
 			value := uint64(0)
 			for _, v := range list {
-				if v.Times == sTime.Format("2006-01-02 15:04:05") {
+				if v.Times == sTime.Format("2006-01-02 15") {
 					value = v.Total
 					break
 				}
