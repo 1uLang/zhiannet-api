@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	_const "github.com/1uLang/zhiannet-api/maltrail/const"
 	"github.com/1uLang/zhiannet-api/maltrail/request"
 	"regexp"
@@ -11,7 +12,8 @@ import (
 
 type (
 	ListReq struct {
-		Date string `json:"date"`
+		Date   string `json:"date"`
+		NodeId uint64 `json:"node_id"`
 	}
 
 	ListResp struct {
@@ -29,9 +31,14 @@ type (
 	}
 )
 
+//apt 节点列表
+func GetMaltrailNodeList() (list []*subassemblynode.Subassemblynode, total int64, err error) {
+	list, total, err = subassemblynode.GetList(&subassemblynode.NodeReq{Type: 11, State: "1"})
+	return
+}
 func GetList(req *ListReq) (list []*ListResp, err error) {
 	//获取数据
-	logReq, err := request.GetLoginInfo()
+	logReq, err := request.GetLoginInfo(req.NodeId)
 	if err != nil {
 		return
 	}

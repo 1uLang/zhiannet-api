@@ -74,19 +74,25 @@ func Login(req *LoginReq) (token string, err error) {
 	return token, err
 }
 
-func GetLoginInfo() (logReq *LoginReq, err error) {
-	nodes, _, err := subassemblynode.GetList(&subassemblynode.NodeReq{
-		State:    "1",
-		Type:     11,
-		PageNum:  1,
-		PageSize: 1,
-	})
-	if err != nil || len(nodes) == 0 {
+func GetLoginInfo(nodeid uint64) (logReq *LoginReq, err error) {
+	//nodes, _, err := subassemblynode.GetList(&subassemblynode.NodeReq{
+	//	State:    "1",
+	//	Type:     11,
+	//	PageNum:  1,
+	//	PageSize: 1,
+	//
+	//})
+	//if err != nil || len(nodes) == 0 {
+	//	err = fmt.Errorf("获取apt检测节点信息失败")
+	//	return logReq, err
+	//}
+	//node := nodes[0]
+
+	node, err := subassemblynode.GetNodeInfoById(nodeid)
+	if err != nil || node == nil {
 		err = fmt.Errorf("获取apt检测节点信息失败")
 		return logReq, err
 	}
-	node := nodes[0]
-
 	logReq = &LoginReq{
 		Name:     node.Key,
 		Password: node.Secret,
@@ -145,7 +151,7 @@ func (this *LoginReq) Run() {
 	nodes, _, err := subassemblynode.GetList(&subassemblynode.NodeReq{
 		//State:    "1",
 		Type:     11,
-		PageNum:  1,
+		PageNum:  99,
 		PageSize: 1,
 	})
 	if err != nil || len(nodes) == 0 {
