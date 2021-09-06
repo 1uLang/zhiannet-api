@@ -26,7 +26,7 @@ func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
 	}
 
 	// 解析token获取用户名
-	user, err := ParseToken(token)
+	user, _, err := ParseToken(token)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func ListFolders(token string, fileName ...string) (*model.FolderList, error) {
 func DownLoadFile(token, fileName string) (*http.Response, error) {
 	getNCInfo()
 	// 解析token获取用户名
-	user, err := ParseToken(token)
+	user, _, err := ParseToken(token)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +132,7 @@ func DownLoadFile(token, fileName string) (*http.Response, error) {
 func DownLoadFileWithURL(token, fileName string) (string, error) {
 	getNCInfo()
 	// 解析token获取用户名
-	user, err := ParseToken(token)
+	user, _, err := ParseToken(token)
 	if err != nil {
 		return "", err
 	}
@@ -148,7 +148,7 @@ func DownLoadFileWithURL(token, fileName string) (string, error) {
 func UploadFile(token, fileName string, f io.Reader) error {
 	getNCInfo()
 	// 解析token获取用户名
-	user, err := ParseToken(token)
+	user, _, err := ParseToken(token)
 	if err != nil {
 		return err
 	}
@@ -178,7 +178,7 @@ func UploadFile(token, fileName string, f io.Reader) error {
 func DeleteFile(token, fileName string) error {
 	getNCInfo()
 	// 解析token获取用户名
-	user, err := ParseToken(token)
+	user, _, err := ParseToken(token)
 	if err != nil {
 		return err
 	}

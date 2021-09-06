@@ -25,7 +25,7 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 		return nil, errors.New("该组件暂未添加，请添加后重试")
 	}
 	// 解析token获取用户名
-	user, err := ParseToken(token)
+	user, _, err := ParseToken(token)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +146,7 @@ func DownLoadFileURLWithPath(path string) (string, error) {
 func DeleteFileWithPath(token, path string) error {
 	getNCInfo()
 	// 解析token获取用户名
-	_, err := ParseToken(token)
+	_, _, err := ParseToken(token)
 	if err != nil {
 		return err
 	}
@@ -198,7 +198,7 @@ func DeleteFileWithPath(token, path string) error {
 func UploadFileWithPath(token, fileName string, f io.Reader, dirPath ...string) error {
 	getNCInfo()
 	// 解析token获取用户名
-	user, err := ParseToken(token)
+	user, _, err := ParseToken(token)
 	if err != nil {
 		return err
 	}
@@ -284,4 +284,42 @@ func GetDirectDownloadURL(fileID int64, token string) (string, error) {
 	}
 
 	return dURL, nil
+}
+
+// CreateFoler 创建文件夹，pfURL：父级目录url
+func CreateFoler(token, pfURL, folerName string) error {
+	getNCInfo()
+	// 解析token获取用户名
+	user, _, err := ParseToken(token)
+	if err != nil {
+		return err
+	}
+	pfURL = strings.TrimSpace(pfURL)
+	if pfURL == "" {
+		pfURL = fmt.Sprintf("%s/"+param.LIST_FOLDERS+"/", param.BASE_URL, user)
+	}
+	if string([]rune(pfURL)[len([]rune(pfURL))-1]) != "/" {
+		return errors.New("传入的父级url不是目录")
+	}
+	nfURL := fmt.Sprintf("%s%s", pfURL, folerName)
+
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	cli := &http.Client{
+		Transport: tr,
+	}
+	req, err := http.NewRequest("MKCOL", nfURL, nil)
+	if err != nil {
+		return fmt.Errorf("新建请求失败：%w", err)
+	}
+	req.Header.Set("Authorization", token)
+	req.Header.Set("OCS-APIRequest", "true")
+	resp, err := cli.Do(req)
+	if err != nil {
+		return fmt.Errorf("请求执行失败：%w", err)
+	}
+	defer resp.Body.Close()
+
+	return nil
 }
