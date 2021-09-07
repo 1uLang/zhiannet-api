@@ -38,10 +38,13 @@ type ResumeReq struct {
 	ID string
 }
 
+type ExportFileReq struct {
+	Url string
+}
 type ExportReq struct {
-	ID     string
+	ID        string
 	HistoryId string
-	Format string
+	Format    string
 }
 type ExportResp struct {
 	Token string
@@ -68,8 +71,8 @@ type ResetReq struct {
 }
 
 type CreateReportReq struct {
-	ID        string `json:"id"`
-	HistoryId string `json:"history_id"`
+	ID          string `json:"id"`
+	HistoryId   string `json:"history_id"`
 	UserId      uint64 `json:"-"`
 	AdminUserId uint64 `json:"-"`
 }

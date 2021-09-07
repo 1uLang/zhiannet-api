@@ -39,6 +39,82 @@ type ListResp struct {
 	TotalAffectedItems int64 `json:"total_affected_items"`
 }
 
+type VulnerabilityListResp struct {
+	AffectedItems []struct {
+		Cve          string `json:"cve"`
+		Architecture string `json:"architecture"`
+		Version      string `json:"version"`
+		Name         string `json:"name"`
+	} `json:"affected_items"`
+	TotalAffectedItems int           `json:"total_affected_items"`
+	TotalFailedItems   int           `json:"total_failed_items"`
+	FailedItems        []interface{} `json:"failed_items"`
+}
+type CiscatListResp struct {
+	AffectedItems []struct {
+		Benchmark  string `json:"benchmark"`
+		Error      int64  `json:"error"`
+		Fail       int64  `json:"fail"`
+		Notchecked int64  `json:"notchecked"`
+		Pass       int64  `json:"pass"`
+		Profile    string `json:"profile"`
+		Scan       struct {
+			ID   int64  `json:"id"`
+			Time string `json:"time"`
+		} `json:"scan"`
+		Score   int64 `json:"score"`
+		Unknown int64 `json:"unknown"`
+	} `json:"affected_items"`
+	FailedItems        []interface{} `json:"failed_items"`
+	TotalAffectedItems int64         `json:"total_affected_items"`
+	TotalFailedItems   int64         `json:"total_failed_items"`
+}
+
+type SysCheckListResp struct {
+	AffectedItems []struct {
+		Changes int64  `json:"changes"`
+		Date    string `json:"date"`
+		File    string `json:"file"`
+		Gid     string `json:"gid"`
+		Gname   string `json:"gname"`
+		Inode   int64  `json:"inode"`
+		Md5     string `json:"md5"`
+		Mtime   string `json:"mtime"`
+		Perm    string `json:"perm"`
+		Sha1    string `json:"sha1"`
+		Sha256  string `json:"sha256"`
+		Size    int64  `json:"size"`
+		Type    string `json:"type"`
+		UID     string `json:"uid"`
+		Uname   string `json:"uname"`
+	} `json:"affected_items"`
+	FailedItems        []interface{} `json:"failed_items"`
+	TotalAffectedItems int64         `json:"total_affected_items"`
+	TotalFailedItems   int64         `json:"total_failed_items"`
+}
+
+type SCADetailsListResp struct {
+	AffectedItems []struct {
+		Compliance []struct {
+			Key   string `json:"key"`
+			Value string `json:"value"`
+		} `json:"compliance"`
+		Condition   string `json:"condition"`
+		Description string `json:"description"`
+		File        string `json:"file"`
+		ID          int64  `json:"id"`
+		PolicyID    string `json:"policy_id"`
+		Rationale   string `json:"rationale"`
+		References  string `json:"references"`
+		Remediation string `json:"remediation"`
+		Result      string `json:"result"`
+		Title       string `json:"title"`
+	} `json:"affected_items"`
+	FailedItems        []interface{} `json:"failed_items"`
+	TotalAffectedItems int64         `json:"total_affected_items"`
+	TotalFailedItems   int64         `json:"total_failed_items"`
+}
+
 type SCAListResp struct {
 	AffectedItems []struct {
 		Description string `json:"description"`

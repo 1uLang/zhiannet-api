@@ -1,11 +1,13 @@
 package scans
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/1uLang/zhiannet-api/hids/util"
 	"github.com/1uLang/zhiannet-api/nessus/model"
 	"github.com/1uLang/zhiannet-api/nessus/request"
+	"github.com/go-resty/resty/v2"
 	"math/big"
 	"strconv"
 	"strings"
@@ -186,7 +188,7 @@ func List(args *ListReq) ([]interface{}, error) {
 
 	resList := make([]interface{}, 0)
 	if result["scans"] == nil {
-		return nil,nil
+		return nil, nil
 	}
 	for _, v := range result["scans"].([]interface{}) {
 		scan := v.(map[string]interface{})
@@ -321,12 +323,31 @@ func Resume(args *ResumeReq) error {
 	fmt.Println(string(resp))
 	return nil
 }
+
+//下载报表文件。 并修改报表文件内容 去掉 nessus字样
+func ExportFile(args *ExportFileReq) ([]byte, string, error) {
+	Client := resty.New().SetDebug(false).SetTimeout(time.Second * 60)
+	Client = Client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	index, err := Client.R().Get(args.Url)
+	if err != nil {
+		return nil, "", err
+	}
+	contents := index.Header().Get("Content-Disposition")
+	var bytes string
+	if strings.Contains(contents, "html") {
+		bytes = strings.Replace(string(index.Body()), "float: left;\"", "float: left;display: none;\"", 1)
+		bytes = strings.Replace(bytes, "float: right;\"", "float: right;display: none;\"", 1)
+	} else {
+		bytes = string(index.Body())
+	}
+	return []byte(bytes), contents, nil
+}
 func Export(args *ExportReq) (*ExportResp, error) {
 	req, err := request.NewRequest()
 	if err != nil {
 		return nil, err
 	}
-
+	req.Headers["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36"
 	req.Method = "post"
 	req.Url += scan_url + "/" + args.ID + "/export?limit=2500"
 	if args.HistoryId != "" {
@@ -371,7 +392,7 @@ func Export(args *ExportReq) (*ExportResp, error) {
 	}
 	req.Params = map[string]interface{}{
 		"format":   args.Format,
-		"chapters": "",
+		"chapters": "vuln_hosts_summary",
 		"extraFilters": map[string]interface{}{
 			"host_ids":   []string{},
 			"plugin_ids": []string{},
@@ -386,6 +407,9 @@ func Export(args *ExportReq) (*ExportResp, error) {
 
 	export := &ExportResp{}
 	err = json.Unmarshal(resp, export)
+	if err == nil { //token生效的延迟
+		time.Sleep(100 * time.Millisecond)
+	}
 	return export, err
 }
 func Vulnerabilities(args *VulnerabilitiesReq) ([]interface{}, error) {
@@ -431,14 +455,11 @@ func Plugins(args *PluginsReq) (map[string]interface{}, error) {
 	}
 	ret := map[string]interface{}{}
 	ret["vt_name"] = info["info"].(map[string]interface{})["plugindescription"].(map[string]interface{})["pluginname"]
-	ret["description"] = info["info"].(map[string]interface{})["plugindescription"].
-	(map[string]interface{})["pluginattributes"].(map[string]interface{})["description"]
-	ret["details"] = info["info"].(map[string]interface{})["plugindescription"].
-	(map[string]interface{})["pluginattributes"].(map[string]interface{})["synopsis"]
+	ret["description"] = info["info"].(map[string]interface{})["plugindescription"].(map[string]interface{})["pluginattributes"].(map[string]interface{})["description"]
+	ret["details"] = info["info"].(map[string]interface{})["plugindescription"].(map[string]interface{})["pluginattributes"].(map[string]interface{})["synopsis"]
 	//ret["impact"] = info["info"].(map[string]interface{})["plugindescription"].
 	//(map[string]interface{})["pluginattributes"].(map[string]interface{})["synopsis"]
-	ret["recommendation"] = info["info"].(map[string]interface{})["plugindescription"].
-	(map[string]interface{})["pluginattributes"].(map[string]interface{})["solution"]
+	ret["recommendation"] = info["info"].(map[string]interface{})["plugindescription"].(map[string]interface{})["pluginattributes"].(map[string]interface{})["solution"]
 	return ret, nil
 }
 func Delete(args *DeleteReq) error {

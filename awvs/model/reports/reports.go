@@ -1,11 +1,15 @@
 package reports
 
 import (
+	"crypto/tls"
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/awvs/const"
 	"github.com/1uLang/zhiannet-api/awvs/model"
 	"github.com/1uLang/zhiannet-api/awvs/request"
+	"github.com/1uLang/zhiannet-api/common/util"
+	"github.com/go-resty/resty/v2"
 	"github.com/tidwall/gjson"
+	"strings"
 	"time"
 )
 
@@ -113,4 +117,38 @@ func Create(args *CreateResp) (info map[string]interface{}, err error) {
 	}
 	//}
 	return info, err
+}
+
+func Download(url string, pdf bool) ([]byte, string, error) {
+	Client := resty.New().SetDebug(false).SetTimeout(time.Second * 60)
+	Client = Client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	index, err := Client.R().Get(url)
+	if err != nil {
+		return nil, "", err
+	}
+
+	contents := index.Header().Get("Content-Disposition")
+	var bytes string
+
+	bytes = string(index.Body())
+
+	startIdx := strings.Index(bytes, "<img class=\"logo\"")
+	endIdx := strings.Index(bytes, "<h2 class=\"page-break ax-section-title ax-section-title--big\">")
+	bytes = bytes[:startIdx] + bytes[endIdx:]
+
+	bytes = strings.Replace(bytes, ".98in", "0", 1)
+	bytes = strings.Replace(bytes, "Acunetix", "Zhiannet", 1)
+	bytes = strings.Replace(bytes, "Acunetix", "", 1)
+	if pdf { //pdf
+		bts, err := util.HTML2PDF(bytes)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+
+			bytes = string(bts)
+			contents = strings.Replace(contents, "html", "pdf", 1)
+		}
+	}
+
+	return []byte(bytes), contents, nil
 }

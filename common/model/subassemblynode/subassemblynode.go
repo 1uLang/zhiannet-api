@@ -12,7 +12,7 @@ type (
 		Addr      string `json:"addr" gorm:"column:addr"`             // 节点地址
 		Port      int64  `json:"port" gorm:"column:port"`             // 节点端口
 		Type      int    `json:"type" gorm:"column:type"`             // 节点类型：ddos、下一代防火墙、云WAF
-		Idc       int    `json:"idc" gorm:"column:idc"`               // 数据中心
+		Idc       string `json:"idc" gorm:"column:idc"`               // 数据中心
 		State     int    `json:"state" gorm:"column:state"`           // 启用、禁用
 		IsDelete  int    `json:"is_delete" gorm:"column:is_delete"`   // 删除
 		IsSsl     int    `json:"is_ssl" gorm:"column:is_ssl"`         // 是否使用ssl协议 https访问
@@ -28,8 +28,41 @@ type (
 	}
 )
 
+func updateIdc() {
+	//修改字段类型
+	{
+
+		err := model.MysqlConn.Exec("alter table subassemblynode modify column idc varchar(50);").Error
+		if err != nil {
+			fmt.Println("update table subassemblynode column error : ", err)
+			return
+		}
+	}
+	list := []Subassemblynode{}
+	err := model.MysqlConn.Model(&Subassemblynode{}).Find(&list).Error
+	if err != nil {
+		fmt.Println("update field idc error : ", err)
+	} else {
+		for _, v := range list {
+			switch v.Idc {
+			case "1":
+				v.Idc = "成都IDC"
+			case "2":
+				v.Idc = "杭州IDC"
+			case "3":
+				v.Idc = "济南IDC"
+			default:
+				continue
+			}
+			_ = model.MysqlConn.Model(&Subassemblynode{}).Where("id=?", v.Id).Update("idc", v.Idc).Error
+		}
+	}
+
+}
+
 //获取节点
 func GetList(req *NodeReq) (list []*Subassemblynode, total int64, err error) {
+	updateIdc()
 	//从数据库获取
 	model := model.MysqlConn.Model(&Subassemblynode{}).Where("is_delete=?", 0).Order("state DESC,type ASC")
 	if req != nil {

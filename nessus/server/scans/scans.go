@@ -41,6 +41,11 @@ func Export(req *scans.ExportReq) (*scans.ExportResp, error) {
 	return scans.Export(req)
 }
 
+// 导出
+func ExportFile(req *scans.ExportFileReq) ([]byte, string, error) {
+	return scans.ExportFile(req)
+}
+
 // 漏洞列表
 func Vulnerabilities(req *scans.VulnerabilitiesReq) ([]interface{}, error) {
 	return scans.Vulnerabilities(req)

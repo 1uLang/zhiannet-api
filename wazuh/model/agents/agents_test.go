@@ -99,3 +99,94 @@ func TestSCAList(t *testing.T) {
 		fmt.Println(v)
 	}
 }
+
+func TestSCADetailsList(t *testing.T) {
+	err := request.InitServerUrl("https://156.240.95.168:55000")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = request.InitToken("wazuh", "wazuh")
+	if err != nil {
+		t.Fatal(err)
+	}
+	req, err := request.NewRequest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	list, err := SCADetailsList(req, "003", "cis_centos7_linux")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(list.TotalAffectedItems, list.TotalFailedItems)
+	for _, v := range list.AffectedItems {
+		fmt.Println(v)
+	}
+}
+
+func TestSysCheckList(t *testing.T) {
+	err := request.InitServerUrl("https://156.240.95.168:55000")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = request.InitToken("wazuh", "wazuh")
+	if err != nil {
+		t.Fatal(err)
+	}
+	req, err := request.NewRequest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	list, err := SysCheckList(req, "003")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(list.TotalAffectedItems, list.TotalFailedItems)
+	for _, v := range list.AffectedItems {
+		fmt.Println(v)
+	}
+}
+
+func TestCiscatList(t *testing.T) {
+	err := request.InitServerUrl("https://156.240.95.168:55000")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = request.InitToken("wazuh", "wazuh")
+	if err != nil {
+		t.Fatal(err)
+	}
+	req, err := request.NewRequest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	list, err := CiscatList(req, "003")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(list.TotalAffectedItems, list.TotalFailedItems)
+	for _, v := range list.AffectedItems {
+		fmt.Println(v)
+	}
+}
+
+func TestVulnerabilityList(t *testing.T) {
+	err := request.InitServerUrl("https://156.240.95.168:55000")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = request.InitToken("wazuh", "wazuh")
+	if err != nil {
+		t.Fatal(err)
+	}
+	req, err := request.NewRequest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	list, err := VulnerabilityList(req, "003")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, v := range list.AffectedItems {
+		fmt.Println(v)
+	}
+}
