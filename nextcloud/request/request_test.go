@@ -16,8 +16,8 @@ var (
 		User: "admin",
 		// User: "admin_zhoumj",
 		// Password: "Dengbao123!@#",
-		Password: "admin",
-		// Password: "21ops.com",
+		// Password: "admin",
+		Password: "21ops.com",
 		// Password: "adminAd#@2021",
 	}
 	fileName = "Nextcloud.png"
@@ -38,7 +38,7 @@ func TestFormatBytes(t *testing.T) {
 
 func TestToken(t *testing.T) {
 	token := GenerateToken(req)
-	user, err := ParseToken(token)
+	user, _, err := ParseToken(token)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -132,9 +132,9 @@ func TestCreateUser(t *testing.T) {
 func TestListFoldersWithPath(t *testing.T) {
 	token := GenerateToken(req)
 	var url string
-	// param.BASE_URL = "http://localhost:8080"
-	// param.AdminUser = "admin"
-	// param.AdminPasswd = "admin"
+	param.BASE_URL = "https://bptest.dengbao.cloud"
+	param.AdminUser = "admin"
+	param.AdminPasswd = "admin"
 	// url = `/remote.php/dav/files/admin/新建文件夹/`
 	ls, err := ListFoldersWithPath(token, url)
 	if err != nil {
@@ -159,9 +159,11 @@ func TestDownLoadFileURLWithPath(t *testing.T) {
 
 func TestDeleteFileWithPath(t *testing.T) {
 	token := GenerateToken(req)
+	param.BASE_URL = "https://bptest.dengbao.cloud"
+
 	var uRL string
 	// uRL = `/remote.php/dav/files/admin/golang.png`
-	uRL = `/remote.php/dav/files/admin/新建文件夹/`
+	uRL = `/remote.php/dav/files/admin/测试文件夹/`
 	err := DeleteFileWithPath(token, uRL)
 	if err != nil {
 		t.Fatal(err)
@@ -233,20 +235,20 @@ func TestGetDirectDownloadURL(t *testing.T) {
 
 func TestCreateUserV2(t *testing.T) {
 	token := GenerateToken(req)
-	param.BASE_URL = "http://localhost:8088"
+	param.BASE_URL = "https://bptest.dengbao.cloud"
 
-	err := CreateUserV2(token, "test123456", "Test@test12345")
+	err := CreateUserV2(token, "test_hanchan", "21ops.com@")
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestDeleteNCUser(t *testing.T) {
-	param.BASE_URL = "http://localhost:8088"
+	param.BASE_URL = "https://bptest.dengbao.cloud"
 	param.AdminUser = "admin"
-	param.AdminPasswd = "admin"
+	param.AdminPasswd = "21ops.com"
 
-	err := DeleteNCUser("hanchan")
+	err := DeleteNCUser("test_hanchan")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -260,4 +262,24 @@ func TestGetNCUserInfo(t *testing.T) {
 	t.Log(quota)
 	t.Log(used)
 	t.Log(percent)
+}
+
+func TestCreateFoler(t *testing.T) {
+	token := GenerateToken(req)
+	param.BASE_URL = "https://bptest.dengbao.cloud"
+
+	err := CreateFoler(token, "", "测试文件夹")
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestUpdateUserPassword(t *testing.T) {
+	token := `Basic dGVzdF9oYW5jaGFuOjIxcG9zLmNvbUA=`
+	param.BASE_URL = "https://bptest.dengbao.cloud"
+
+	err := UpdateUserPassword("21pos.com.",token)
+	if err != nil {
+		t.Fatal(err)
+	}
 }

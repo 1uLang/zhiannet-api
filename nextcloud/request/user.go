@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -180,6 +181,7 @@ func DeleteUser(uid, kid int64) error {
 
 // GetNCUserInfo 获取用户信息
 func GetNCUserInfo(token, user string) (quota, used, percent string) {
+	getNCInfo()
 	percent = "1%"
 	uRL := fmt.Sprintf("%s/"+param.USER_INFO, param.BASE_URL, user)
 	tr := &http.Transport{
@@ -222,4 +224,45 @@ func GetNCUserInfo(token, user string) (quota, used, percent string) {
 	used = FormatBytes(used)
 
 	return
+}
+
+// UpdateUserPassword 更新用户密码
+func UpdateUserPassword(newPassword, token string) error {
+	// getNCInfo()
+	_, pwd, err := ParseToken(token)
+	if err != nil {
+		return fmt.Errorf("Token解析错误：%w", err)
+	}
+	log.Println(pwd)
+	uRL := fmt.Sprintf("%s/%s", param.BASE_URL, param.UPDATE_USERPWD)
+
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	cli := &http.Client{
+		Transport: tr,
+	}
+
+	req, err := http.NewRequest("POST", uRL, nil)
+	if err != nil {
+		return fmt.Errorf("新建请求失败：%w", err)
+	}
+	req.Header.Set("Authorization", token)
+	req.Header.Add("OCS-APIRequest", "true")
+	query := req.URL.Query()
+	query.Add("oldpassword", pwd)
+	query.Add("newpassword", newPassword)
+	query.Add("newpassword-clone", newPassword)
+	req.URL.RawQuery = query.Encode()
+
+	rsp, err := cli.Do(req)
+	if err != nil {
+		return fmt.Errorf("执行用户密码更新失败：%w", err)
+	}
+	defer rsp.Body.Close()
+
+	bb, _ := io.ReadAll(rsp.Body)
+	log.Println(string(bb))
+
+	return nil
 }

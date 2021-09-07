@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	_const "github.com/1uLang/zhiannet-api/maltrail/const"
 	"github.com/1uLang/zhiannet-api/maltrail/request"
 	"regexp"
@@ -11,11 +12,13 @@ import (
 
 type (
 	ListReq struct {
-		Date string `json:"date"`
+		Date   string `json:"date"`
+		NodeId uint64 `json:"node_id"`
 	}
 
 	ListResp struct {
 		Time      string `json:"time"`
+		Events    int    `json:"events"`
 		Sensor    string `json:"sensor"`
 		SrcIp     string `json:"src_ip"`
 		SrcPort   string `json:"src_port"`
@@ -29,9 +32,14 @@ type (
 	}
 )
 
+//apt 节点列表
+func GetMaltrailNodeList() (list []*subassemblynode.Subassemblynode, total int64, err error) {
+	list, total, err = subassemblynode.GetList(&subassemblynode.NodeReq{Type: 11, State: "1"})
+	return
+}
 func GetList(req *ListReq) (list []*ListResp, err error) {
 	//获取数据
-	logReq, err := request.GetLoginInfo()
+	logReq, err := request.GetLoginInfo(req.NodeId)
 	if err != nil {
 		return
 	}
@@ -54,12 +62,15 @@ func GetList(req *ListReq) (list []*ListResp, err error) {
 
 }
 
-func MustList(str []byte) (resp []*ListResp, err error) {
+func MustList(str []byte) (newResp []*ListResp, err error) {
 	strs := string(str)
+	resp := make([]*ListResp, 0)
+
 	strSli := strings.Split(strs, "\n")
 	if len(strSli) > 1 {
 		//re,_ := regexp.Compile(`\"\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}\.\d{2,}\" \S{1,} \S{1,} \d{1,} \S{1,} \d{1,} \S{1,} \S{1,} \S{1,} \".*?\" \".*?\"`)
 		re, _ := regexp.Compile(`\".*?\"`)
+		strMap := map[string]int{}
 		for _, v := range strSli {
 			ips := &ListResp{}
 			s := strings.Split(v, " ")
@@ -93,9 +104,24 @@ func MustList(str []byte) (resp []*ListResp, err error) {
 				}
 			}
 			if ips.Trail != "" {
+				//event 计数
+				if num, ok := strMap[ips.SrcIp]; ok {
+					strMap[ips.SrcIp] = num + 1
+				} else {
+					strMap[ips.SrcIp] = 1
+				}
 				resp = append(resp, ips)
 			}
 		}
+		for _, v := range resp {
+			if num, ok := strMap[v.SrcIp]; ok {
+				value := &ListResp{}
+				*value = *v
+				value.Events = num
+				newResp = append(newResp, value)
+				delete(strMap, v.SrcIp)
+			}
+		}
 	}
-	return
+	return newResp, err
 }

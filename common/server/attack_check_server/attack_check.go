@@ -20,7 +20,7 @@ func (*AttackCheckRequest) Run() {
 	}()
 
 	//ddos 入侵检测 将入侵ip 加入ddos黑名单
-	go func() {
+	func() {
 		err := ddos{}.AttackCheck()
 		if err != nil {
 			fmt.Println("ddos 攻击ip自动加入 黑名单错误：", err)
@@ -28,7 +28,7 @@ func (*AttackCheckRequest) Run() {
 		}
 	}()
 	//hids 入侵检测 将入侵ip 加入ddos黑名单
-	go func() {
+	func() {
 
 		info, err := server.GetHideInfo()
 		if err != nil {
@@ -59,7 +59,7 @@ func (*AttackCheckRequest) Run() {
 		}
 	}()
 	//hids 入侵检测 网页后门 加自动进行web漏洞扫描
-	go func() {
+	func() {
 		ips, err := hids{}.WebShellAttackCheck()
 		if err != nil {
 			fmt.Println("hids 网页后门入侵检测失败:", err)
@@ -88,14 +88,14 @@ func (*AttackCheckRequest) Run() {
 		}
 	}()
 	//waf入侵检测 自动加入waf黑名单
-	go func() {
+	func() {
 		err := waf{}.WAFAttackCheck()
 		if err != nil {
 			fmt.Printf("waf入侵检测失败:%v\n", err)
 			return
 		}
 	}()
-	go func() {
+	func() {
 		info, err := awvs_server.GetWebScan()
 		if err != nil {
 			fmt.Printf("web漏洞扫描获取配置信息失败:%v\n", err)

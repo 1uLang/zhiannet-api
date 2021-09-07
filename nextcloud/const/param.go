@@ -6,8 +6,8 @@ var (
 	// BASE_URL = `http://182.150.0.80:18002/backup`
 	// AdminUser = `admin`
 	// AdminPasswd = `Dengbao123!@#`
-	BASE_URL = ``
-	AdminUser = ``
+	BASE_URL    = ``
+	AdminUser   = ``
 	AdminPasswd = ``
 )
 
@@ -24,12 +24,12 @@ const (
 	Direct_Download = `ocs/v2.php/apps/dav/api/v1/direct`
 
 	// 创建用户 method: POST
-	CREATE_USER = `ocs/v1.php/cloud/users`
+	CREATE_USER    = `ocs/v1.php/cloud/users`
 	CREATE_USER_V2 = `ocs/v2.php/cloud/users`
 	// 删除用户 method: DELETE
 	DELETE_USER = `ocs/v2.php/cloud/users/%s`
 	// 用户信息 method: GET
 	USER_INFO = `ocs/v1.php/cloud/users/%s`
+	// 更新用户信息 method: PUT
+	UPDATE_USERPWD = `settings/personal/changepassword`
 )
-
-

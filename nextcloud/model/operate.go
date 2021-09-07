@@ -63,3 +63,14 @@ func QueryTokenByUID(uid int64, kind ...uint8) (string, error) {
 
 	return nct.Token, nil
 }
+
+// UpdateUserToken 更新用户的token
+func UpdateUserToken(uid int64, kind uint8, name, token string) error {
+	err := model.MysqlConn.Model(&NextCloudToken{}).Where("uid = ? AND kind = ?", uid, kind).
+		Updates(map[string]interface{}{"user": name, "token": token}).Error
+	if err != nil {
+		return fmt.Errorf("更新数据备份用户名密码错误：%w", err)
+	}
+
+	return nil
+}

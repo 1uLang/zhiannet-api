@@ -6,13 +6,14 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/1uLang/zhiannet-api/common/model/edge_messages"
 	"io"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/1uLang/zhiannet-api/common/model/edge_messages"
 
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/utils"
@@ -56,25 +57,25 @@ func GetAdminToken() string {
 }
 
 // ParseToken 根据token获取用户名密码
-func ParseToken(token string) (string, error) {
+func ParseToken(token string) (string, string, error) {
 	token = strings.TrimSpace(token)
 	ts := strings.Split(token, " ")
 	if len(ts) < 2 {
-		return "", errors.New("token错误")
+		return "", "", errors.New("token错误")
 	}
 	token = ts[1]
 
 	src, err := base64.StdEncoding.DecodeString(token)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	userInfo := strings.Split(string(src), ":")
 	if len(userInfo) == 0 {
-		return "", errors.New("token解析错误")
+		return "", "", errors.New("token解析错误")
 	}
 
-	return userInfo[0], nil
+	return userInfo[0], userInfo[1], nil
 }
 
 // FormatTime 解析并格式化时间戳
