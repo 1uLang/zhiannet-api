@@ -1,6 +1,7 @@
 package targets
 
 import (
+	"encoding/json"
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/awvs/const"
 	"github.com/1uLang/zhiannet-api/awvs/model"
@@ -28,14 +29,15 @@ func Search(args *ListReq) (list []interface{}, err error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(string(resp))
-	if targets,ok := respInfo["targets"]; ok {
+
+	if targets, ok := respInfo["targets"]; ok {
 		return targets.([]interface{}), nil
-	}else{
-		return nil,nil
+	} else {
+		return nil, nil
 	}
 
 }
+
 //List 	目标列表
 
 func List(args *ListReq) (list map[string]interface{}, err error) {
@@ -70,17 +72,19 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 	if total == 0 || err != nil {
 		return map[string]interface{}{}, err
 	}
-	tarMap := map[string]int{}
+	tarMap := map[string]uint64{}
 	for _, v := range targetList {
-		tarMap[v.TargetId] = 0
+		tarMap[v.TargetId] = v.Id
 	}
 	resList := gjson.ParseBytes(resp)
 	list = map[string]interface{}{}
 	if resList.Get("targets").Exists() {
 		targets := []interface{}{}
 		for _, v := range resList.Get("targets").Array() {
-			if _, ok := tarMap[v.Get("target_id").String()]; ok {
-				targets = append(targets, v.Value())
+			if dbid, ok := tarMap[v.Get("target_id").String()]; ok {
+				item := v.Value().(map[string]interface{})
+				item["id"] = dbid
+				targets = append(targets, item)
 			}
 		}
 		list["targets"] = targets
@@ -92,8 +96,15 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 //Add 添加目标
 func Add(args *AddReq) (target_id string, err error) {
 
-	if args.C {	//检测 该addr 是否已添加 是着 直接返回
-
+	if args.C { //检测 该addr 是否已添加 是着 直接返回
+		list, err := List(&ListReq{Limit: 100, Query: "text_search:*" + args.Address + ";", UserId: args.UserId, AdminUserId: args.AdminUserId})
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			if len(list) > 0 {
+				return list["targets"].([]interface{})[0].(map[string]interface{})["target_id"].(string), nil
+			}
+		}
 	}
 
 	ok, err := args.Check()
@@ -119,14 +130,59 @@ func Add(args *AddReq) (target_id string, err error) {
 	}
 	//TODO 暂不处理入库失败
 	//入库
+	config, _ := json.Marshal(GetConfigResp{Username: args.Username, Password: args.Password})
 	target_id = fmt.Sprintf("%v", ret["target_id"])
-	_,_ = AddAddr(&WebscanAddr{
+	//设置 登录设置
+	_ = siteLogin(target_id, args.Username, args.Password)
+	_, _ = AddAddr(&WebscanAddr{
 		UserId:      args.UserId,
 		AdminUserId: args.AdminUserId,
 		TargetId:    target_id,
+		Config:      config,
 		CreateTime:  int(time.Now().Unix()),
 	})
 	return target_id, nil
+}
+
+//登录设置
+func siteLogin(target_id, username, password string) error {
+
+	kind := "automatic"
+	if username == "" || password == "" || target_id == "" {
+		kind = "none"
+	}
+	req, err := request.NewRequest()
+	if err != nil {
+		return err
+	}
+
+	req.Method = "PATCH"
+	req.Url += "/api/v1/targets/" + target_id + "/configuration"
+	req.Params = map[string]interface{}{
+		"login": map[string]interface{}{
+			"credentials": map[string]interface{}{
+				"enabled":  true,
+				"password": password,
+				"username": username,
+			},
+			"kind": kind,
+		},
+		"sensor": false,
+		"ssh_credentials": map[string]interface{}{
+			"kind": "none",
+		},
+	}
+
+	resp, err := req.Do()
+	if err != nil {
+		return err
+	}
+	_, err = model.ParseResp(resp)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(resp))
+	return nil
 }
 
 //Delete 删除目标

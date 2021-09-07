@@ -1,6 +1,7 @@
 package scans
 
 import (
+	"encoding/json"
 	"fmt"
 	db_model "github.com/1uLang/zhiannet-api/common/model"
 )
@@ -15,6 +16,7 @@ type (
 		CreateTime  int    `gorm:"column:create_time" json:"create_time" form:"create_time"`       //创建时间
 		Description string `gorm:"column:description" json:"description" form:"description"`       //备注
 		Addr        string `gorm:"column:addr" json:"addr" form:"addr"`                            //备注
+		Config      []byte `gorm:"column:config" json:"config" form:"config"`                      //登录设置 配置
 	}
 	ScansListReq struct {
 		UserId      uint64 `json:"user_id" gorm:"column:user_id"`                                  // 用户ID
@@ -32,6 +34,16 @@ type (
 		IsDelete    uint8  `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除
 		CreateTime  int64  `gorm:"column:create_time" json:"create_time" form:"create_time"`       //创建时间
 		Addr        string `gorm:"column:addr" json:"addr" form:"addr"`                            //备注
+	}
+	SetConfigResp struct {
+		ID string `json:"id"`
+		GetConfigResp
+	}
+	GetConfigResp struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Os       int    `json:"os"`
+		Port     int    `json:"port"`
 	}
 )
 
@@ -53,7 +65,23 @@ func GetInfo(id string) (info NessusScans, err error) {
 	var entity NessusScans
 	err = db_model.MysqlConn.Model(&NessusScans{}).Where("scans_id=?", id).Where("is_delete=0").Find(&entity).Error
 	return entity, err
-
+}
+func SetConfig(conf *SetConfigResp) (err error) {
+	bytes, err := json.Marshal(conf.GetConfigResp)
+	if err != nil {
+		return err
+	}
+	return db_model.MysqlConn.Model(&NessusScans{}).Where("scans_id=?", conf.ID).Where("is_delete=0").Update("config", string(bytes)).Error
+}
+func GetConfig(id string) (info *GetConfigResp, err error) {
+	var entity NessusScans
+	err = db_model.MysqlConn.Model(&NessusScans{}).Where("scans_id=?", id).Where("is_delete=0").Find(&entity).Error
+	if err != nil {
+		return nil, err
+	}
+	config := &GetConfigResp{}
+	err = json.Unmarshal(entity.Config, &config)
+	return config, err
 }
 
 //获取节点

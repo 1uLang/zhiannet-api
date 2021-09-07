@@ -1,6 +1,7 @@
 package targets
 
 import (
+	"encoding/json"
 	"fmt"
 	_const "github.com/1uLang/zhiannet-api/awvs/const"
 	awvs_model "github.com/1uLang/zhiannet-api/awvs/model"
@@ -18,6 +19,7 @@ type (
 		AdminUserId uint64 `gorm:"column:admin_user_id" json:"admin_user_id" form:"admin_user_id"` //admin用户ID
 		IsDelete    uint8  `gorm:"column:is_delete" json:"is_delete" form:"is_delete"`             //1删除
 		CreateTime  int    `gorm:"column:create_time" json:"create_time" form:"create_time"`       //创建时间
+		Config      []byte `gorm:"column:config" json:"config" form:"config"`                      //身份认证信息 username password port
 	}
 	AddrListReq struct {
 		UserId      uint64 `json:"user_id" gorm:"column:user_id"`                                  // 用户ID
@@ -30,6 +32,15 @@ type (
 		Addr        string `json:"-"`
 		UserId      uint64 `json:"-"`
 		AdminUserId uint64 `json:"-"`
+	}
+	GetConfigResp struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Port     int    `json:"port"`
+	}
+	SetConfigReq struct {
+		Id uint64
+		GetConfigResp
 	}
 )
 
@@ -77,6 +88,33 @@ func GetList(req *AddrListReq) (list []*WebscanAddr, total int64, err error) {
 }
 
 //获取数量
+
+func GetConfig(id uint64) (*GetConfigResp, error) {
+
+	entity := &WebscanAddr{}
+	err := model.MysqlConn.Model(&WebscanAddr{}).Where("id=?", id).Find(&entity).Error
+	conf := &GetConfigResp{}
+	err = json.Unmarshal(entity.Config, &conf)
+	return conf, err
+}
+func SetConfig(req *SetConfigReq) error {
+	entity := &WebscanAddr{}
+	err := model.MysqlConn.Model(&WebscanAddr{}).Where("id=?", req.Id).Find(&entity).Error
+	config, err := json.Marshal(req.GetConfigResp)
+	if err != nil {
+		return err
+	}
+	err = model.MysqlConn.Model(&WebscanAddr{}).Where("id=?", req.Id).Update("config", string(config)).Error
+	if err != nil {
+		return err
+	} else {
+		siteLogin(entity.TargetId, req.Username, req.Password)
+	}
+
+	return err
+}
+
+//获取数量
 func GetNum(req *AddrListReq) (total int64, err error) {
 	//从数据库获取
 	model := model.MysqlConn.Model(&WebscanAddr{}).Where("is_delete=?", 0)
@@ -96,11 +134,11 @@ func GetNum(req *AddrListReq) (total int64, err error) {
 	return
 }
 
-func CheckAddr(arg *CheckAddrReq) (id string,isExist bool, err error) {
+func CheckAddr(arg *CheckAddrReq) (id string, isExist bool, err error) {
 
 	req, err := request.NewRequest()
 	if err != nil {
-		return "",false, err
+		return "", false, err
 	}
 
 	req.Method = "GET"
@@ -111,10 +149,10 @@ func CheckAddr(arg *CheckAddrReq) (id string,isExist bool, err error) {
 
 	resp, err := req.Do()
 	if err != nil {
-		return "",false, err
+		return "", false, err
 	}
 	if args.UserId == 0 && args.AdminUserId == 0 {
-		return "",false, err
+		return "", false, err
 	}
 	//获取数据库 当前用户的扫描用户
 	targetList, total, err := GetList(&AddrListReq{
@@ -124,7 +162,7 @@ func CheckAddr(arg *CheckAddrReq) (id string,isExist bool, err error) {
 		PageNum:     1,
 	})
 	if total == 0 || err != nil {
-		return "",false, err
+		return "", false, err
 	}
 	tarMap := map[string]int{}
 	for _, v := range targetList {
@@ -133,12 +171,12 @@ func CheckAddr(arg *CheckAddrReq) (id string,isExist bool, err error) {
 	resList := gjson.ParseBytes(resp)
 	if resList.Get("targets").Exists() {
 		for _, v := range resList.Get("targets").Array() {
-			if _, ok := tarMap[v.Get("target_id").String()]; ok && v.Get("address").String() == arg.Addr{
-				return v.Get("target_id").String(),true,nil
+			if _, ok := tarMap[v.Get("target_id").String()]; ok && v.Get("address").String() == arg.Addr {
+				return v.Get("target_id").String(), true, nil
 			}
 		}
 	}
-	return "",false,nil
+	return "", false, nil
 }
 
 //添加数据

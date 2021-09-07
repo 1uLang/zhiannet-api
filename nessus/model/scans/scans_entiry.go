@@ -3,11 +3,18 @@ package scans
 type AddReq struct {
 	UUID     string `json:"uuid"`
 	Settings struct {
-		Name         string `json:"name"`
-		Text_targets string `json:"text_targets"`
-		Description  string `json:"description"`
+		Name             string `json:"name"`
+		Text_targets     string `json:"text_targets"`
+		Description      string `json:"description"`
+		SshClient_banner string `json:"ssh_client_banner,omitempty"`
+		SshPort          string `json:"ssh_port,omitempty"`
 	} `json:"settings"`
 
+	ID          string `json:"-"`
+	Username    string `json:"-"`
+	Password    string `json:"-"`
+	Port        int    `json:"-"`
+	Os          int    `json:"-"` // 1. SSH 2. Windows
 	UserId      uint64 `json:"-"`
 	AdminUserId uint64 `json:"-"`
 }
