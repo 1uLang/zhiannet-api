@@ -95,14 +95,14 @@ func GetList(req *ListReq) (list []*hidsAgents, total int64, err error) {
 	if err != nil || total == 0 {
 		return
 	}
-	err = model.Debug().Order("id desc").Find(&list).Error
+	err = model.Debug().Limit(999).Order("id desc").Find(&list).Error
 	if err != nil {
 		return
 	}
 	return
 }
 func GetUserListByAgentIP(ip string) (list []*hidsAgents, err error) {
-	model := db_model.MysqlConn.Model(&hidsAgents{}).Where("is_delete=?", 0).Where("ip=?",ip)
+	model := db_model.MysqlConn.Model(&hidsAgents{}).Where("is_delete=?", 0).Where("ip=?", ip)
 
 	err = model.Debug().Order("id desc").Find(&list).Error
 	if err != nil {
