@@ -14,11 +14,14 @@ type UpdateReq struct {
 	Description string `json:"description"` //描述
 }
 type AddReq struct {
-	Address     string `json:"address"` //地址
+	Address  string `json:"address"` //地址
+	Username string `json:"-"`
+	Password string `json:"-"`
+	Port     int    `json:"-"`
+	C        bool   `json:"-"`
+	UpdateReq
 	UserId      uint64 `json:"-"`
 	AdminUserId uint64 `json:"-"`
-	C           bool   `json:"-"`
-	UpdateReq
 }
 
 func (this *AddReq) Check() (bool, error) {

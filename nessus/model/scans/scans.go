@@ -122,8 +122,55 @@ func Create(args *AddReq) (uint64, error) {
 	}
 	req.Method = "post"
 	req.Url += scan_url
-	req.Params = model.ToMap(*args)
+	//设置登录设置
+	if args.Username != "" && args.Password != "" && args.Os != 0 {
+		if args.Os == 1 {
+			args.Settings.SshPort = strconv.Itoa(args.Port)
+			args.Settings.SshClient_banner = "OpenSSH_5.0"
 
+			req.Params = model.ToMap(*args)
+			req.Params["credentials"] = map[string]interface{}{
+				"delete": []interface{}{},
+				"edit":   map[string]interface{}{},
+				"add": map[string]interface{}{
+					"Host": map[string]interface{}{
+						"SSH": []map[string]interface{}{
+							{
+								"auth_method":             "password",
+								"custom_password_prompt":  "",
+								"elevate_privileges_with": "Nothing",
+								"password":                args.Password,
+								"username":                args.Username,
+							},
+						},
+					},
+				},
+			}
+		} else if args.Os == 2 {
+
+			req.Params = model.ToMap(*args)
+			req.Params["credentials"] = map[string]interface{}{
+				"delete": []interface{}{},
+				"edit":   map[string]interface{}{},
+				"add": map[string]interface{}{
+					"Host": map[string]interface{}{
+						"Windows": []map[string]interface{}{
+							{
+								"auth_method": "Password",
+								"domain":      "",
+								"password":    args.Password,
+								"username":    args.Username,
+							},
+						},
+					},
+				},
+			}
+		} else {
+			return 0, fmt.Errorf("参数错误")
+		}
+	} else {
+		req.Params = model.ToMap(*args)
+	}
 	resp, err := req.Do()
 	if err != nil {
 		return 0, err
@@ -135,6 +182,13 @@ func Create(args *AddReq) (uint64, error) {
 	}
 
 	id, _ := util.Interface2Uint64(ret["scan"].(map[string]interface{})["id"])
+
+	conf, _ := json.Marshal(GetConfigResp{
+		Username: args.Username,
+		Password: args.Password,
+		Port:     args.Port,
+		Os:       args.Os,
+	})
 	//写入数据库
 	_, err = AddScans(&NessusScans{
 		UserId:      args.UserId,
@@ -143,8 +197,91 @@ func Create(args *AddReq) (uint64, error) {
 		Description: args.Settings.Description,
 		Addr:        args.Settings.Name,
 		CreateTime:  int(time.Now().Unix()),
+		Config:      conf,
 	})
 	return id, err
+}
+func Update(args *AddReq) error {
+	if args.ID == "" {
+		return fmt.Errorf("参数错误")
+	}
+	req, err := request.NewRequest()
+	if err != nil {
+		return err
+	}
+
+	args.UUID, err = getScanTemplateUUid()
+	if err != nil {
+		return err
+	}
+	req.Method = "put"
+	req.Url += scan_url + "/" + args.ID
+	//设置登录设置
+	if args.Username != "" && args.Password != "" && args.Os != 0 {
+		if args.Os == 1 {
+			args.Settings.SshPort = strconv.Itoa(args.Port)
+			args.Settings.SshClient_banner = "OpenSSH_5.0"
+
+			req.Params = model.ToMap(*args)
+			req.Params["credentials"] = map[string]interface{}{
+				"delete": []interface{}{},
+				"edit":   map[string]interface{}{},
+				"add": map[string]interface{}{
+					"Host": map[string]interface{}{
+						"SSH": []map[string]interface{}{
+							{
+								"auth_method":             "password",
+								"custom_password_prompt":  "",
+								"elevate_privileges_with": "Nothing",
+								"password":                args.Password,
+								"username":                args.Username,
+							},
+						},
+					},
+				},
+			}
+		} else if args.Os == 2 {
+
+			req.Params = model.ToMap(*args)
+			req.Params["credentials"] = map[string]interface{}{
+				"delete": []interface{}{},
+				"edit":   map[string]interface{}{},
+				"add": map[string]interface{}{
+					"Host": map[string]interface{}{
+						"Windows": []map[string]interface{}{
+							{
+								"auth_method": "Password",
+								"domain":      "",
+								"password":    args.Password,
+								"username":    args.Username,
+							},
+						},
+					},
+				},
+			}
+		} else {
+			return fmt.Errorf("参数错误")
+		}
+	} else {
+		req.Params = model.ToMap(*args)
+	}
+	resp, err := req.Do()
+	if err != nil {
+		return err
+	}
+	_, err = model.ParseResp(resp)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(resp))
+	//写入数据库
+	confReq := &SetConfigResp{ID: args.ID}
+	confReq.Username = args.Username
+	confReq.Password = args.Password
+	confReq.Port = args.Port
+	confReq.Os = args.Os
+	_ = SetConfig(confReq)
+	return nil
 }
 func List(args *ListReq) ([]interface{}, error) {
 
@@ -167,7 +304,7 @@ func List(args *ListReq) ([]interface{}, error) {
 	}
 	//解析返回值
 	result := make(map[string]interface{}, 0)
-	fmt.Println(string(ret))
+
 	err = json.Unmarshal(ret, &result)
 	if err != nil {
 		return nil, err
@@ -337,6 +474,7 @@ func ExportFile(args *ExportFileReq) ([]byte, string, error) {
 	if strings.Contains(contents, "html") {
 		bytes = strings.Replace(string(index.Body()), "float: left;\"", "float: left;display: none;\"", 1)
 		bytes = strings.Replace(bytes, "float: right;\"", "float: right;display: none;\"", 1)
+		bytes = strings.Replace(bytes, "<div style=\"width: 1024px;", "<div style=\"width: 1024px; display: none;", 1)
 	} else {
 		bytes = string(index.Body())
 	}
@@ -408,7 +546,7 @@ func Export(args *ExportReq) (*ExportResp, error) {
 	export := &ExportResp{}
 	err = json.Unmarshal(resp, export)
 	if err == nil { //token生效的延迟
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 	}
 	return export, err
 }
@@ -570,7 +708,7 @@ func History(args *HistoryReq) ([]interface{}, error) {
 				return nil, err
 			}
 			if info["history"] == nil {
-				return nil, nil
+				return retList, nil
 			}
 			for _, v := range info["history"].([]interface{}) {
 				item := v.(map[string]interface{})
