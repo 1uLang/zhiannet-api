@@ -21,6 +21,7 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 	getNCInfo()
 	var lfr model.ListFoldersResp
 	var fl model.FolderList
+	var dl = make([]model.DirMap, 0, 4)
 	if param.BASE_URL == "" || param.AdminUser == "" || param.AdminPasswd == "" {
 		return nil, errors.New("该组件暂未添加，请添加后重试")
 	}
@@ -44,6 +45,23 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 			}
 		}
 		uRL = fmt.Sprintf("%s%s", param.BASE_URL, fp)
+	}
+
+	// 做路径切割
+	bu := fmt.Sprintf("%s/"+param.LIST_FOLDERS+"/", param.BASE_URL, user)
+	qu := strings.TrimLeft(uRL, bu)
+	if qu == "" {
+		fl.DirList = dl
+	} else {
+		qus := strings.Split(qu, "/")
+		qus = qus[:len(qus)-1]
+		ba := fmt.Sprintf("/"+param.LIST_FOLDERS+"/", user)
+		for _, v := range qus {
+			ba = ba + v + "/"
+			du := model.DirMap{Name: v, Url: ba}
+			dl = append(dl, du)
+			fl.DirList = dl
+		}
 	}
 
 	// 跳过证书验证
@@ -82,7 +100,9 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 		}
 		str := strings.Split(unescape, "/")
 		if str[len(str)-1] == "" {
-			fb.Name = str[len(str)-2] + "/"
+			// fb.Name = str[len(str)-2] + "/"
+			fb.Name = str[len(str)-2]
+			fb.FileType = 1
 			fb.UsedBytes = FormatBytes(v.Propstat.Prop.QuotaUsedBytes)
 		} else {
 			fb.Name = str[len(str)-1]
@@ -301,7 +321,7 @@ func CreateFoler(token, pfURL, folerName string) error {
 	if string([]rune(pfURL)[len([]rune(pfURL))-1]) != "/" {
 		return errors.New("传入的父级url不是目录")
 	}
-	nfURL := fmt.Sprintf("%s%s", pfURL, folerName)
+	nfURL := fmt.Sprintf("%s/%s%s", param.BASE_URL, pfURL, folerName)
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},

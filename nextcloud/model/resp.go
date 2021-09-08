@@ -38,6 +38,13 @@ type FolderBody struct {
 	LastModified string `json:"last_modified"`
 	UsedBytes    string `json:"used_bytes"`
 	ContentType  string `json:"content_type"`
+	FileType     int    `json:"fileType"`
+}
+
+// DirMap 目录映射
+type DirMap struct {
+	Name string
+	Url  string
 }
 
 // FolderList 文件列表
@@ -46,6 +53,7 @@ type FolderList struct {
 	Used    string       `json:"used"`
 	Percent string       `json:"percent"`
 	List    []FolderBody `json:"list"`
+	DirList []DirMap     `json:"dir_list"`
 }
 
 // DirectResp 直链响应体
