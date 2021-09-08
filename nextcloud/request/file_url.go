@@ -20,6 +20,7 @@ import (
 func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, error) {
 	getNCInfo()
 	var lfr model.ListFoldersResp
+	var dirList, fileList []model.FolderBody
 	var fl model.FolderList
 	var dl = make([]model.DirMap, 0, 4)
 	if param.BASE_URL == "" || param.AdminUser == "" || param.AdminPasswd == "" {
@@ -114,10 +115,17 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 		fb.URL = unescape
 		fb.LastModified = FormatTime(v.Propstat.Prop.Getlastmodified, "2006-01-02 15:04:05")
 
-		fl.List = append(fl.List, fb)
+		// fl.List = append(fl.List, fb)
+		if fb.FileType == 1 {
+			dirList = append(dirList, fb)
+		} else {
+			fileList = append(fileList, fb)
+		}
 	}
 
 	fl.Quota, fl.Used, fl.Percent = GetNCUserInfo(token, user)
+	fl.List = append(fl.List, dirList...)
+	fl.List = append(fl.List, fileList...)
 
 	return &fl, nil
 }
