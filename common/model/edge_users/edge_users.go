@@ -86,7 +86,7 @@ func GetInfoById(id uint64) (info *EdgeUsers, err error) {
 
 //通过用户名获取用户信息
 func GetInfoByUsername(name string) (info *EdgeUsers, err error) {
-	err = model.MysqlConn.Table("edgeUsers").Where("username=?", name).First(&info).Error
+	err = model.MysqlConn.Table("edgeUsers").Where("username=?", name).Order("state desc").First(&info).Error
 	return
 }
 
