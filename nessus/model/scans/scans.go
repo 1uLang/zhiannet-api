@@ -474,6 +474,7 @@ func ExportFile(args *ExportFileReq) ([]byte, string, error) {
 	if strings.Contains(contents, "html") {
 		bytes = strings.Replace(string(index.Body()), "float: left;\"", "float: left;display: none;\"", 1)
 		bytes = strings.Replace(bytes, "float: right;\"", "float: right;display: none;\"", 1)
+		bytes = strings.Replace(bytes, "<div style=\"width: 1024px;", "<div style=\"width: 1024px; display: none;", 1)
 	} else {
 		bytes = string(index.Body())
 	}
