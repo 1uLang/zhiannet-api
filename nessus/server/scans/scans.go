@@ -1,19 +1,26 @@
 package scans
 
 import (
-	"fmt"
 	"github.com/1uLang/zhiannet-api/nessus/model/scans"
 )
 
 // 创建扫描
 func Create(req *scans.AddReq) error {
 
-	id, err := scans.Create(req)
+	_, err := scans.Create(req)
 	if err != nil {
 		return err
 	}
-	fmt.Println("create nessus scans success : ", id)
 	return nil
+}
+
+// 创建扫描
+func Update(req *scans.AddReq) error {
+
+	return scans.Update(req)
+}
+func GetConfig(id string) (*scans.GetConfigResp, error) {
+	return scans.GetConfig(id)
 }
 
 // 扫描列表
@@ -39,6 +46,11 @@ func Resume(req *scans.ResumeReq) error {
 // 导出
 func Export(req *scans.ExportReq) (*scans.ExportResp, error) {
 	return scans.Export(req)
+}
+
+// 导出
+func ExportFile(req *scans.ExportFileReq) ([]byte, string, error) {
+	return scans.ExportFile(req)
 }
 
 // 漏洞列表

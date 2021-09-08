@@ -13,6 +13,10 @@ func init() {
 }
 
 func Test_login(t *testing.T) {
-	token, err := GetLoginInfo()
+	token, err := GetLoginInfo(1)
 	fmt.Println(token, err)
+}
+
+func Test_change(t *testing.T) {
+	Change()
 }

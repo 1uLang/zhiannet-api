@@ -41,7 +41,7 @@ func (this *Passport) Login(req *ApiKey) (CookieMap map[string]string, err error
 
 	cb := fmt.Sprintf("jQuery30009331923499973542_%v", time.Now().UnixNano()/1000000)
 	//登陆 返回cookies
-	resp, err = Client.SetDebug(true).R().
+	resp, err = Client.SetDebug(false).R().
 		SetHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8").
 		SetHeader("Host", "hids.zhiannet.com").
 		SetHeader("Origin", url).
@@ -71,7 +71,7 @@ func (this *Passport) Login(req *ApiKey) (CookieMap map[string]string, err error
 		}
 	}
 	//登陆 返回cookies
-	resp, err = Client.SetDebug(true).R().
+	resp, err = Client.SetDebug(false).R().
 		SetHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8").
 		SetHeader("Host", "hids.zhiannet.com").
 		SetHeader("Origin", url).

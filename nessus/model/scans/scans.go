@@ -1,11 +1,13 @@
 package scans
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/1uLang/zhiannet-api/hids/util"
 	"github.com/1uLang/zhiannet-api/nessus/model"
 	"github.com/1uLang/zhiannet-api/nessus/request"
+	"github.com/go-resty/resty/v2"
 	"math/big"
 	"strconv"
 	"strings"
@@ -120,8 +122,55 @@ func Create(args *AddReq) (uint64, error) {
 	}
 	req.Method = "post"
 	req.Url += scan_url
-	req.Params = model.ToMap(*args)
+	//设置登录设置
+	if args.Username != "" && args.Password != "" && args.Os != 0 {
+		if args.Os == 1 {
+			args.Settings.SshPort = strconv.Itoa(args.Port)
+			args.Settings.SshClient_banner = "OpenSSH_5.0"
 
+			req.Params = model.ToMap(*args)
+			req.Params["credentials"] = map[string]interface{}{
+				"delete": []interface{}{},
+				"edit":   map[string]interface{}{},
+				"add": map[string]interface{}{
+					"Host": map[string]interface{}{
+						"SSH": []map[string]interface{}{
+							{
+								"auth_method":             "password",
+								"custom_password_prompt":  "",
+								"elevate_privileges_with": "Nothing",
+								"password":                args.Password,
+								"username":                args.Username,
+							},
+						},
+					},
+				},
+			}
+		} else if args.Os == 2 {
+
+			req.Params = model.ToMap(*args)
+			req.Params["credentials"] = map[string]interface{}{
+				"delete": []interface{}{},
+				"edit":   map[string]interface{}{},
+				"add": map[string]interface{}{
+					"Host": map[string]interface{}{
+						"Windows": []map[string]interface{}{
+							{
+								"auth_method": "Password",
+								"domain":      "",
+								"password":    args.Password,
+								"username":    args.Username,
+							},
+						},
+					},
+				},
+			}
+		} else {
+			return 0, fmt.Errorf("参数错误")
+		}
+	} else {
+		req.Params = model.ToMap(*args)
+	}
 	resp, err := req.Do()
 	if err != nil {
 		return 0, err
@@ -133,6 +182,13 @@ func Create(args *AddReq) (uint64, error) {
 	}
 
 	id, _ := util.Interface2Uint64(ret["scan"].(map[string]interface{})["id"])
+
+	conf, _ := json.Marshal(GetConfigResp{
+		Username: args.Username,
+		Password: args.Password,
+		Port:     args.Port,
+		Os:       args.Os,
+	})
 	//写入数据库
 	_, err = AddScans(&NessusScans{
 		UserId:      args.UserId,
@@ -141,8 +197,91 @@ func Create(args *AddReq) (uint64, error) {
 		Description: args.Settings.Description,
 		Addr:        args.Settings.Name,
 		CreateTime:  int(time.Now().Unix()),
+		Config:      conf,
 	})
 	return id, err
+}
+func Update(args *AddReq) error {
+	if args.ID == "" {
+		return fmt.Errorf("参数错误")
+	}
+	req, err := request.NewRequest()
+	if err != nil {
+		return err
+	}
+
+	args.UUID, err = getScanTemplateUUid()
+	if err != nil {
+		return err
+	}
+	req.Method = "put"
+	req.Url += scan_url + "/" + args.ID
+	//设置登录设置
+	if args.Username != "" && args.Password != "" && args.Os != 0 {
+		if args.Os == 1 {
+			args.Settings.SshPort = strconv.Itoa(args.Port)
+			args.Settings.SshClient_banner = "OpenSSH_5.0"
+
+			req.Params = model.ToMap(*args)
+			req.Params["credentials"] = map[string]interface{}{
+				"delete": []interface{}{},
+				"edit":   map[string]interface{}{},
+				"add": map[string]interface{}{
+					"Host": map[string]interface{}{
+						"SSH": []map[string]interface{}{
+							{
+								"auth_method":             "password",
+								"custom_password_prompt":  "",
+								"elevate_privileges_with": "Nothing",
+								"password":                args.Password,
+								"username":                args.Username,
+							},
+						},
+					},
+				},
+			}
+		} else if args.Os == 2 {
+
+			req.Params = model.ToMap(*args)
+			req.Params["credentials"] = map[string]interface{}{
+				"delete": []interface{}{},
+				"edit":   map[string]interface{}{},
+				"add": map[string]interface{}{
+					"Host": map[string]interface{}{
+						"Windows": []map[string]interface{}{
+							{
+								"auth_method": "Password",
+								"domain":      "",
+								"password":    args.Password,
+								"username":    args.Username,
+							},
+						},
+					},
+				},
+			}
+		} else {
+			return fmt.Errorf("参数错误")
+		}
+	} else {
+		req.Params = model.ToMap(*args)
+	}
+	resp, err := req.Do()
+	if err != nil {
+		return err
+	}
+	_, err = model.ParseResp(resp)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(resp))
+	//写入数据库
+	confReq := &SetConfigResp{ID: args.ID}
+	confReq.Username = args.Username
+	confReq.Password = args.Password
+	confReq.Port = args.Port
+	confReq.Os = args.Os
+	_ = SetConfig(confReq)
+	return nil
 }
 func List(args *ListReq) ([]interface{}, error) {
 
@@ -165,7 +304,7 @@ func List(args *ListReq) ([]interface{}, error) {
 	}
 	//解析返回值
 	result := make(map[string]interface{}, 0)
-	fmt.Println(string(ret))
+
 	err = json.Unmarshal(ret, &result)
 	if err != nil {
 		return nil, err
@@ -186,7 +325,7 @@ func List(args *ListReq) ([]interface{}, error) {
 
 	resList := make([]interface{}, 0)
 	if result["scans"] == nil {
-		return nil,nil
+		return nil, nil
 	}
 	for _, v := range result["scans"].([]interface{}) {
 		scan := v.(map[string]interface{})
@@ -321,12 +460,32 @@ func Resume(args *ResumeReq) error {
 	fmt.Println(string(resp))
 	return nil
 }
+
+//下载报表文件。 并修改报表文件内容 去掉 nessus字样
+func ExportFile(args *ExportFileReq) ([]byte, string, error) {
+	Client := resty.New().SetDebug(false).SetTimeout(time.Second * 60)
+	Client = Client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	index, err := Client.R().Get(args.Url)
+	if err != nil {
+		return nil, "", err
+	}
+	contents := index.Header().Get("Content-Disposition")
+	var bytes string
+	if strings.Contains(contents, "html") {
+		bytes = strings.Replace(string(index.Body()), "float: left;\"", "float: left;display: none;\"", 1)
+		bytes = strings.Replace(bytes, "float: right;\"", "float: right;display: none;\"", 1)
+		bytes = strings.Replace(bytes, "<div style=\"width: 1024px;", "<div style=\"width: 1024px; display: none;", 1)
+	} else {
+		bytes = string(index.Body())
+	}
+	return []byte(bytes), contents, nil
+}
 func Export(args *ExportReq) (*ExportResp, error) {
 	req, err := request.NewRequest()
 	if err != nil {
 		return nil, err
 	}
-
+	req.Headers["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36"
 	req.Method = "post"
 	req.Url += scan_url + "/" + args.ID + "/export?limit=2500"
 	if args.HistoryId != "" {
@@ -371,7 +530,7 @@ func Export(args *ExportReq) (*ExportResp, error) {
 	}
 	req.Params = map[string]interface{}{
 		"format":   args.Format,
-		"chapters": "",
+		"chapters": "vuln_hosts_summary",
 		"extraFilters": map[string]interface{}{
 			"host_ids":   []string{},
 			"plugin_ids": []string{},
@@ -386,6 +545,9 @@ func Export(args *ExportReq) (*ExportResp, error) {
 
 	export := &ExportResp{}
 	err = json.Unmarshal(resp, export)
+	if err == nil { //token生效的延迟
+		time.Sleep(1000 * time.Millisecond)
+	}
 	return export, err
 }
 func Vulnerabilities(args *VulnerabilitiesReq) ([]interface{}, error) {
@@ -431,14 +593,11 @@ func Plugins(args *PluginsReq) (map[string]interface{}, error) {
 	}
 	ret := map[string]interface{}{}
 	ret["vt_name"] = info["info"].(map[string]interface{})["plugindescription"].(map[string]interface{})["pluginname"]
-	ret["description"] = info["info"].(map[string]interface{})["plugindescription"].
-	(map[string]interface{})["pluginattributes"].(map[string]interface{})["description"]
-	ret["details"] = info["info"].(map[string]interface{})["plugindescription"].
-	(map[string]interface{})["pluginattributes"].(map[string]interface{})["synopsis"]
+	ret["description"] = info["info"].(map[string]interface{})["plugindescription"].(map[string]interface{})["pluginattributes"].(map[string]interface{})["description"]
+	ret["details"] = info["info"].(map[string]interface{})["plugindescription"].(map[string]interface{})["pluginattributes"].(map[string]interface{})["synopsis"]
 	//ret["impact"] = info["info"].(map[string]interface{})["plugindescription"].
 	//(map[string]interface{})["pluginattributes"].(map[string]interface{})["synopsis"]
-	ret["recommendation"] = info["info"].(map[string]interface{})["plugindescription"].
-	(map[string]interface{})["pluginattributes"].(map[string]interface{})["solution"]
+	ret["recommendation"] = info["info"].(map[string]interface{})["plugindescription"].(map[string]interface{})["pluginattributes"].(map[string]interface{})["solution"]
 	return ret, nil
 }
 func Delete(args *DeleteReq) error {
@@ -549,7 +708,7 @@ func History(args *HistoryReq) ([]interface{}, error) {
 				return nil, err
 			}
 			if info["history"] == nil {
-				return nil, nil
+				return retList, nil
 			}
 			for _, v := range info["history"].([]interface{}) {
 				item := v.(map[string]interface{})

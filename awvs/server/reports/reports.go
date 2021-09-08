@@ -20,3 +20,8 @@ func Create(req *reports.CreateResp) (info map[string]interface{}, err error) {
 func Delete(scan_id string) (err error) {
 	return reports.Delete(scan_id)
 }
+
+//下载报表 去掉awvs字样
+func Download(url string, pdf bool) ([]byte, string, error) {
+	return reports.Download(url, pdf)
+}

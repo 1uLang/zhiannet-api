@@ -10,6 +10,7 @@ import (
 func List(req *targets.ListReq) (info map[string]interface{}, err error) {
 	return targets.List(req)
 }
+
 //条数查询所有
 func Search(req *targets.ListReq) (info []interface{}, err error) {
 	return targets.Search(req)
@@ -18,6 +19,14 @@ func Search(req *targets.ListReq) (info []interface{}, err error) {
 //Add 新建目标
 func Add(req *targets.AddReq) (targetId string, err error) {
 	return targets.Add(req)
+}
+func GetConfig(id uint64) (*targets.GetConfigResp, error) {
+
+	return targets.GetConfig(id)
+}
+func SetConfig(req *targets.SetConfigReq) error {
+
+	return targets.SetConfig(req)
 }
 
 //Delete 删除目标

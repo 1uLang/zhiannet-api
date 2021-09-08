@@ -13,6 +13,10 @@ const (
 	agent_summary_status_api_url = "/agents/summary/status?pretty=true"
 	agent_scan_url               = "/syscheck"
 	agent_sca_url                = "/sca/"
+	agent_sca_details_url        = "/sca/%s/checks/%s"
+	agent_syscheck_url           = "/syscheck/"
+	agent_ciscat_url             = "/ciscat/%s/results"
+	agent_vulnerability_url      = "/vulnerability/%s"
 )
 
 func Statistics(req *request.Request) (*StatisticsResp, error) {
@@ -86,6 +90,26 @@ func Scan(req *request.Request, agent []string) error {
 	fmt.Println(resp.Data)
 	return err
 }
+
+//SCADetailsList 合规基线详情
+func SCADetailsList(req *request.Request, agent, policy string) (*SCADetailsListResp, error) {
+	req.Method = "get"
+	req.Path = fmt.Sprintf(agent_sca_details_url, agent, policy)
+	req.Params = nil
+	resp, err := req.DoAndParseResp()
+	if err != nil {
+		return nil, err
+	}
+	if resp.Error != 0 {
+		return nil, fmt.Errorf("主机防护服务异常：%s", resp.Message)
+	}
+	list := &SCADetailsListResp{}
+	bytes, _ := json.Marshal(resp.Data)
+	err = json.Unmarshal(bytes, &list)
+	return list, err
+}
+
+//SCAList Security configuration assessment 合规基线
 func SCAList(req *request.Request, agent string) (*SCAListResp, error) {
 
 	req.Method = "get"
@@ -99,6 +123,59 @@ func SCAList(req *request.Request, agent string) (*SCAListResp, error) {
 		return nil, fmt.Errorf("主机防护服务异常：%s", resp.Message)
 	}
 	list := &SCAListResp{}
+	bytes, _ := json.Marshal(resp.Data)
+	err = json.Unmarshal(bytes, &list)
+	return list, err
+}
+
+func SysCheckList(req *request.Request, agent string) (*SysCheckListResp, error) {
+
+	req.Method = "get"
+	req.Path = agent_syscheck_url + agent
+	req.Params = nil
+	resp, err := req.DoAndParseResp()
+	if err != nil {
+		return nil, err
+	}
+	if resp.Error != 0 {
+		return nil, fmt.Errorf("主机防护服务异常：%s", resp.Message)
+	}
+	list := &SysCheckListResp{}
+	bytes, _ := json.Marshal(resp.Data)
+	err = json.Unmarshal(bytes, &list)
+	return list, err
+}
+
+func CiscatList(req *request.Request, agent string) (*CiscatListResp, error) {
+
+	req.Method = "get"
+	req.Path = fmt.Sprintf(agent_ciscat_url, agent)
+	req.Params = nil
+	resp, err := req.DoAndParseResp()
+	if err != nil {
+		return nil, err
+	}
+	if resp.Error != 0 {
+		return nil, fmt.Errorf("主机防护服务异常：%s", resp.Message)
+	}
+	list := &CiscatListResp{}
+	bytes, _ := json.Marshal(resp.Data)
+	err = json.Unmarshal(bytes, &list)
+	return list, err
+}
+
+func VulnerabilityList(req *request.Request, agent string) (*VulnerabilityListResp, error) {
+	req.Method = "get"
+	req.Path = fmt.Sprintf(agent_vulnerability_url, agent)
+	req.Params = nil
+	resp, err := req.DoAndParseResp()
+	if err != nil {
+		return nil, err
+	}
+	if resp.Error != 0 {
+		return nil, fmt.Errorf("主机防护服务异常：%s", resp.Message)
+	}
+	list := &VulnerabilityListResp{}
 	bytes, _ := json.Marshal(resp.Data)
 	err = json.Unmarshal(bytes, &list)
 	return list, err

@@ -3,11 +3,18 @@ package scans
 type AddReq struct {
 	UUID     string `json:"uuid"`
 	Settings struct {
-		Name         string `json:"name"`
-		Text_targets string `json:"text_targets"`
-		Description  string `json:"description"`
+		Name             string `json:"name"`
+		Text_targets     string `json:"text_targets"`
+		Description      string `json:"description"`
+		SshClient_banner string `json:"ssh_client_banner,omitempty"`
+		SshPort          string `json:"ssh_port,omitempty"`
 	} `json:"settings"`
 
+	ID          string `json:"-"`
+	Username    string `json:"-"`
+	Password    string `json:"-"`
+	Port        int    `json:"-"`
+	Os          int    `json:"-"` // 1. SSH 2. Windows
 	UserId      uint64 `json:"-"`
 	AdminUserId uint64 `json:"-"`
 }
@@ -38,10 +45,13 @@ type ResumeReq struct {
 	ID string
 }
 
+type ExportFileReq struct {
+	Url string
+}
 type ExportReq struct {
-	ID     string
+	ID        string
 	HistoryId string
-	Format string
+	Format    string
 }
 type ExportResp struct {
 	Token string
@@ -68,8 +78,8 @@ type ResetReq struct {
 }
 
 type CreateReportReq struct {
-	ID        string `json:"id"`
-	HistoryId string `json:"history_id"`
+	ID          string `json:"id"`
+	HistoryId   string `json:"history_id"`
 	UserId      uint64 `json:"-"`
 	AdminUserId uint64 `json:"-"`
 }

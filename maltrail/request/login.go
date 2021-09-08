@@ -201,3 +201,50 @@ func (this *LoginReq) Run() {
 	}
 
 }
+
+//登陆获取token
+func Change() (err error) {
+	//go  get  github.com/go-resty/resty/v2
+	var Client = resty.New().SetDebug(false).SetTimeout(time.Second * 60)
+	Client = Client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+
+	url := "https://bptest.dengbao.cloud/settings/personal/changepassword"
+	resp, err := Client.R().
+		//SetHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8").
+		//SetHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36").
+		//SetHeader("method", "POST").
+		//SetHeader("authority", "bptest.dengbao.cloud").
+		//SetHeader("path", "/settings/personal/changepassword").
+		//SetHeader("scheme", "https").
+		//SetHeader("accept", "*/*").
+		//SetHeader("accept-encoding", "gzip, deflate, br").
+		//SetHeader("accept-language", "zh-CN,zh;q=0.9").
+		//SetHeader("content-length", "72").
+		//SetHeader("ocs-apirequest", "true").
+		//SetHeader("origin", "https://bptest.dengbao.cloud").
+		//SetHeader("sec-ch-ua", "\"Google Chrome\";v=\"93\", \" Not;A Brand\";v=\"99\", \"Chromium\";v=\"93\"").
+		//SetHeader("sec-ch-ua-mobile", "?0").
+		//SetHeader("sec-ch-ua-platform", "\"macOS\"").
+		//SetHeader("sec-fetch-dest", "empty").
+		//SetHeader("sec-fetch-mode", "cors").
+		//SetHeader("sec-fetch-site", "same-origin").
+		SetHeader("x-requested-with", "XMLHttpRequest").
+		//SetHeader("requesttoken", "PW3fFiIpKofVI4gG4CCHzVGkLRO9zzR357eZYkvGt7I=:cyuIeXAGY7SsVNsptnPshh7qQCXF/ncVhtLRUxGJ1vk=").
+		SetHeader("cookie", "oc_sessionPassphrase=Xtey00gffPBNMWif%2Fh5uprJGuzFMHayQNNxhxSjkgjLs9tHj72hgdIlO1umypGNe8I9mgAtJ74%2BHFEgCj%2BRF1sh0QscCFBSruSZwyxOyyrDkcC7fFfPFxZOrjybjwDHl; __Host-nc_sameSiteCookielax=true; __Host-nc_sameSiteCookiestrict=true; ocdh9htx8nbo=5b8cc0c04e726b0640002d0eb0b55da7; nc_username=test_hanchan; nc_token=OGlKC394rb2BzhHugIYUl0OuDPhRDO25; nc_session_id=5b8cc0c04e726b0640002d0eb0b55da7").
+		SetFormData(map[string]string{
+			"oldpassword":       "21pos.com.",
+			"newpassword":       "21ops.com123",
+			"newpassword-clone": "21ops.com123",
+		}).
+		Post(url)
+	if err != nil {
+		fmt.Println("err1=", err)
+		return err
+	}
+	if resp.StatusCode() == 200 {
+		//获取cookie
+
+		fmt.Println("resp=", string(resp.Body()))
+	}
+	return err
+}
