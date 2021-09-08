@@ -143,7 +143,7 @@ func TestListFoldersWithPath(t *testing.T) {
 
 	t.Log(ls.DirList)
 	for _, v := range ls.List {
-		t.Logf("%s，%d，%s\n", v.URL, v.FileType, v.Name)
+		t.Logf("%s，%d，%s,%s \n", v.URL, v.FileType, v.Name, v.UsedBytes)
 	}
 }
 
@@ -288,16 +288,16 @@ func TestUpdateUserPassword(t *testing.T) {
 func TestDownLoadFileWithPath(t *testing.T) {
 	token := `Basic aGFuY2hhbjphZG1pbkFkI0AyMDIx`
 	param.BASE_URL = "https://bptest.dengbao.cloud"
-	uRL := `/remote.php/dav/files/hanchan/Readme.md`
+	uRL := `/remote.php/dav/files/hanchan/456/下载.png`
 	rsp, err := DownLoadFileWithPath(token, uRL)
 	if err != nil {
 		t.Fatal(err)
 	}
-	bb,err := io.ReadAll(rsp.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	t.Log(string(bb))
+	// bb, err := io.ReadAll(rsp.Body)
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+	t.Log(rsp.Header.Get("Content-type"))
 	rsp.Body.Close()
 }

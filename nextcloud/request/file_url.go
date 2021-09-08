@@ -103,14 +103,15 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 			// fb.Name = str[len(str)-2] + "/"
 			fb.Name = str[len(str)-2]
 			fb.FileType = 1
-			fb.UsedBytes = FormatBytes(v.Propstat.Prop.QuotaUsedBytes)
+			fb.UsedBytes = FormatBytes(v.Propstat.Prop.Size)
+			fb.ContentType = "文件夹"
 		} else {
 			fb.Name = str[len(str)-1]
 			fb.UsedBytes = FormatBytes(v.Propstat.Prop.Getcontentlength)
+			fb.ContentType = v.Propstat.Prop.Getcontenttype
 		}
 		fb.FileID = v.Propstat.Prop.FileID
 		fb.URL = unescape
-		fb.ContentType = v.Propstat.Prop.Getcontenttype
 		fb.LastModified = FormatTime(v.Propstat.Prop.Getlastmodified, "2006-01-02 15:04:05")
 
 		fl.List = append(fl.List, fb)

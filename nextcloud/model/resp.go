@@ -6,6 +6,7 @@ type ListFoldersResp struct {
 		Href     string `xml:"href"`
 		Propstat struct {
 			Prop struct {
+				Size             string `xml:"size"`
 				Getlastmodified  string `xml:"getlastmodified"`
 				QuotaUsedBytes   string `xml:"quota-used-bytes"`
 				Getcontentlength string `xml:"getcontentlength"`
@@ -15,6 +16,7 @@ type ListFoldersResp struct {
 		} `xml:"propstat"`
 	} `xml:"response"`
 }
+
 
 // CreateUserResp 创建用户返回
 type CreateUserResp struct {
