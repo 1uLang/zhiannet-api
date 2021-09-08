@@ -324,13 +324,22 @@ func CreateFoler(token, pfURL, folerName string) error {
 		return err
 	}
 	pfURL = strings.TrimSpace(pfURL)
+
+	flist, _ := ListFoldersWithPath(token, pfURL)
+	for _, v := range flist.List {
+		if v.FileType == 1 && folerName == v.Name {
+			return errors.New("存在同名文件夹")
+		}
+	}
+
 	if pfURL == "" {
-		pfURL = fmt.Sprintf("%s/"+param.LIST_FOLDERS+"/", param.BASE_URL, user)
+		pfURL = fmt.Sprintf("%s/"+param.LIST_FOLDERS+"/%s/", param.BASE_URL, user, folerName)
+	} else {
+		pfURL = fmt.Sprintf("%s/%s%s", param.BASE_URL, pfURL, folerName)
 	}
 	if string([]rune(pfURL)[len([]rune(pfURL))-1]) != "/" {
 		return errors.New("传入的父级url不是目录")
 	}
-	nfURL := fmt.Sprintf("%s/%s%s", param.BASE_URL, pfURL, folerName)
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -338,7 +347,7 @@ func CreateFoler(token, pfURL, folerName string) error {
 	cli := &http.Client{
 		Transport: tr,
 	}
-	req, err := http.NewRequest("MKCOL", nfURL, nil)
+	req, err := http.NewRequest("MKCOL", pfURL, nil)
 	if err != nil {
 		return fmt.Errorf("新建请求失败：%w", err)
 	}
