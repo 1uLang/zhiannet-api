@@ -325,7 +325,7 @@ func CreateFoler(token, pfURL, folerName string) error {
 		return err
 	}
 	pfURL = strings.TrimSpace(pfURL)
-	if hasSpecialChar(pfURL) {
+	if hasSpecialChar(folerName) {
 		return errors.New(`不能包含特殊字符`)
 	}
 
