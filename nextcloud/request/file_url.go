@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -50,7 +51,7 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 
 	// 做路径切割
 	bu := fmt.Sprintf("%s/"+param.LIST_FOLDERS+"/", param.BASE_URL, user)
-	qu := strings.TrimLeft(uRL, bu)
+	qu := strings.TrimPrefix(uRL, bu)
 	if qu == "" {
 		fl.DirList = dl
 	} else {
@@ -324,6 +325,9 @@ func CreateFoler(token, pfURL, folerName string) error {
 		return err
 	}
 	pfURL = strings.TrimSpace(pfURL)
+	if hasSpecialChar(pfURL) {
+		return errors.New(`不能包含特殊字符`)
+	}
 
 	flist, _ := ListFoldersWithPath(token, pfURL)
 	for _, v := range flist.List {
@@ -360,4 +364,14 @@ func CreateFoler(token, pfURL, folerName string) error {
 	defer resp.Body.Close()
 
 	return nil
+}
+
+// hasSpecialChar 判断是否包含特殊字符
+func hasSpecialChar(str string) bool {
+	rgp := regexp.MustCompile(`[~!@#$%^&*()_\-+=<>?:"{}|,./;'\\[\]·~！@#￥%……&*（）——\-+={}|《》？：“”【】、；‘'，。、]`)
+	rgp2 := regexp.MustCompile("`")
+	strs1 := rgp2.FindAllString(str, -1)
+	strs2 := rgp.FindAllString(str, -1)
+
+	return len(strs1) > 0 || len(strs2) > 0
 }
