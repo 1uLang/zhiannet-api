@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -20,7 +21,9 @@ import (
 func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, error) {
 	getNCInfo()
 	var lfr model.ListFoldersResp
+	var dirList, fileList []model.FolderBody
 	var fl model.FolderList
+	var dl = make([]model.DirMap, 0, 4)
 	if param.BASE_URL == "" || param.AdminUser == "" || param.AdminPasswd == "" {
 		return nil, errors.New("该组件暂未添加，请添加后重试")
 	}
@@ -44,6 +47,23 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 			}
 		}
 		uRL = fmt.Sprintf("%s%s", param.BASE_URL, fp)
+	}
+
+	// 做路径切割
+	bu := fmt.Sprintf("%s/"+param.LIST_FOLDERS+"/", param.BASE_URL, user)
+	qu := strings.TrimPrefix(uRL, bu)
+	if qu == "" {
+		fl.DirList = dl
+	} else {
+		qus := strings.Split(qu, "/")
+		qus = qus[:len(qus)-1]
+		ba := fmt.Sprintf("/"+param.LIST_FOLDERS+"/", user)
+		for _, v := range qus {
+			ba = ba + v + "/"
+			du := model.DirMap{Name: v, Url: ba}
+			dl = append(dl, du)
+			fl.DirList = dl
+		}
 	}
 
 	// 跳过证书验证
@@ -82,21 +102,31 @@ func ListFoldersWithPath(token string, filePath ...string) (*model.FolderList, e
 		}
 		str := strings.Split(unescape, "/")
 		if str[len(str)-1] == "" {
-			fb.Name = str[len(str)-2] + "/"
-			fb.UsedBytes = FormatBytes(v.Propstat.Prop.QuotaUsedBytes)
+			// fb.Name = str[len(str)-2] + "/"
+			fb.Name = str[len(str)-2]
+			fb.FileType = 1
+			fb.UsedBytes = FormatBytes(v.Propstat.Prop.Size)
+			fb.ContentType = "文件夹"
 		} else {
 			fb.Name = str[len(str)-1]
 			fb.UsedBytes = FormatBytes(v.Propstat.Prop.Getcontentlength)
+			fb.ContentType = v.Propstat.Prop.Getcontenttype
 		}
 		fb.FileID = v.Propstat.Prop.FileID
 		fb.URL = unescape
-		fb.ContentType = v.Propstat.Prop.Getcontenttype
 		fb.LastModified = FormatTime(v.Propstat.Prop.Getlastmodified, "2006-01-02 15:04:05")
 
-		fl.List = append(fl.List, fb)
+		// fl.List = append(fl.List, fb)
+		if fb.FileType == 1 {
+			dirList = append(dirList, fb)
+		} else {
+			fileList = append(fileList, fb)
+		}
 	}
 
 	fl.Quota, fl.Used, fl.Percent = GetNCUserInfo(token, user)
+	fl.List = append(fl.List, dirList...)
+	fl.List = append(fl.List, fileList...)
 
 	return &fl, nil
 }
@@ -295,13 +325,25 @@ func CreateFoler(token, pfURL, folerName string) error {
 		return err
 	}
 	pfURL = strings.TrimSpace(pfURL)
+	if hasSpecialChar(folerName) {
+		return errors.New(`不能包含特殊字符`)
+	}
+
+	flist, _ := ListFoldersWithPath(token, pfURL)
+	for _, v := range flist.List {
+		if v.FileType == 1 && folerName == v.Name {
+			return errors.New("存在同名文件夹")
+		}
+	}
+
 	if pfURL == "" {
-		pfURL = fmt.Sprintf("%s/"+param.LIST_FOLDERS+"/", param.BASE_URL, user)
+		pfURL = fmt.Sprintf("%s/"+param.LIST_FOLDERS+"/%s/", param.BASE_URL, user, folerName)
+	} else {
+		pfURL = fmt.Sprintf("%s/%s%s", param.BASE_URL, pfURL, folerName)
 	}
 	if string([]rune(pfURL)[len([]rune(pfURL))-1]) != "/" {
 		return errors.New("传入的父级url不是目录")
 	}
-	nfURL := fmt.Sprintf("%s%s", pfURL, folerName)
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -309,7 +351,7 @@ func CreateFoler(token, pfURL, folerName string) error {
 	cli := &http.Client{
 		Transport: tr,
 	}
-	req, err := http.NewRequest("MKCOL", nfURL, nil)
+	req, err := http.NewRequest("MKCOL", pfURL, nil)
 	if err != nil {
 		return fmt.Errorf("新建请求失败：%w", err)
 	}
@@ -322,4 +364,14 @@ func CreateFoler(token, pfURL, folerName string) error {
 	defer resp.Body.Close()
 
 	return nil
+}
+
+// hasSpecialChar 判断是否包含特殊字符
+func hasSpecialChar(str string) bool {
+	rgp := regexp.MustCompile(`[~!@#$%^&*()_\-+=<>?:"{}|,./;'\\[\]·~！@#￥%……&*（）——\-+={}|《》？：“”【】、；‘'，。、]`)
+	rgp2 := regexp.MustCompile("`")
+	strs1 := rgp2.FindAllString(str, -1)
+	strs2 := rgp.FindAllString(str, -1)
+
+	return len(strs1) > 0 || len(strs2) > 0
 }

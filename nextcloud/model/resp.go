@@ -6,6 +6,7 @@ type ListFoldersResp struct {
 		Href     string `xml:"href"`
 		Propstat struct {
 			Prop struct {
+				Size             string `xml:"size"`
 				Getlastmodified  string `xml:"getlastmodified"`
 				QuotaUsedBytes   string `xml:"quota-used-bytes"`
 				Getcontentlength string `xml:"getcontentlength"`
@@ -15,6 +16,7 @@ type ListFoldersResp struct {
 		} `xml:"propstat"`
 	} `xml:"response"`
 }
+
 
 // CreateUserResp 创建用户返回
 type CreateUserResp struct {
@@ -38,6 +40,13 @@ type FolderBody struct {
 	LastModified string `json:"last_modified"`
 	UsedBytes    string `json:"used_bytes"`
 	ContentType  string `json:"content_type"`
+	FileType     int    `json:"fileType"`
+}
+
+// DirMap 目录映射
+type DirMap struct {
+	Name string
+	Url  string
 }
 
 // FolderList 文件列表
@@ -46,6 +55,7 @@ type FolderList struct {
 	Used    string       `json:"used"`
 	Percent string       `json:"percent"`
 	List    []FolderBody `json:"list"`
+	DirList []DirMap     `json:"dir_list"`
 }
 
 // DirectResp 直链响应体

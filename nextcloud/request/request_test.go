@@ -17,7 +17,7 @@ var (
 		// User: "admin_zhoumj",
 		// Password: "Dengbao123!@#",
 		// Password: "admin",
-		Password: "21ops.com",
+		Password: "21ops.com@",
 		// Password: "adminAd#@2021",
 	}
 	fileName = "Nextcloud.png"
@@ -131,18 +131,20 @@ func TestCreateUser(t *testing.T) {
 
 func TestListFoldersWithPath(t *testing.T) {
 	token := GenerateToken(req)
+	token = `Basic aGFuY2hhbjphZG1pbkFkI0AyMDIx`
 	var url string
 	param.BASE_URL = "https://bptest.dengbao.cloud"
 	param.AdminUser = "admin"
 	param.AdminPasswd = "admin"
-	// url = `/remote.php/dav/files/admin/新建文件夹/`
+	url = `/remote.php/dav/files/hanchan/test/`
 	ls, err := ListFoldersWithPath(token, url)
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	t.Log(ls.DirList)
 	for _, v := range ls.List {
-		t.Logf("%s\n", v.URL)
+		t.Logf("%s，%d，%s,%s \n", v.URL, v.FileType, v.Name, v.UsedBytes)
 	}
 }
 
@@ -278,8 +280,32 @@ func TestUpdateUserPassword(t *testing.T) {
 	token := `Basic dGVzdF9oYW5jaGFuOjIxcG9zLmNvbUA=`
 	param.BASE_URL = "https://bptest.dengbao.cloud"
 
-	err := UpdateUserPassword("21pos.com.",token)
+	err := UpdateUserPassword("21pos.com.", token)
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestDownLoadFileWithPath(t *testing.T) {
+	token := `Basic aGFuY2hhbjphZG1pbkFkI0AyMDIx`
+	param.BASE_URL = "https://bptest.dengbao.cloud"
+	uRL := `/remote.php/dav/files/hanchan/456/下载.png`
+	rsp, err := DownLoadFileWithPath(token, uRL)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// bb, err := io.ReadAll(rsp.Body)
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+	t.Log(rsp.Header.Get("Content-type"))
+	rsp.Body.Close()
+}
+
+func TestHasSpecialChar(t *testing.T) {
+	str := "12345`"
+	if !hasSpecialChar(str) {
+		t.Fail()
 	}
 }
