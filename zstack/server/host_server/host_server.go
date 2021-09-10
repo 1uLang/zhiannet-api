@@ -3,6 +3,7 @@ package host_server
 import (
 	"github.com/1uLang/zhiannet-api/zstack/model/host_relation"
 	"github.com/1uLang/zhiannet-api/zstack/request/host"
+	"time"
 )
 
 //主机列表
@@ -18,7 +19,7 @@ func HostList(req *host.HostListReq) (resp *host.HostListResp, err error) {
 	}
 	//获取用户的
 	list, _, err := host_relation.GetList(&host_relation.ListReq{
-		AdminId: req.Uid,
+		//AdminId: req.Uid,
 	})
 	if err != nil {
 		return
@@ -70,8 +71,9 @@ func CreateHost(req *host.CreateHostReq, uid uint64) (res *host.CreateHostResp, 
 	if res.Inventory.UUID != "" {
 		//主机关联用户
 		host_relation.Add(&host_relation.HostRelation{
-			UUID:    res.Inventory.UUID,
-			AdminId: uid,
+			UUID: res.Inventory.UUID,
+			//AdminId: uid,
+			CreateTime: uint64(time.Now().Unix()),
 		})
 	}
 	return

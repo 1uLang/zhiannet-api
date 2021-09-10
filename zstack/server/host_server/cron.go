@@ -6,8 +6,10 @@ import (
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/ddos/model/ddos_host_ip"
 	"github.com/1uLang/zhiannet-api/ddos/server/host_status"
+	"github.com/1uLang/zhiannet-api/zstack/model/host_relation"
 	"github.com/1uLang/zhiannet-api/zstack/request/host"
 	"github.com/tidwall/gjson"
+	"time"
 )
 
 type CheckHost struct{}
@@ -29,6 +31,13 @@ func (check *CheckHost) Run() {
 			dom := gjson.ParseBytes(be)
 			if ip := dom.Get("vmNics.0.ip").String(); ip != "" {
 				AddHostIp(ip)
+
+				//主机关联用户
+				host_relation.Add(&host_relation.HostRelation{
+					UUID: dom.Get("vmNics.0.uuid").String(),
+					//AdminId: uid,
+					CreateTime: uint64(time.Now().Unix()),
+				})
 			}
 		}
 	}
@@ -54,6 +63,8 @@ func AddHostIp(ip string) (err error) {
 			Addr:   ip,
 			NodeId: v.Id,
 		})
+		//添加到数据表
+
 	}
 	return
 }

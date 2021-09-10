@@ -49,12 +49,19 @@ func Add(req *HostRelation) (insertId uint64, err error) {
 		err = fmt.Errorf("参数错误")
 		return
 	}
-
-	res := model.MysqlConn.Create(&req)
+	var info *HostRelation
+	err = model.MysqlConn.First(&info, "uuid=?", req.UUID).Error
+	if err != nil {
+		return 0, err
+	}
+	info.UUID = req.UUID
+	info.AdminId = req.AdminId
+	info.CreateTime = req.CreateTime
+	res := model.MysqlConn.Save(&req)
 	if res.Error != nil {
 		return 0, res.Error
 	}
-	insertId = req.ID
+	insertId = info.ID
 	return
 }
 func UpdateMigrating(uuid string, Migrating int) (row int64, err error) {
