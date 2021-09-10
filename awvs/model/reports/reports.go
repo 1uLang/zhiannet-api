@@ -132,13 +132,17 @@ func Download(url string, pdf bool) ([]byte, string, error) {
 
 	bytes = string(index.Body())
 
-	startIdx := strings.Index(bytes, "<img class=\"logo\"")
-	endIdx := strings.Index(bytes, "<h2 class=\"page-break ax-section-title ax-section-title--big\">")
-	bytes = bytes[:startIdx] + bytes[endIdx:]
+	//startIdx := strings.Index(bytes, "<img class=\"logo\"")
+	//endIdx := strings.Index(bytes, "<h2 class=\"page-break ax-section-title ax-section-title--big\">")
+	//bytes = bytes[:startIdx] + bytes[endIdx:]
+	//
+	//bytes = strings.Replace(bytes, ".98in", "0", 1)
+	//bytes = strings.Replace(bytes, "Acunetix", "Zhiannet", 1)
+	//bytes = strings.Replace(bytes, "Acunetix", "", 1)
 
-	bytes = strings.Replace(bytes, ".98in", "0", 1)
-	bytes = strings.Replace(bytes, "Acunetix", "Zhiannet", 1)
-	bytes = strings.Replace(bytes, "Acunetix", "", 1)
+	//综合报表
+	bytes = strings.Replace(bytes, "class=\"col-xs-12 col-sm-6 end-sm\"", "class=\"col-xs-12 col-sm-6 end-sm\" style=\"display:none\"", 1)
+	bytes = strings.Replace(bytes, "Acunetix", "", 4)
 	if pdf { //pdf
 		bts, err := util.HTML2PDF(bytes)
 		if err != nil {

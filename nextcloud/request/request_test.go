@@ -135,11 +135,12 @@ func TestCreateUser(t *testing.T) {
 
 func TestListFoldersWithPath(t *testing.T) {
 	token := GenerateToken(req)
+	token = `Basic aGFuY2hhbjphZG1pbkFkI0AyMDIx`
 	var url string
 	param.BASE_URL = "https://bptest.dengbao.cloud"
 	param.AdminUser = "admin"
 	param.AdminPasswd = "admin"
-	// url = `/remote.php/dav/files/admin/模板/`
+	url = `/remote.php/dav/files/hanchan/test/`
 	ls, err := ListFoldersWithPath(token, url)
 	if err != nil {
 		t.Fatal(err)
@@ -350,4 +351,11 @@ func TestDownLoadFileWithPath(t *testing.T) {
 	// }
 	t.Log(rsp.Header.Get("Content-type"))
 	rsp.Body.Close()
+}
+
+func TestHasSpecialChar(t *testing.T) {
+	str := "12345`"
+	if !hasSpecialChar(str) {
+		t.Fail()
+	}
 }

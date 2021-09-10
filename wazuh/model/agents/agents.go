@@ -6,6 +6,7 @@ import (
 	"github.com/1uLang/zhiannet-api/wazuh/model"
 	"github.com/1uLang/zhiannet-api/wazuh/request"
 	"strings"
+	"time"
 )
 
 const (
@@ -18,6 +19,247 @@ const (
 	agent_ciscat_url             = "/ciscat/%s/results"
 	agent_vulnerability_url      = "/vulnerability/%s"
 )
+
+var paramString = `{
+    "params":{
+        "index":"wazuh-alerts-*",
+        "body":{
+            "version":true,
+            "_source":{"excludes":["@timestamp"]},
+            "aggs":{
+                "2":{
+                    "date_histogram":{
+                        "field":"timestamp",
+                        "fixed_interval":"1s",
+                        "time_zone":"Asia/Shanghai",
+                        "min_doc_count":1
+                    }
+                }
+            },
+            "size":500,
+            "from":1,
+            "sort":[
+                {
+                    "timestamp":{
+                        "order":"desc",
+                        "unmapped_type":"boolean"
+                    }
+                }
+            ],
+            "stored_fields":[
+                "*"
+            ],
+            "script_fields":{
+
+            },
+            "docvalue_fields":[
+                {
+                    "field":"@timestamp",
+                    "format":"date_time"
+                },
+                {
+                    "field":"data.aws.createdAt",
+                    "format":"date_time"
+                },
+                {
+                    "field":"data.aws.end",
+                    "format":"date_time"
+                },
+                {
+                    "field":"data.aws.resource.instanceDetails.launchTime",
+                    "format":"date_time"
+                },
+                {
+                    "field":"data.aws.service.eventFirstSeen",
+                    "format":"date_time"
+                },
+                {
+                    "field":"data.aws.service.eventLastSeen",
+                    "format":"date_time"
+                },
+                {
+                    "field":"data.aws.start",
+                    "format":"date_time"
+                },
+                {
+                    "field":"data.aws.updatedAt",
+                    "format":"date_time"
+                },
+                {
+                    "field":"data.timestamp",
+                    "format":"date_time"
+                },
+                {
+                    "field":"data.vulnerability.published",
+                    "format":"date_time"
+                },
+                {
+                    "field":"data.vulnerability.updated",
+                    "format":"date_time"
+                },
+                {
+                    "field":"syscheck.mtime_after",
+                    "format":"date_time"
+                },
+                {
+                    "field":"syscheck.mtime_before",
+                    "format":"date_time"
+                },
+                {
+                    "field":"timestamp",
+                    "format":"date_time"
+                }
+            ],
+            "query":{
+                "bool":{
+                    "must":[
+
+                    ],
+                    "filter":[
+                        {
+                            "match_all":{
+
+                            }
+                        },
+                        {
+                            "match_phrase":{
+                                "manager.name":{
+                                    "query":"wazuh-server"
+                                }
+                            }
+                        },
+                        {
+                            "match_phrase":{
+                                "rule.groups":{
+                                    "query":"vulnerability-detector"
+                                }
+                            }
+                        },
+                        {
+                            "match_phrase":{
+                                "agent.id":{
+                                    "query":"001"
+                                }
+                            }
+                        },
+                        {
+                            "match_phrase":{
+                                "data.vulnerability.severity":"Critical"
+                            }
+                        },
+                        {
+                            "range":{
+                                "timestamp":{
+                                    "gte":"2021-09-07T10:37:15.711Z",
+                                    "lte":"2021-09-08T10:37:15.711Z",
+                                    "format":"strict_date_optional_time"
+                                }
+                            }
+                        }
+                    ],
+                    "should":[
+
+                    ],
+                    "must_not":[
+
+                    ]
+                }
+            },
+            "highlight":{
+                "pre_tags":[
+                    "@kibana-highlighted-field@"
+                ],
+                "post_tags":[
+                    "@/kibana-highlighted-field@"
+                ],
+                "fields":{
+                    "*":{
+
+                    }
+                },
+                "fragment_size":2147483647
+            }
+        },
+        "preference":1631083814638
+    }
+}`
+
+type esParams struct {
+	Params struct {
+		Index string `json:"index"`
+		Body  struct {
+			Version bool `json:"version"`
+			Source  struct {
+				Excludes []string `json:"excludes"`
+			} `json:"_source"`
+			Aggs struct {
+				Field1 struct {
+					DateHistogram struct {
+						Field         string `json:"field"`
+						FixedInterval string `json:"fixed_interval"`
+						TimeZone      string `json:"time_zone"`
+						MinDocCount   int    `json:"min_doc_count"`
+					} `json:"date_histogram"`
+				} `json:"2"`
+			} `json:"aggs"`
+			Size int `json:"size"`
+			From int `json:"from,omitempty"`
+			Sort []struct {
+				Timestamp struct {
+					Order        string `json:"order"`
+					UnmappedType string `json:"unmapped_type"`
+				} `json:"timestamp"`
+			} `json:"sort"`
+			StoredFields []string `json:"stored_fields"`
+			ScriptFields struct {
+			} `json:"script_fields"`
+			DocvalueFields []struct {
+				Field  string `json:"field"`
+				Format string `json:"format"`
+			} `json:"docvalue_fields"`
+			Query struct {
+				Bool struct {
+					Must   []interface{} `json:"must"`
+					Filter []struct {
+						MatchAll *struct {
+						} `json:"match_all,omitempty"`
+						MatchPhrase *struct {
+							ManagerName *struct {
+								Query string `json:"query"`
+							} `json:"manager.name,omitempty"`
+							RuleGroups *struct {
+								Query string `json:"query"`
+							} `json:"rule.groups,omitempty"`
+							AgentId *struct {
+								Query *string `json:"query"`
+							} `json:"agent.id,omitempty"`
+							DataVulnerabilitySeverity *string `json:"data.vulnerability.severity,omitempty"`
+						} `json:"match_phrase,omitempty"`
+						Range *struct {
+							Timestamp *struct {
+								Gte    time.Time `json:"gte"`
+								Lte    time.Time `json:"lte"`
+								Format *string   `json:"format"`
+							} `json:"timestamp"`
+						} `json:"range,omitempty"`
+					} `json:"filter"`
+					Should  []interface{} `json:"should"`
+					MustNot []interface{} `json:"must_not"`
+				} `json:"bool"`
+			} `json:"query"`
+			Highlight struct {
+				PreTags  []string `json:"pre_tags"`
+				PostTags []string `json:"post_tags"`
+				Fields   struct {
+					Field1 struct {
+					} `json:"*"`
+				} `json:"fields"`
+				FragmentSize int `json:"fragment_size"`
+			} `json:"highlight"`
+		} `json:"body"`
+		Preference int64 `json:"preference"`
+	} `json:"params"`
+}
 
 func Statistics(req *request.Request) (*StatisticsResp, error) {
 
@@ -44,13 +286,13 @@ func Delete(req *request.Request, ids []string) error {
 		"status":      "all",
 		"older_than":  "0s",
 		"pretty":      true,
+		"purge":       true, //从密钥库中删除agent
 	}
 	resp, err := req.DoAndParseResp()
 	if err != nil {
 		return err
 	}
 	list := &StatisticsResp{}
-	fmt.Println(resp)
 	if resp.Error != 0 {
 		return fmt.Errorf("主机防护服务异常：%s", resp.Message)
 	}
@@ -59,6 +301,15 @@ func Delete(req *request.Request, ids []string) error {
 	return err
 }
 func List(req *request.Request, args *ListReq) (*ListResp, error) {
+
+	if args.AdminUserId != 0 {
+		args.Group = fmt.Sprintf("admin_%v", args.AdminUserId)
+	} else if args.UserId != 0 {
+		args.Group = fmt.Sprintf("user_%v", args.UserId)
+	} else {
+		args.Group = ""
+	}
+
 	req.Method = "get"
 	req.Path = agent_api_url
 	req.Params = model.ToMap(args)
@@ -87,15 +338,20 @@ func Scan(req *request.Request, agent []string) error {
 	if resp.Error != 0 {
 		return fmt.Errorf("主机防护服务异常：%s", resp.Message)
 	}
-	fmt.Println(resp.Data)
 	return err
 }
 
 //SCADetailsList 合规基线详情
-func SCADetailsList(req *request.Request, agent, policy string) (*SCADetailsListResp, error) {
+func SCADetailsList(req *request.Request, args SCADetailsListReq) (*SCADetailsListResp, error) {
 	req.Method = "get"
-	req.Path = fmt.Sprintf(agent_sca_details_url, agent, policy)
-	req.Params = nil
+	req.Path = fmt.Sprintf(agent_sca_details_url, args.Agent, args.Policy)
+	if args.Limit == 0 {
+		args.Limit = 20
+	}
+	req.Params = model.ToMap(map[string]interface{}{
+		"limit":  args.Limit,
+		"offset": args.Offset,
+	})
 	resp, err := req.DoAndParseResp()
 	if err != nil {
 		return nil, err
@@ -109,12 +365,12 @@ func SCADetailsList(req *request.Request, agent, policy string) (*SCADetailsList
 	return list, err
 }
 
-//SCAList Security configuration assessment 合规基线
-func SCAList(req *request.Request, agent string) (*SCAListResp, error) {
+//SCAList Security configuration assessment 合规基线列表
+func SCAList(req *request.Request, args SCAListReq) (*SCAListResp, error) {
 
 	req.Method = "get"
-	req.Path = agent_sca_url + agent
-	req.Params = nil
+	req.Path = agent_sca_url + args.Agent
+	req.Params = model.ToMap(args)
 	resp, err := req.DoAndParseResp()
 	if err != nil {
 		return nil, err
@@ -165,6 +421,7 @@ func CiscatList(req *request.Request, agent string) (*CiscatListResp, error) {
 }
 
 func VulnerabilityList(req *request.Request, agent string) (*VulnerabilityListResp, error) {
+
 	req.Method = "get"
 	req.Path = fmt.Sprintf(agent_vulnerability_url, agent)
 	req.Params = nil
@@ -179,4 +436,93 @@ func VulnerabilityList(req *request.Request, agent string) (*VulnerabilityListRe
 	bytes, _ := json.Marshal(resp.Data)
 	err = json.Unmarshal(bytes, &list)
 	return list, err
+}
+
+//VulnerabilityESList 模拟登录 es 漏洞风险
+func VulnerabilityESList(req *request.Request, args ESListReq) (*VulnerabilityHitsResp, error) {
+
+	req.Method = "post"
+	req.Path = "/internal/search/es"
+
+	var paramStruct esParams
+	_ = json.Unmarshal([]byte(paramString), &paramStruct)
+
+	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
+	newFilter[2].MatchPhrase.RuleGroups.Query = "vulnerability-detector"
+	if args.Agent != "" { //指定agent
+		paramStruct.Params.Body.Query.Bool.Filter[3].MatchPhrase.AgentId.Query = &args.Agent
+		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[3])
+	}
+	if args.Severity != "" { //指定等级
+		paramStruct.Params.Body.Query.Bool.Filter[4].MatchPhrase.DataVulnerabilitySeverity = &args.Severity
+		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[4])
+	}
+	if args.Start != 0 && args.End != 0 && args.Start < args.End {
+		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Gte = time.Unix(args.Start, 0)
+		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Lte = time.Unix(args.End, 0)
+		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[5])
+	}
+	if args.Limit == 0 {
+		args.Limit = 20
+	}
+	paramStruct.Params.Body.Size = args.Limit
+	paramStruct.Params.Body.From = args.Offset
+	paramStruct.Params.Body.Query.Bool.Filter = newFilter
+
+	resp, err := req.Do2(paramStruct)
+	if err != nil {
+		return nil, err
+	}
+	vuls := &vulnerabilityESList{}
+	err = json.Unmarshal(resp, &vuls)
+	if err != nil {
+		return nil, err
+	}
+
+	if vuls.StatusCode == 401 {
+		return nil, fmt.Errorf(vuls.Message)
+	}
+	return &vuls.RawResponse.Hits, nil
+}
+
+//VirusESList 模拟登录 es 病毒管理
+func VirusESList(req *request.Request, args ESListReq) (*VirusESHitsListResp, error) {
+
+	req.Method = "post"
+	req.Path = "/internal/search/es"
+
+	var paramStruct esParams
+	_ = json.Unmarshal([]byte(paramString), &paramStruct)
+	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
+	newFilter[2].MatchPhrase.RuleGroups.Query = "virustotal"
+	if args.Agent != "" { //指定agent
+		paramStruct.Params.Body.Query.Bool.Filter[3].MatchPhrase.AgentId.Query = &args.Agent
+		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[3])
+	}
+	if args.Start != 0 && args.End != 0 && args.Start < args.End {
+		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Gte = time.Unix(args.Start, 0)
+		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Lte = time.Unix(args.End, 0)
+		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[5])
+	}
+	if args.Limit == 0 {
+		args.Limit = 20
+	}
+	paramStruct.Params.Body.Size = args.Limit
+	paramStruct.Params.Body.From = args.Offset
+	paramStruct.Params.Body.Query.Bool.Filter = newFilter
+
+	resp, err := req.Do2(paramStruct)
+	if err != nil {
+		return nil, err
+	}
+	vuls := &virusESList{}
+	err = json.Unmarshal(resp, &vuls)
+	if err != nil {
+		return nil, err
+	}
+
+	if vuls.StatusCode == 401 {
+		return nil, fmt.Errorf(vuls.Message)
+	}
+	return &vuls.RawResponse.Hits, nil
 }
