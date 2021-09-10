@@ -29,9 +29,7 @@ func Test_host(t *testing.T) {
 
 //物理机
 func Test_hosts(t *testing.T) {
-	res, err := Hosts(&HostsReq{
-		Uuid: "5c8e355624af436886b5c337a6e7c1d3",
-	})
+	res, err := Hosts(&HostsReq{})
 	logs.Println(res)
 	logs.Println(err)
 

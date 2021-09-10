@@ -3,6 +3,7 @@ package host_relation
 import (
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/model"
+	"gorm.io/gorm"
 )
 
 type (
@@ -52,12 +53,21 @@ func Add(req *HostRelation) (insertId uint64, err error) {
 	var info *HostRelation
 	err = model.MysqlConn.First(&info, "uuid=?", req.UUID).Error
 	if err != nil {
-		return 0, err
+		if err != gorm.ErrRecordNotFound {
+			return 0, err
+		}
+		info = &HostRelation{}
 	}
 	info.UUID = req.UUID
 	info.AdminId = req.AdminId
 	info.CreateTime = req.CreateTime
-	res := model.MysqlConn.Save(&req)
+	if info.ID == 0 {
+		res := model.MysqlConn.Create(&info)
+		err = res.Error
+		insertId = info.ID
+		return
+	}
+	res := model.MysqlConn.Save(&info)
 	if res.Error != nil {
 		return 0, res.Error
 	}

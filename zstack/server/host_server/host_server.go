@@ -6,6 +6,40 @@ import (
 	"time"
 )
 
+//all主机列表
+func AllHostList(req *host.HostListReq) (resp *host.HostListResp, err error) {
+	resp = &host.HostListResp{}
+	var resList *host.HostListResp
+	resList, err = host.HostList(req)
+	if err != nil || resp == nil {
+		return
+	}
+	if len(resList.Inventories) == 0 {
+		return
+	}
+
+	hosts, err := HostList(&host.HostListReq{})
+	if err != nil || hosts == nil {
+		return
+	}
+	hostMap := map[string]string{}
+	for _, v := range hosts.Inventories {
+		hostMap[v.UUID] = v.ManagementIp
+	}
+
+	for _, v := range resList.Inventories {
+		if v.State == "Destroyed" {
+			continue
+		}
+		v.ManagementIp = "127.0.0.1"
+		if hostIp, ok := hostMap[v.HostUUID]; ok {
+			v.ManagementIp = hostIp
+		}
+		resp.Inventories = append(resp.Inventories, v)
+	}
+	return
+}
+
 //主机列表
 func HostList(req *host.HostListReq) (resp *host.HostListResp, err error) {
 	resp = &host.HostListResp{}
@@ -54,6 +88,7 @@ func HostList(req *host.HostListReq) (resp *host.HostListResp, err error) {
 			resp.Inventories = append(resp.Inventories, v)
 		}
 	}
+
 	return
 }
 

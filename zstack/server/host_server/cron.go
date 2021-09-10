@@ -20,7 +20,7 @@ func (check *CheckHost) Run() {
 			fmt.Println("zstack-CheckHost-----------------------------------------------", err)
 		}
 	}()
-	list, err := HostList(&host.HostListReq{})
+	list, err := AllHostList(&host.HostListReq{})
 	if err != nil {
 		return
 	}
@@ -34,11 +34,12 @@ func (check *CheckHost) Run() {
 
 				//主机关联用户
 				host_relation.Add(&host_relation.HostRelation{
-					UUID: dom.Get("vmNics.0.uuid").String(),
+					UUID: dom.Get("uuid").String(),
 					//AdminId: uid,
 					CreateTime: uint64(time.Now().Unix()),
 				})
 			}
+
 		}
 	}
 }
