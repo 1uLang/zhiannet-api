@@ -15,8 +15,11 @@ func InitDB() {
 //黑白名单列表
 func Test_bw_list(t *testing.T) {
 	InitDB()
-	list, err := GetBWList(&BWReq{NodeId: 6, Addr: "8.210.100.191"})
-	fmt.Println(list)
+	list, err := GetBWList(&BWReq{NodeId: 1, Addr: "", Page: 2})
+
+	fmt.Println(list.Total)
+	fmt.Println(list.Page)
+	fmt.Println(list.Bwlist[len(list.Bwlist)-1])
 	fmt.Println(err)
 }
 

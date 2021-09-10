@@ -151,8 +151,8 @@ func (this *LoginReq) Run() {
 	nodes, _, err := subassemblynode.GetList(&subassemblynode.NodeReq{
 		//State:    "1",
 		Type:     11,
-		PageNum:  99,
-		PageSize: 1,
+		PageNum:  1,
+		PageSize: 99,
 	})
 	if err != nil || len(nodes) == 0 {
 		err = fmt.Errorf("获取apt节点信息失败")

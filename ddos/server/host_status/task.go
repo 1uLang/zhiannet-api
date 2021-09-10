@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/ddos/model/ddos_host_ip"
+	"github.com/1uLang/zhiannet-api/zstack/model/host_relation"
 	"github.com/1uLang/zhiannet-api/zstack/request/host"
 	"github.com/tidwall/gjson"
 )
@@ -89,12 +90,13 @@ func (c *CheckFlow) HostHandler(req []HostData) {
 							})
 						}
 
-						if v.Migration { //修改全局并发迁移数
-							host.UpdateGlobalValue(&host.GlobalParamsReq{
-								Category: "kvm",
-								Value:    "0",
-								Name:     "vm.migrationQuantity",
-							})
+						if v.Migration { //设置禁止迁移
+							//host.UpdateGlobalValue(&host.GlobalParamsReq{
+							//	Category: "kvm",
+							//	Value:    "0",
+							//	Name:     "vm.migrationQuantity",
+							//})
+							host_relation.UpdateMigrating(hostInfo.Get("uuid").String(), 0)
 						}
 					}
 				}

@@ -1,6 +1,7 @@
 package request
 
 import (
+	"fmt"
 	"github.com/1uLang/zhiannet-api/utils"
 )
 
@@ -24,6 +25,7 @@ func Request(loginReq *LoginReq, retry bool) (res []byte, err error) {
 
 //请求
 func Get(loginReq *LoginReq, retry bool) (res []byte, err error) {
+	fmt.Println("Authorization", "OAuth "+loginReq.UUID)
 	client := GetHttpClient(loginReq)
 	url := utils.CheckHttpUrl(loginReq.Addr, loginReq.IsSsl)
 	resp, err := client.SetDebug(false).R(). //SetAuthToken(loginReq.UUID).
@@ -31,7 +33,7 @@ func Get(loginReq *LoginReq, retry bool) (res []byte, err error) {
 							SetBody(loginReq.QueryParams).
 							Get(url)
 
-	//fmt.Println(string(resp.Body()), err)
+	fmt.Println(string(resp.Body()), err)
 	res = resp.Body()
 	return res, err
 }
@@ -60,7 +62,7 @@ func Put(loginReq *LoginReq, retry bool) (res []byte, err error) {
 		SetBody(loginReq.QueryParams).
 		Put(url)
 
-	//fmt.Println("body===",string(resp.Body()), err)
+	fmt.Println("body===", string(resp.Body()), err)
 	res = resp.Body()
 	return res, err
 }
@@ -74,6 +76,7 @@ func Delete(loginReq *LoginReq, retry bool) (res []byte, err error) {
 		SetBody(loginReq.QueryParams).
 		Delete(url)
 
+	//fmt.Println(resp, err)
 	//fmt.Println(string(resp.Body()), err)
 	res = resp.Body()
 	return res, err

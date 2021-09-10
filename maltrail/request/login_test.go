@@ -20,3 +20,10 @@ func Test_login(t *testing.T) {
 func Test_change(t *testing.T) {
 	Change()
 }
+
+func Test_run(t *testing.T) {
+	fmt.Println(500 % 500)
+	//var check = &LoginReq{}
+	//check.Run()
+
+}
