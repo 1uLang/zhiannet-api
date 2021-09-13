@@ -173,3 +173,8 @@ func ImageList(req *host.ImageListReq) (res *host.ImageListResp, err error) {
 func NetworkList(req *host.NetworkListReq) (res *host.NetworkListResp, err error) {
 	return host.NetworkList(req)
 }
+
+//修改计算规格
+func UpdateSpec(req *host.UpdateSpecReq) (res *host.UpdateSpecResp, err error) {
+	return host.UpdateSpec(req)
+}

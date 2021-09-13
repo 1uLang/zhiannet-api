@@ -33,7 +33,7 @@ func Get(loginReq *LoginReq, retry bool) (res []byte, err error) {
 							SetBody(loginReq.QueryParams).
 							Get(url)
 
-	fmt.Println(string(resp.Body()), err)
+	//fmt.Println(string(resp.Body()), err)
 	res = resp.Body()
 	return res, err
 }
@@ -62,7 +62,7 @@ func Put(loginReq *LoginReq, retry bool) (res []byte, err error) {
 		SetBody(loginReq.QueryParams).
 		Put(url)
 
-	fmt.Println("body===", string(resp.Body()), err)
+	//fmt.Println("body===", string(resp.Body()), err)
 	res = resp.Body()
 	return res, err
 }

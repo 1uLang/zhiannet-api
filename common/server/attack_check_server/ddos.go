@@ -41,7 +41,7 @@ func (ddos) AddBlackIP(ips []string) error {
 				edge_messages.Add(&edge_messages.Edgemessages{
 					Level:     "error",
 					Subject:   "入侵检测",
-					Body:      fmt.Sprintf("主机防护入侵检测[%s],已自动添加至DDS服务器IP黑名单", ip),
+					Body:      fmt.Sprintf("主机防护入侵检测[%s],已自动添加至DDoS服务器IP黑名单", ip),
 					Type:      "IntrusionDetection",
 					Params:    "{}",
 					Createdat: uint64(time.Now().Unix()),

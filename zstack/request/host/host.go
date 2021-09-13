@@ -201,6 +201,17 @@ type (
 		Inventories []Inventories `json:"inventories"`
 		Error       Error         `json:"error"`
 	}
+
+	//修改云主机计算规格 请求参数
+	UpdateSpecReq struct {
+		SpecUUid string `json:"spec_uuid"` //规格ID
+		HostUUid string `json:"host_uuid"` //云主机ID
+	}
+	//修改云主机计算规格 响应参数
+	UpdateSpecResp struct {
+		Inventory Inventory `json:"inventory"`
+		Error     Error     `json:"error"`
+	}
 )
 
 //云主机列表
@@ -504,8 +515,44 @@ func DelHost(req *ActionReq) (resp *DeleteResp, err error) {
 	return
 }
 
+//更改云主机的计算规格
+func UpdateSpec(req *UpdateSpecReq) (resp *UpdateSpecResp, err error) {
+	logReq, err := request.GetLoginInfo(&request.UserReq{})
+	if err != nil {
+		return
+	}
+	logReq.Addr = fmt.Sprintf("%v%v", logReq.Addr, fmt.Sprintf(_const.ZSTACK_SUSPEND, req.HostUUid))
+	logReq.QueryParams = fmt.Sprintf(`{
+			"changeInstanceOffering": {
+			"instanceOfferingUuid": "%v"
+			  },
+			"systemTags": [],
+			"userTags": []
+		}`, req.SpecUUid)
+	logReq.ReqType = "put"
+	var res []byte
+	res, err = request.Request(logReq, true)
+	if err != nil {
+		return
+	}
+
+	//err = json.Unmarshal(res, &resp)
+	actRes := ActionResp{}
+	err = json.Unmarshal(res, &actRes)
+	if err != nil || actRes.Location == "" {
+		return
+	}
+	//轮询结果
+	res, err = GetUrl(actRes.Location)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(res, &resp)
+	return
+}
+
 func GetUrl(url string) (res []byte, err error) {
-	resp, err := request.Client.SetDebug(true).R().Get(url)
+	resp, err := request.Client.SetDebug(false).R().Get(url)
 	if err != nil {
 		return
 	}
