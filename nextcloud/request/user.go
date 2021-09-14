@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -181,7 +180,7 @@ func DeleteUser(uid, kid int64) error {
 
 // GetNCUserInfo 获取用户信息
 func GetNCUserInfo(token, user string) (quota, used, percent string) {
-	getNCInfo()
+	// getNCInfo()
 	percent = "1%"
 	uRL := fmt.Sprintf("%s/"+param.USER_INFO, param.BASE_URL, user)
 	tr := &http.Transport{
@@ -227,42 +226,52 @@ func GetNCUserInfo(token, user string) (quota, used, percent string) {
 }
 
 // UpdateUserPassword 更新用户密码
-func UpdateUserPassword(newPassword, token string) error {
+func UpdateUserPassword(newPassword, un string) error {
 	// getNCInfo()
-	_, pwd, err := ParseToken(token)
-	if err != nil {
-		return fmt.Errorf("Token解析错误：%w", err)
-	}
-	log.Println(pwd)
-	uRL := fmt.Sprintf("%s/%s", param.BASE_URL, param.UPDATE_USERPWD)
-
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
+
 	cli := &http.Client{
 		Transport: tr,
 	}
 
-	req, err := http.NewRequest("POST", uRL, nil)
-	if err != nil {
-		return fmt.Errorf("新建请求失败：%w", err)
+	cupURL := fmt.Sprintf("%s/"+param.UPDATE_USERPWD, param.BASE_URL, un)
+	cb := model.ChangeUPwdReq{
+		Key:   "password",
+		Value: newPassword,
 	}
-	req.Header.Set("Authorization", token)
-	req.Header.Add("OCS-APIRequest", "true")
-	query := req.URL.Query()
-	query.Add("oldpassword", pwd)
-	query.Add("newpassword", newPassword)
-	query.Add("newpassword-clone", newPassword)
-	req.URL.RawQuery = query.Encode()
-
-	rsp, err := cli.Do(req)
+	cbb, err := json.Marshal(cb)
 	if err != nil {
-		return fmt.Errorf("执行用户密码更新失败：%w", err)
+		return fmt.Errorf("密码更新失败：%w", err)
 	}
-	defer rsp.Body.Close()
+	req, err := http.NewRequest("PUT", cupURL, bytes.NewReader(cbb))
+	if err != nil {
+		return fmt.Errorf("密码更新失败：%w", err)
+	}
+	req.Header.Set("Authorization", GetAdminToken())
+	req.Header.Add("OCS-APIREQUEST", "true")
+	req.Header.Set("Content-Type", "application/json")
 
-	bb, _ := io.ReadAll(rsp.Body)
-	log.Println(string(bb))
+	resp, err := cli.Do(req)
+	if err != nil {
+		return fmt.Errorf("密码更新失败：%w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("密码更新失败：%w", err)
+	}
+	cpr := model.CreateUserResp{}
+	err = xml.Unmarshal(respBody, &cpr)
+	if err != nil {
+		return fmt.Errorf("密码更新失败：%w", err)
+	}
+
+	if cpr.Meta.Statuscode != 200 {
+		return errors.New("密码更新失败：" + cpr.Meta.Message)
+	}
 
 	return nil
 }

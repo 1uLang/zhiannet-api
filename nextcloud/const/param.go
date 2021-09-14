@@ -31,5 +31,5 @@ const (
 	// 用户信息 method: GET
 	USER_INFO = `ocs/v1.php/cloud/users/%s`
 	// 更新用户信息 method: PUT
-	UPDATE_USERPWD = `settings/personal/changepassword`
+	UPDATE_USERPWD = `ocs/v2.php/cloud/users/%s`
 )

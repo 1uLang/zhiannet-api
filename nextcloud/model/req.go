@@ -17,3 +17,9 @@ type CreateUserReq struct {
 	Quota       string        `json:"quota"`
 	Language    string        `json:"language"`
 }
+
+// ChangeUPwdReq 修改用户密码参数
+type ChangeUPwdReq struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
