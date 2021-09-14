@@ -92,4 +92,6 @@ func UpdatePassword(name, token string) error {
 	if err != nil {
 		return fmt.Errorf("更新数据备份密码错误：%w", err)
 	}
+
+	return nil
 }
