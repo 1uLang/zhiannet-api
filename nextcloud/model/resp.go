@@ -17,7 +17,6 @@ type ListFoldersResp struct {
 	} `xml:"response"`
 }
 
-
 // CreateUserResp 创建用户返回
 type CreateUserResp struct {
 	Meta struct {

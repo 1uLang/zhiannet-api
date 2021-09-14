@@ -240,8 +240,8 @@ func TestGetDirectDownloadURL(t *testing.T) {
 }
 
 func TestCreateUserV2(t *testing.T) {
-	token := GenerateToken(req)
-	param.BASE_URL = "https://bptest.dengbao.cloud"
+	token := `Basic YWRtaW46VGVzdEB0ZXN0MTIzNDU2`
+	param.BASE_URL = "http://localhost:8080"
 
 	err := CreateUserV2(token, "test_hanchan", "21ops.com@")
 	if err != nil {
@@ -281,10 +281,12 @@ func TestCreateFoler(t *testing.T) {
 }
 
 func TestUpdateUserPassword(t *testing.T) {
-	token := `Basic dGVzdF9oYW5jaGFuOjIxcG9zLmNvbUA=`
-	param.BASE_URL = "https://bptest.dengbao.cloud"
+	param.BASE_URL = "http://localhost:8080"
+	param.AdminUser = "admin"
+	param.AdminPasswd = "Test@test123456"
+	newPwd := `Test@test123456789`
 
-	err := UpdateUserPassword("21pos.com.", token)
+	err := UpdateUserPassword(newPwd, "hanchan")
 	if err != nil {
 		t.Fatal(err)
 	}
