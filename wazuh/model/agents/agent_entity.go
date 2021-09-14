@@ -117,6 +117,8 @@ type SCADetailsListResp struct {
 		Remediation string `json:"remediation"`
 		Result      string `json:"result"`
 		Title       string `json:"title"`
+		Command     string `json:"command"`
+		Registry    string `json:"registry"`
 	} `json:"affected_items"`
 	FailedItems        []interface{} `json:"failed_items"`
 	TotalAffectedItems int64         `json:"total_affected_items"`
@@ -125,8 +127,8 @@ type SCADetailsListResp struct {
 
 type SCAListReq struct {
 	Agent  string `json:"-"`
-	Limit  int64  `json:"limit"`
-	Offset int64  `json:"offset"`
+	Limit  int64  `json:"limit,omitempty"`
+	Offset int64  `json:"offset,omitempty"`
 }
 type SCAListResp struct {
 	AffectedItems []struct {
@@ -142,6 +144,9 @@ type SCAListResp struct {
 		Score       int64  `json:"score"`
 		StartScan   string `json:"start_scan"`
 		TotalChecks int64  `json:"total_checks"`
+		AgentID     string `json:"agent_id"`
+		AgentIP     string `json:"agent_ip"`
+		AgentName   string `json:"agent_name"`
 	} `json:"affected_items"`
 	FailedItems        []interface{} `json:"failed_items"`
 	TotalAffectedItems int64         `json:"total_affected_items"`
@@ -151,8 +156,9 @@ type SCAListResp struct {
 type SCADetailsListReq struct {
 	Agent  string
 	Policy string
-	Limit  int64
-	Offset int64
+	Limit  int64  `json:"limit"`
+	Offset int64  `json:"offset"`
+	Result string `json:"result"`
 }
 type ESListReq struct {
 	Agent    string

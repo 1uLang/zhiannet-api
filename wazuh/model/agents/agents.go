@@ -351,6 +351,7 @@ func SCADetailsList(req *request.Request, args SCADetailsListReq) (*SCADetailsLi
 	req.Params = model.ToMap(map[string]interface{}{
 		"limit":  args.Limit,
 		"offset": args.Offset,
+		"result": args.Result,
 	})
 	resp, err := req.DoAndParseResp()
 	if err != nil {
