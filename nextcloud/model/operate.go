@@ -74,3 +74,22 @@ func UpdateUserToken(uid int64, kind uint8, name, token string) error {
 
 	return nil
 }
+
+// GetUsername 获取nc用户名
+func GetUsername(uid int64, kind uint8) (string, error) {
+	nct := NextCloudToken{}
+	err := model.MysqlConn.Where("uid = ? AND kind = ?", uid, kind).First(&nct).Error
+	if err != nil {
+		return "", err
+	}
+
+	return nct.Token, nil
+}
+
+// UpdatePassword 根据用户名修改token
+func UpdatePassword(name, token string) error {
+	err := model.MysqlConn.Model(&NextCloudToken{}).Where("user = ?", name).Update("token", token).Error
+	if err != nil {
+		return fmt.Errorf("更新数据备份密码错误：%w", err)
+	}
+}
