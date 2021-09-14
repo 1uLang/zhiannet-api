@@ -38,7 +38,7 @@ type (
 	}
 )
 
-var Client = resty.New().SetDebug(false).SetTimeout(time.Second * 60)
+var Client = resty.New().SetDebug(false).SetTimeout(time.Second * 5)
 
 //登陆获取cookie
 func Login(req *LoginReq) (string, error) {
