@@ -29,7 +29,6 @@ func (c *CheckFlow) Run() {
 		Type:    1,
 		PageNum: 1, PageSize: 99,
 	})
-
 	if err != nil {
 		return
 	}
@@ -43,7 +42,7 @@ func (c *CheckFlow) Run() {
 				PageNum:  page,
 			})
 			page++
-			if err != nil {
+			if err != nil || list == nil {
 				continue
 			}
 
