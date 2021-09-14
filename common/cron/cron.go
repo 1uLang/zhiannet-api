@@ -58,7 +58,7 @@ func InitCron() {
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&maltrail_request.LoginReq{}))
 
 	//定时检查云底座内的主机，并添加到ddos主机内
-	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&host_server.CheckHost{}))
+	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&host_server.CheckHost{}))
 	//主机流量异常检查 ddos
 	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&ddos_host.CheckFlow{}))
 

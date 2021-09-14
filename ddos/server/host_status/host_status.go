@@ -136,10 +136,16 @@ func GetHostList(req *ddos_host_ip.HostReq) (lists []*HostListResp, total int64,
 	//}
 
 	for k, v := range hostList { //所有ip的数据
+		remark := ""
+		nodeId := uint64(0)
+		if item, ok := itemsMap[v.Netaddr]; ok {
+			remark = item.Remark
+			nodeId = item.NodeId
+		}
 		l := &HostListResp{
 			Addr:   v.Netaddr,
-			Remark: itemsMap[v.Netaddr].Remark,
-			NodeId: itemsMap[v.Netaddr].NodeId,
+			Remark: remark,
+			NodeId: nodeId,
 			//UserName: "",
 		} //获取用户信息
 		//if userId, ok := userMap[v.Netaddr]; ok {

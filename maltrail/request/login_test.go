@@ -19,6 +19,7 @@ func Test_login(t *testing.T) {
 
 func Test_change(t *testing.T) {
 	Change()
+	//EditPwd("test_hanchan","21ops.com123","21ops.com123")
 }
 
 func Test_run(t *testing.T) {

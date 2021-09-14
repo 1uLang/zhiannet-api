@@ -11,7 +11,12 @@ import (
 	"github.com/1uLang/zhiannet-api/utils"
 	"github.com/go-resty/resty/v2"
 	"github.com/sirupsen/logrus"
+	"io"
+	"log"
 	"math/rand"
+	"net/http"
+	"regexp"
+	"strings"
 	"time"
 )
 
@@ -205,10 +210,63 @@ func (this *LoginReq) Run() {
 //登陆获取token
 func Change() (err error) {
 	//go  get  github.com/go-resty/resty/v2
-	var Client = resty.New().SetDebug(false).SetTimeout(time.Second * 60)
+	var Client = resty.New().SetDebug(true).SetTimeout(time.Second * 60)
 	Client = Client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 
+	loginUrl := "https://bptest.dengbao.cloud/login"
 	url := "https://bptest.dengbao.cloud/settings/personal/changepassword"
+
+	resp1, err := Client.R().Get(loginUrl)
+	if err != nil {
+		fmt.Println("err 1 ,", err)
+		return
+	}
+	rgp := regexp.MustCompile(`data-requesttoken="(.*)"`)
+	strs := rgp.FindStringSubmatch(string(resp1.Body()))
+	if len(strs) < 2 {
+		log.Fatal("更改密码错误")
+	}
+	reqToken := strs[1]
+	fmt.Println(reqToken)
+	//获取cookie
+	Cookies := resp1.Cookies()
+	cook := ""
+	if len(Cookies) > 0 {
+		fmt.Println(Cookies)
+		for _, v := range Cookies {
+			cook = fmt.Sprintf("%v;%v=%v", cook, v.Name, v.Value)
+		}
+		cook = strings.TrimLeft(cook, ";")
+	}
+	fmt.Println(cook)
+	//return
+
+	resp2, err := Client.R().SetCookies(Cookies).
+		SetHeader("Content-Type", "application/x-www-form-urlencoded").
+		//SetHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36").
+		SetHeader("upgrade-insecure-requests", "1").
+		SetQueryParams(map[string]string{
+			"user":            "test_hanchan",
+			"password":        "21ops.com123",
+			"redirect_url":    "/settings/user/security",
+			"timezone":        "Asia/Shanghai",
+			"timezone_offset": "8",
+			"requesttoken":    reqToken,
+		}).
+		//SetQueryString("requesttoken="+reqToken).
+		Post(loginUrl)
+	if err != nil {
+		fmt.Println("err1=", err)
+		return err
+	}
+
+	fmt.Println(resp2.StatusCode(), reqToken, string(resp2.Body()))
+	if resp2.StatusCode() == 303 {
+		//获取cookie
+		fmt.Println("resp=", string(resp2.Body()))
+	}
+	return
+
 	resp, err := Client.R().
 		//SetHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8").
 		//SetHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36").
@@ -229,8 +287,8 @@ func Change() (err error) {
 		//SetHeader("sec-fetch-mode", "cors").
 		//SetHeader("sec-fetch-site", "same-origin").
 		SetHeader("x-requested-with", "XMLHttpRequest").
-		//SetHeader("requesttoken", "PW3fFiIpKofVI4gG4CCHzVGkLRO9zzR357eZYkvGt7I=:cyuIeXAGY7SsVNsptnPshh7qQCXF/ncVhtLRUxGJ1vk=").
-		SetHeader("cookie", "oc_sessionPassphrase=Xtey00gffPBNMWif%2Fh5uprJGuzFMHayQNNxhxSjkgjLs9tHj72hgdIlO1umypGNe8I9mgAtJ74%2BHFEgCj%2BRF1sh0QscCFBSruSZwyxOyyrDkcC7fFfPFxZOrjybjwDHl; __Host-nc_sameSiteCookielax=true; __Host-nc_sameSiteCookiestrict=true; ocdh9htx8nbo=5b8cc0c04e726b0640002d0eb0b55da7; nc_username=test_hanchan; nc_token=OGlKC394rb2BzhHugIYUl0OuDPhRDO25; nc_session_id=5b8cc0c04e726b0640002d0eb0b55da7").
+		SetHeader("requesttoken", "jEkk5om7ohaZGmI1EoEqL1UsiumLNKXsKrJuUkRLsN4=:wQsSjcuO0U7wQCZhZbNGeyYD3Iq6f927EvMMBhMp1K0=").
+		SetHeader("cookie", "oc_sessionPassphrase=Xtey00gffPBNMWif%2Fh5uprJGuzFMHayQNNxhxSjkgjLs9tHj72hgdIlO1umypGNe8I9mgAtJ74%2BHFEgCj%2BRF1sh0QscCFBSruSZwyxOyyrDkcC7fFfPFxZOrjybjwDHl; __Host-nc_sameSiteCookielax=true; __Host-nc_sameSiteCookiestrict=true; nc_username=test_hanchan; ocdh9htx8nbo=53350d3d70240bafa1ca0f927e51a573; nc_token=r469Gqbv6XsF3S4eNfqNLkKNGWy0xxrl; nc_session_id=53350d3d70240bafa1ca0f927e51a573").
 		SetFormData(map[string]string{
 			"oldpassword":       "21pos.com.",
 			"newpassword":       "21ops.com123",
@@ -243,8 +301,141 @@ func Change() (err error) {
 	}
 	if resp.StatusCode() == 200 {
 		//获取cookie
-
 		fmt.Println("resp=", string(resp.Body()))
 	}
 	return err
+}
+
+func EditPwd(user, password, newPassword string) {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	cli := &http.Client{
+		Transport: tr,
+	}
+	loginUrl := "https://bptest.dengbao.cloud/login?redirect_url=/settings/user/security"
+	//secURL := `http://localhost:8080/settings/user/security`
+	req, err := http.NewRequest("GET", loginUrl, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	//req.Header.Set("Authorization", "Basic YWRtaW46VGVzdEB0ZXN0MTIzNDU2")
+	//req.Header.Set("OCS-APIRequest", "true")
+
+	resp, err := cli.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if resp.StatusCode != 200 {
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// fmt.Println(string(body))
+	rgp := regexp.MustCompile(`data-requesttoken="(.*)"`)
+	strs := rgp.FindStringSubmatch(string(body))
+	if len(strs) < 2 {
+		log.Fatal("更改密码错误")
+	}
+	reqToken := strs[1]
+	fmt.Println(reqToken)
+	cookies1 := resp.Cookies()
+	cookie1 := fmt.Sprintf("%v", cookies1)
+	cookie1 = string([]rune(cookie1)[1 : len(cookie1)-1])
+	//fmt.Println(cookies1)
+	fmt.Println(cookie1)
+
+	req, err = http.NewRequest("POST", "https://bptest.dengbao.cloud/login", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("content-type", "application/x-www-form-urlencoded")
+	req.Header.Add("cookie", cookie1)
+
+	queryParam := req.URL.Query()
+	queryParam.Add("user", user)
+	queryParam.Add("password", password)
+	queryParam.Add("redirect_url", "/settings/user/security")
+	queryParam.Add("timezone", "Asia/Shanghai")
+	queryParam.Add("timezone_offset", "8")
+	queryParam.Add("requesttoken", reqToken)
+	req.URL.RawQuery = queryParam.Encode()
+	fmt.Println(queryParam.Encode())
+	resp, err = cli.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(resp.StatusCode)
+	defer resp.Body.Close()
+	if resp.StatusCode != 303 {
+		loginBody, _ := io.ReadAll(resp.Body)
+		fmt.Println("登陆失败", string(loginBody))
+		return
+	}
+
+	cookies := resp.Cookies()
+	cookie := fmt.Sprintf("%v", cookies)
+	cookie = string([]rune(cookie)[1 : len(cookie)-1])
+	fmt.Println(cookie)
+
+	return
+	req, err = http.NewRequest("GET", loginUrl, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resp, err = cli.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if resp.StatusCode != 200 {
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err = io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(body))
+	rgp = regexp.MustCompile(`data-requesttoken="(.*)"`)
+	strs = rgp.FindStringSubmatch(string(body))
+	if len(strs) < 2 {
+		log.Fatal("更改密码错误22")
+	}
+	reqToken = strs[1]
+	fmt.Println(reqToken)
+	return
+
+	changepwdURL := `https://bptest.dengbao.cloud/settings/personal/changepassword`
+	req, err = http.NewRequest("POST", changepwdURL, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Add("requesttoken", reqToken)
+	req.Header.Add("OCS-APIRequest", "true")
+	req.Header.Add("X-Requested-With", "XMLHttpRequest")
+	req.Header.Add("Cookie", cookie)
+	queryParam = req.URL.Query()
+	queryParam.Add("oldpassword", "Test@test123456")
+	queryParam.Add("newpassword", "Test@test1234567")
+	queryParam.Add("newpassword-clone", "Test@test1234567")
+	req.URL.RawQuery = queryParam.Encode()
+
+	resp, err = cli.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	body, err = io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+
+	}
 }

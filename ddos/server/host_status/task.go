@@ -3,11 +3,13 @@ package host_status
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/1uLang/zhiannet-api/common/model/edge_messages"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/ddos/model/ddos_host_ip"
 	"github.com/1uLang/zhiannet-api/zstack/model/host_relation"
 	"github.com/1uLang/zhiannet-api/zstack/request/host"
 	"github.com/tidwall/gjson"
+	"time"
 )
 
 type CheckFlow struct{}
@@ -27,7 +29,6 @@ func (c *CheckFlow) Run() {
 		Type:    1,
 		PageNum: 1, PageSize: 99,
 	})
-
 	if err != nil {
 		return
 	}
@@ -41,7 +42,7 @@ func (c *CheckFlow) Run() {
 				PageNum:  page,
 			})
 			page++
-			if err != nil {
+			if err != nil || list == nil {
 				continue
 			}
 
@@ -51,10 +52,10 @@ func (c *CheckFlow) Run() {
 			for _, vv := range list {
 				var suspend, migration bool
 				var ip = vv.Addr
-				if vv.BandwidthIn > 100 { //in方向流量大于100，修改全局并发迁移数为0
+				if vv.BandwidthIn > 10 { //in方向流量大于100，修改全局并发迁移数为0
 					migration = true
 				}
-				if vv.BandwidthOut > 100 { //out方向流量大于100，暂停主机电源
+				if vv.BandwidthOut > 10 { //out方向流量大于100，暂停主机电源
 					suspend = true
 				}
 				host = append(host, HostData{
@@ -88,6 +89,7 @@ func (c *CheckFlow) HostHandler(req []HostData) {
 							host.Suspend(&host.SuspendReq{
 								Uuid: hostInfo.Get("uuid").String(),
 							})
+							c.AddMessage(fmt.Sprintf("主机%v 流量异常", v.Ip))
 						}
 
 						if v.Migration { //设置禁止迁移
@@ -97,6 +99,7 @@ func (c *CheckFlow) HostHandler(req []HostData) {
 							//	Name:     "vm.migrationQuantity",
 							//})
 							host_relation.UpdateMigrating(hostInfo.Get("uuid").String(), 0)
+							c.AddMessage(fmt.Sprintf("主机%v 流量异常", v.Ip))
 						}
 					}
 				}
@@ -105,4 +108,18 @@ func (c *CheckFlow) HostHandler(req []HostData) {
 		}
 
 	}
+}
+
+func (c *CheckFlow) AddMessage(msg string) {
+	edge_messages.Add(&edge_messages.Edgemessages{
+		Level:     "error",
+		Subject:   "主机流量异常",
+		Body:      msg,
+		Type:      "AdminAssembly",
+		Params:    "{}",
+		Createdat: uint64(time.Now().Unix()),
+		Day:       time.Now().Format("20060102"),
+		Hash:      "",
+		Role:      "admin",
+	})
 }

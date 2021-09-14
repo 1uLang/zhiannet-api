@@ -40,3 +40,12 @@ func Test_host_list(t *testing.T) {
 	}
 
 }
+
+func Test_host_spec(t *testing.T) {
+	res, err := UpdateSpec(&host.UpdateSpecReq{
+		SpecUUid: "8d7866ddb343409a914b10504743e637",
+		HostUUid: "60a06990818e4b1494ca734062f65dcf",
+	})
+	logs.Println(res)
+	logs.Println(err)
+}

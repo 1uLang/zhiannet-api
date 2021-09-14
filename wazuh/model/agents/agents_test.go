@@ -120,13 +120,13 @@ func TestSCADetailsList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	list, err := SCADetailsList(req, SCADetailsListReq{Agent: "001", Policy: "cis_centos7_linux"})
+	list, err := SCADetailsList(req, SCADetailsListReq{Agent: "001", Policy: "cis_centos7_linux", Limit: 20, Result: "failed"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(list.TotalAffectedItems, list.TotalFailedItems)
+	fmt.Println(list.TotalAffectedItems, list.TotalFailedItems, len(list.AffectedItems))
 	for _, v := range list.AffectedItems {
-		fmt.Println(v)
+		fmt.Println(v.Registry, v.Command, v.Result)
 	}
 }
 
