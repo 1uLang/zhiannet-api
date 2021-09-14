@@ -15,6 +15,8 @@ const ipListVersion = "IP_LIST_VERSION"
 const timeout = 5 * 60 //s 定时任务间隔时间
 var tab_prefixx = "edgeHTTPAccessLogs_"
 
+var chanServer *chan uint64
+
 type httpLog struct {
 	ID               uint64 `gorm:"column:id" json:"id" form:"id"`
 	Status           int    `gorm:"column:status" json:"status" form:"status"`
@@ -29,6 +31,10 @@ type version struct {
 }
 
 type waf struct{}
+
+func SetChan(chanInt chan uint64) {
+	chanServer = &chanInt
+}
 
 //version 版本号
 func increaseVersion() (version, error) {
