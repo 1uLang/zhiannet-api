@@ -1,12 +1,11 @@
 package logs
 
 import (
-	"fmt"
 	"github.com/1uLang/zhiannet-api/common/model/logs_statistics"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/opnsense/request"
 
-	"github.com/1uLang/zhiannet-api/opnsense/request/logs"
+	reqips "github.com/1uLang/zhiannet-api/opnsense/request/ips"
 	"github.com/1uLang/zhiannet-api/opnsense/server"
 	"time"
 )
@@ -44,15 +43,17 @@ func (s *StatisticsNFWLogs) Run() {
 		if err != nil {
 			continue
 		}
-		logs, err := logs.GetLogsList(&logs.LogReq{
-			Current:  fmt.Sprintf("%v", 1),
-			RowCount: fmt.Sprintf("%v", 10000),
+		logs, err := reqips.GetIpsAlarmList(&reqips.IpsAlarmReq{
+			IpsReq: reqips.IpsReq{
+				RowCount: "-1",
+				Current:  "1",
+			},
 		}, loginInfo)
 		if err != nil || logs == nil {
 			continue
 		}
 		for _, lv := range logs.Rows {
-			ltime, _ := time.ParseInLocation("2006-01-02T15:04:05", lv.Timestamp, time.Local)
+			ltime, _ := time.ParseInLocation("2006-01-02T15:04:05.000000+0800", lv.Timestamp, time.Local)
 			if ltime.After(sTime) && ltime.Before(eTime) {
 				total++
 			}

@@ -40,7 +40,6 @@ func Test_statistice_ddos(t *testing.T) {
 }
 
 func Test_statistice_nfw(t *testing.T) {
-
 	sta := new(logs.StatisticsNFWLogs)
 	sta.Run()
 }
