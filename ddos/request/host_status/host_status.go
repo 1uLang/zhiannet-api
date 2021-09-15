@@ -7,6 +7,7 @@ import (
 	"github.com/1uLang/zhiannet-api/ddos/request"
 	"net/http"
 	"strings"
+	"sync"
 )
 
 //var client = resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
@@ -208,7 +209,10 @@ func HostList(req *HostReq, loginReq *request.LoginReq, retry bool) (res []*Stat
 	// Create a Resty Client
 	client := request.GetHttpClient(loginReq)
 	url := loginReq.Addr + _const.DDOS_HOST_STATUS_URL
+	wg := &sync.WaitGroup{}
 	for _, v := range req.Addr {
+		wg.Add(1)
+
 		resp, err := client.R().
 			SetCookie(&http.Cookie{
 				Name:  "sid",
@@ -225,8 +229,13 @@ func HostList(req *HostReq, loginReq *request.LoginReq, retry bool) (res []*Stat
 		err = xml.Unmarshal(resp.Body(), apiRes)
 		if err != nil {
 			fmt.Println(err)
+			wg.Done()
 			break
 		}
+		if apiRes == nil {
+			apiRes = &StatusHost{}
+		}
+		apiRes.Netaddr = v
 		res = append(res, apiRes)
 		//if len(apiRes.Host) == 0 { //可能登陆信息过期
 		//	failure := &audit_db.Failure{}
@@ -235,7 +244,9 @@ func HostList(req *HostReq, loginReq *request.LoginReq, retry bool) (res []*Stat
 		//		return HostList(req, loginReq, false)
 		//	}
 		//}
+		wg.Done()
 	}
+	wg.Wait()
 	return res, err
 }
 
