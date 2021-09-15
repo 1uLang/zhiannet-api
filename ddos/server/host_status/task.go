@@ -43,7 +43,7 @@ func (c *CheckFlow) Run() {
 			})
 			page++
 			if err != nil || list == nil {
-				continue
+				break
 			}
 
 			if len(list) == 0 {
@@ -98,7 +98,7 @@ func (c *CheckFlow) HostHandler(req []HostData) {
 							//	Value:    "0",
 							//	Name:     "vm.migrationQuantity",
 							//})
-							host_relation.UpdateMigrating(hostInfo.Get("uuid").String(), 0)
+							host_relation.UpdateMigrating(hostInfo.Get("uuid").String(), 1)
 							c.AddMessage(fmt.Sprintf("主机%v 流量异常", v.Ip))
 						}
 					}
