@@ -142,6 +142,11 @@ func (*AttackCheckRequest) Run() {
 				//---- 更新 tls配置
 				checkAndUpdateHttpsConfig(servers[idx].HttpsJSON)
 				updateServerIdxs[idx] = true
+				//通知更新
+				if chanServer != nil {
+					*chanServer <- servers[idx].ID
+				}
+
 			}
 		}
 	}()

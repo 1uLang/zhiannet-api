@@ -227,7 +227,7 @@ func GetNCUserInfo(token, user string) (quota, used, percent string) {
 
 // UpdateUserPassword 更新用户密码
 func UpdateUserPassword(newPassword, un string) error {
-	// getNCInfo()
+	getNCInfo()
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}

@@ -119,6 +119,7 @@ type SCADetailsListResp struct {
 		Title       string `json:"title"`
 		Command     string `json:"command"`
 		Registry    string `json:"registry"`
+		Bopen       bool   `json:"bOpen"`
 	} `json:"affected_items"`
 	FailedItems        []interface{} `json:"failed_items"`
 	TotalAffectedItems int64         `json:"total_affected_items"`
