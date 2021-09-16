@@ -43,6 +43,7 @@ func GetLogsList(req *LogReq, apiKey *request.ApiKey) (list *LogListResp, err er
 	resp, err := client.R().
 		SetHeader("Content-Type", "application/x-www-form-urlencoded").
 		SetHeader("x-csrftoken", apiKey.XCsrfToken).
+		//SetHeader("x-requested-with", "XMLHttpRequest").
 		//SetBasicAuth(apiKey.Username, apiKey.Password).
 		SetFormData(map[string]string{
 			"current":      req.Current, //

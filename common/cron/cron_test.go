@@ -6,6 +6,7 @@ import (
 	"github.com/1uLang/zhiannet-api/common/cron/logs"
 	"github.com/1uLang/zhiannet-api/common/model"
 	"github.com/1uLang/zhiannet-api/common/model/edge_db_nodes"
+	"github.com/1uLang/zhiannet-api/ddos/server/host_status"
 	"testing"
 	"time"
 )
@@ -40,7 +41,12 @@ func Test_statistice_ddos(t *testing.T) {
 }
 
 func Test_statistice_nfw(t *testing.T) {
-
 	sta := new(logs.StatisticsNFWLogs)
+	sta.Run()
+}
+
+//ddos
+func Test_CheckFlow(t *testing.T) {
+	sta := new(host_status.CheckFlow)
 	sta.Run()
 }

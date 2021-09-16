@@ -212,7 +212,6 @@ func HostList(req *HostReq, loginReq *request.LoginReq, retry bool) (res []*Stat
 	wg := &sync.WaitGroup{}
 	for _, v := range req.Addr {
 		wg.Add(1)
-
 		resp, err := client.R().
 			SetCookie(&http.Cookie{
 				Name:  "sid",
