@@ -23,13 +23,13 @@ func InitToken(username, password string) error {
 }
 
 func GetWazuhInfo() (resp *model.WazuhInfoResp, err error) {
-	return &model.WazuhInfoResp{
-		Addr:     "https://156.240.95.168",
-		Username: "wazuh",
-		Password: "AgI_kwQ2GQ8v354EQtd6pSpT7bDjdaNJ",
-	}, nil
+	//return &model.WazuhInfoResp{
+	//	Addr:     "https://156.240.95.168",
+	//	Username: "wazuh",
+	//	Password: "AgI_kwQ2GQ8v354EQtd6pSpT7bDjdaNJ",
+	//}, nil
 
-	//return model.GetWazuhInfo()
+	return model.GetWazuhInfo()
 }
 
 //检测nessus 配置访问是否异常
