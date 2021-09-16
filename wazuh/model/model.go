@@ -28,7 +28,7 @@ type WazuhInfoResp struct {
 func GetWazuhInfo() (resp *WazuhInfoResp, err error) {
 	var list []*subassemblynode.Subassemblynode
 	list, _, err = subassemblynode.GetList(&subassemblynode.NodeReq{
-		Type:     5, //主机防护系统
+		Type:     12, //主机防护系统
 		State:    "1",
 		PageNum:  1,
 		PageSize: 1,
