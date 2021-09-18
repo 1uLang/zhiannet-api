@@ -68,7 +68,7 @@ func ListAll(args *SearchReq) (list SearchResp, err error) {
 	req.Path = _const.Ageent_list_api_url
 	req.Headers["signNonce"] = util.RandomNum(10)
 	args.UserName = model.HidsUserNameAPI
-	args.PageSize = 10
+	args.PageSize = 50
 	args.PageNo = 1
 	req.Params = model.ToMap(args)
 	resp, err := req.Do()
@@ -99,7 +99,7 @@ func List(args *SearchReq) (list SearchResp, err error) {
 	req.Path = _const.Ageent_list_api_url
 	req.Headers["signNonce"] = util.RandomNum(10)
 	args.UserName = model.HidsUserNameAPI
-	args.PageSize = 10
+	args.PageSize = 50
 	args.PageNo = 1
 	req.Params = model.ToMap(args)
 
