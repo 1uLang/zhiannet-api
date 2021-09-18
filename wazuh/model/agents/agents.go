@@ -155,7 +155,19 @@ var paramString = `{
                                     "format":"strict_date_optional_time"
                                 }
                             }
-                        }
+                        },
+						{
+							"bool":{
+								"should":[
+									{
+										"match_phrase":{
+											"rule.groups":"active_response"
+										}
+									}
+								],
+								"minimum_should_match":1
+							}
+						}
                     ],
                     "should":[
 
@@ -184,6 +196,42 @@ var paramString = `{
     }
 }`
 
+type matchPhrase struct {
+	ManagerName *struct {
+		Query string `json:"query"`
+	} `json:"manager.name,omitempty"`
+	RuleGroups *struct {
+		Query string `json:"query"`
+	} `json:"rule.groups,omitempty"`
+	AgentId *struct {
+		Query *string `json:"query"`
+	} `json:"agent.id,omitempty"`
+	SyscheckPath              string  `json:"syscheck.path,omitempty"`
+	DataVulnerabilitySeverity *string `json:"data.vulnerability.severity,omitempty"`
+}
+type filter struct {
+	MatchAll *struct {
+	} `json:"match_all,omitempty"`
+	Exists *struct {
+		Field string `json:"field,omitempty"`
+	} `json:"exists,omitempty"`
+	MatchPhrase *matchPhrase `json:"match_phrase,omitempty"`
+	Bool        *struct {
+		Should []struct {
+			MatchPhrase *struct {
+				RuleGroups string `json:"rule.groups,omitempty"`
+			} `json:"match_phrase,omitempty"`
+		} `json:"should,omitempty"`
+		MinimumShouldMatch int `json:"minimum_should_match,omitempty"`
+	} `json:"bool,omitempty"`
+	Range *struct {
+		Timestamp *struct {
+			Gte    time.Time `json:"gte"`
+			Lte    time.Time `json:"lte"`
+			Format *string   `json:"format"`
+		} `json:"timestamp"`
+	} `json:"range,omitempty"`
+}
 type esParams struct {
 	Params struct {
 		Index string `json:"index"`
@@ -219,30 +267,8 @@ type esParams struct {
 			} `json:"docvalue_fields"`
 			Query struct {
 				Bool struct {
-					Must   []interface{} `json:"must"`
-					Filter []struct {
-						MatchAll *struct {
-						} `json:"match_all,omitempty"`
-						MatchPhrase *struct {
-							ManagerName *struct {
-								Query string `json:"query"`
-							} `json:"manager.name,omitempty"`
-							RuleGroups *struct {
-								Query string `json:"query"`
-							} `json:"rule.groups,omitempty"`
-							AgentId *struct {
-								Query *string `json:"query"`
-							} `json:"agent.id,omitempty"`
-							DataVulnerabilitySeverity *string `json:"data.vulnerability.severity,omitempty"`
-						} `json:"match_phrase,omitempty"`
-						Range *struct {
-							Timestamp *struct {
-								Gte    time.Time `json:"gte"`
-								Lte    time.Time `json:"lte"`
-								Format *string   `json:"format"`
-							} `json:"timestamp"`
-						} `json:"range,omitempty"`
-					} `json:"filter"`
+					Must    []interface{} `json:"must"`
+					Filter  []filter      `json:"filter"`
 					Should  []interface{} `json:"should"`
 					MustNot []interface{} `json:"must_not"`
 				} `json:"bool"`
@@ -385,11 +411,15 @@ func SCAList(req *request.Request, args SCAListReq) (*SCAListResp, error) {
 	return list, err
 }
 
-func SysCheckList(req *request.Request, agent string) (*SysCheckListResp, error) {
+func SysCheckList(req *request.Request, args SysCheckListReq) (*SysCheckListResp, error) {
 
 	req.Method = "get"
-	req.Path = agent_syscheck_url + agent
-	req.Params = nil
+	req.Path = agent_syscheck_url + args.Agent
+	req.Params = map[string]interface{}{
+		"limit":  args.Limit,
+		"offset": args.Offset,
+		"type":   "file",
+	}
 	resp, err := req.DoAndParseResp()
 	if err != nil {
 		return nil, err
@@ -526,4 +556,140 @@ func VirusESList(req *request.Request, args ESListReq) (*VirusESHitsListResp, er
 		return nil, fmt.Errorf(vuls.Message)
 	}
 	return &vuls.RawResponse.Hits, nil
+}
+
+//SysCheckESList 文件监控列表
+func SysCheckESList(req *request.Request, args ESListReq) (*SysCheckESHitsListResp, error) {
+
+	req.Method = "post"
+	req.Path = "/internal/search/es"
+
+	var paramStruct esParams
+	_ = json.Unmarshal([]byte(paramString), &paramStruct)
+
+	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
+	newFilter[2].MatchPhrase.RuleGroups.Query = "syscheck"
+	if args.Agent != "" { //指定agent
+		paramStruct.Params.Body.Query.Bool.Filter[3].MatchPhrase.AgentId.Query = &args.Agent
+		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[3])
+	}
+	if args.Path != "" { //指定文件路径
+		newFilter = append(newFilter, filter{MatchPhrase: &matchPhrase{SyscheckPath: args.Path}})
+	}
+	if args.Start != 0 && args.End != 0 && args.Start < args.End {
+		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Gte = time.Unix(args.Start, 0)
+		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Lte = time.Unix(args.End, 0)
+		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[5])
+	}
+	if args.Limit == 0 {
+		args.Limit = 20
+	}
+	paramStruct.Params.Body.Size = args.Limit
+	paramStruct.Params.Body.From = args.Offset
+	paramStruct.Params.Body.Query.Bool.Filter = newFilter
+
+	resp, err := req.Do2(paramStruct)
+	if err != nil {
+		return nil, err
+	}
+	sysChecks := &sysCheckESList{}
+	err = json.Unmarshal(resp, &sysChecks)
+	if err != nil {
+		return nil, err
+	}
+
+	if sysChecks.StatusCode == 401 {
+		return nil, fmt.Errorf(sysChecks.Message)
+	}
+	return &sysChecks.RawResponse.Hits, nil
+}
+
+//ATTCKESList 安全事件监控列表
+func ATTCKESList(req *request.Request, args ESListReq) (*ATTCKESHitsListResp, error) {
+
+	req.Method = "post"
+	req.Path = "/internal/search/es"
+
+	var paramStruct esParams
+	_ = json.Unmarshal([]byte(paramString), &paramStruct)
+
+	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
+	newFilter[2].MatchPhrase = nil
+	newFilter[2].Exists = &struct {
+		Field string `json:"field,omitempty"`
+	}{Field: "rule.mitre.id"}
+
+	if args.Agent != "" { //指定agent
+		paramStruct.Params.Body.Query.Bool.Filter[3].MatchPhrase.AgentId.Query = &args.Agent
+		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[3])
+	}
+	if args.Start != 0 && args.End != 0 && args.Start < args.End {
+		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Gte = time.Unix(args.Start, 0)
+		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Lte = time.Unix(args.End, 0)
+		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[5])
+	}
+	if args.Limit == 0 {
+		args.Limit = 20
+	}
+	paramStruct.Params.Body.Size = args.Limit
+	paramStruct.Params.Body.From = args.Offset
+	paramStruct.Params.Body.Query.Bool.Filter = newFilter
+
+	resp, err := req.Do2(paramStruct)
+	if err != nil {
+		return nil, err
+	}
+	attck := &aTTCKESList{}
+	err = json.Unmarshal(resp, &attck)
+	if err != nil {
+		return nil, err
+	}
+
+	if attck.StatusCode == 401 {
+		return nil, fmt.Errorf(attck.Message)
+	}
+	return &attck.RawResponse.Hits, nil
+}
+
+//InvadeThreatESList 入侵威胁列表
+func InvadeThreatESList(req *request.Request, args ESListReq) (*InvadeThreatESHitsListResp, error) {
+
+	req.Method = "post"
+	req.Path = "/internal/search/es"
+
+	var paramStruct esParams
+	_ = json.Unmarshal([]byte(paramString), &paramStruct)
+
+	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:2]
+	newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[6])
+	if args.Agent != "" { //指定agent
+		paramStruct.Params.Body.Query.Bool.Filter[3].MatchPhrase.AgentId.Query = &args.Agent
+		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[3])
+	}
+	if args.Start != 0 && args.End != 0 && args.Start < args.End {
+		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Gte = time.Unix(args.Start, 0)
+		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Lte = time.Unix(args.End, 0)
+		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[5])
+	}
+	if args.Limit == 0 {
+		args.Limit = 20
+	}
+	paramStruct.Params.Body.Size = args.Limit
+	paramStruct.Params.Body.From = args.Offset
+	paramStruct.Params.Body.Query.Bool.Filter = newFilter
+
+	resp, err := req.Do2(paramStruct)
+	if err != nil {
+		return nil, err
+	}
+	invade := &invadeThreatESList{}
+	err = json.Unmarshal(resp, &invade)
+	if err != nil {
+		return nil, err
+	}
+
+	if invade.StatusCode == 401 {
+		return nil, fmt.Errorf(invade.Message)
+	}
+	return &invade.RawResponse.Hits, nil
 }

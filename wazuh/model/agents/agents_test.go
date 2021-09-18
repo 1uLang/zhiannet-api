@@ -143,7 +143,7 @@ func TestSysCheckList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	list, err := SysCheckList(req, "003")
+	list, err := SysCheckList(req, SysCheckListReq{Agent: "007", Limit: 20, Offset: 0})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -250,6 +250,85 @@ func TestVirusESList(t *testing.T) {
 			fmt.Println(err)
 		} else {
 			fmt.Println(len(list.Hits), list.Total)
+			breakF = false
+		}
+	}
+}
+
+func TestSysCheckESList(t *testing.T) {
+	err := request.InitServerUrl("https://156.240.95.168")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = request.InitToken("wazuh", "AgI_kwQ2GQ8v354EQtd6pSpT7bDjdaNJ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	req, err := request.NewRequest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	breakF := true
+	for breakF {
+		list, err := SysCheckESList(req, ESListReq{Agent: "007", Limit: 20})
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			for _, v := range list.Hits {
+				fmt.Println(v.Source.Syscheck.Path)
+			}
+			breakF = false
+		}
+	}
+}
+func TestATTCKESList(t *testing.T) {
+	err := request.InitServerUrl("https://156.240.95.168")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = request.InitToken("wazuh", "AgI_kwQ2GQ8v354EQtd6pSpT7bDjdaNJ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	req, err := request.NewRequest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	breakF := true
+	for breakF {
+		list, err := ATTCKESList(req, ESListReq{Agent: "007", Limit: 20})
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			for _, v := range list.Hits {
+				fmt.Println(v.Source.Rule.Mitre.Tactic)
+			}
+			breakF = false
+		}
+	}
+}
+func TestInvadeThreatESList(t *testing.T) {
+	err := request.InitServerUrl("https://156.240.95.168")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = request.InitToken("wazuh", "AgI_kwQ2GQ8v354EQtd6pSpT7bDjdaNJ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	req, err := request.NewRequest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	breakF := true
+	for breakF {
+		list, err := InvadeThreatESList(req, ESListReq{Agent: "007", Limit: 20})
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			for _, v := range list.Hits {
+				fmt.Println(v.Source.Rule.Description)
+			}
 			breakF = false
 		}
 	}

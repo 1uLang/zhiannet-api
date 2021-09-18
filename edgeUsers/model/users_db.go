@@ -42,7 +42,7 @@ type (
 		UserId uint64
 		Offset int
 		Size   int
-		All 	bool
+		All    bool
 	}
 	CheckUserNameReq struct {
 		UserId   uint64
@@ -82,11 +82,19 @@ type (
 		Features string
 	}
 	GetParentIdReq struct {
-		UserId   uint64
+		UserId uint64
 	}
 )
 
 var edgeUserTableName = "edgeUsers"
+
+func InitTable() {
+	err := model.MysqlConn.Exec("alter table edgeUsers add parentId  bigint DEFAULT null COMMENT '父级id';").Error
+	if err != nil {
+		fmt.Println("更新edgeUsers表字段 parentId，失败：", err.Error())
+		return
+	}
+}
 
 //获取节点
 func GetList(req *ListReq) (list []*EdgeusersResp, err error) {
@@ -108,8 +116,8 @@ func GetList(req *ListReq) (list []*EdgeusersResp, err error) {
 	db_model := model.MysqlConn.Debug().Table(edgeUserTableName).Where("edgeUsers.state=?", 1)
 	if req != nil && req.UserId > 0 {
 		if all {
-			db_model = db_model.Where("edgeUsers.parentId=? or edgeUsers.id=?", req.UserId,uid)
-		}else{
+			db_model = db_model.Where("edgeUsers.parentId=? or edgeUsers.id=?", req.UserId, uid)
+		} else {
 			db_model = db_model.Where("edgeUsers.parentId=?", req.UserId)
 		}
 	} else {
@@ -199,7 +207,7 @@ func GetParentId(req *GetParentIdReq) (uint64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return user.ParentId,nil
+	return user.ParentId, nil
 }
 func CreateUser(req *CreateUserReq) (uint64, error) {
 

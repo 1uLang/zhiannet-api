@@ -20,13 +20,13 @@ func (*AttackCheckRequest) Run() {
 	}()
 
 	//ddos 入侵检测 将入侵ip 加入ddos黑名单
-	func() {
-		err := ddos{}.AttackCheck()
-		if err != nil {
-			fmt.Println("ddos 攻击ip自动加入 黑名单错误：", err)
-			return
-		}
-	}()
+	//func() {
+	//	err := ddos{}.AttackCheck()
+	//	if err != nil {
+	//		fmt.Println("ddos 攻击ip自动加入 黑名单错误：", err)
+	//		return
+	//	}
+	//}()
 	//hids 入侵检测 将入侵ip 加入ddos黑名单
 	func() {
 
