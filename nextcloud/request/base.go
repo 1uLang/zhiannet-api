@@ -268,7 +268,7 @@ func InitialAdminUser() {
 	if flag {
 		// 更新用户数据库
 		wg := sync.WaitGroup{}
-		passwd := `adminAd#@2021`
+		// passwd := `adminAd#@2021`
 		token := GetAdminToken()
 		ncTokens := []model.NextCloudToken{}
 		cm_model.MysqlConn.Model(&model.NextCloudToken{}).Find(&ncTokens)
@@ -288,7 +288,8 @@ func InitialAdminUser() {
 					})
 					cm_model.MysqlConn.Model(&model.NextCloudToken{}).Where("id = ?", v.ID).UpdateColumn("token", nToken)
 				} else {
-					CreateUserV2(token, v.User, passwd)
+					u, p, _ := ParseToken(v.Token)
+					CreateUserV2(token, u, p)
 				}
 			}(v)
 		}
