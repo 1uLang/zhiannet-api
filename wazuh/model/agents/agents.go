@@ -419,6 +419,7 @@ func SysCheckList(req *request.Request, args SysCheckListReq) (*SysCheckListResp
 		"limit":  args.Limit,
 		"offset": args.Offset,
 		"type":   "file",
+		"file":   args.File,
 	}
 	resp, err := req.DoAndParseResp()
 	if err != nil {

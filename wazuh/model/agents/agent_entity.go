@@ -10,14 +10,17 @@ type StatisticsResp struct {
 	Total          int `json:"total"`
 }
 type ListReq struct {
-	Group string `json:"group,omitempty"`
-	IP    string `json:"ip,omitempty"`
+	Group  string `json:"group,omitempty"`
+	IP     string `json:"ip,omitempty"`
+	Limit  int64  `json:"limit,omitempty"`
+	Offset int64  `json:"offset,omitempty"`
 
 	UserId      int64 `json:"-"`
 	AdminUserId int64 `json:"-"`
 }
 type SysCheckListReq struct {
 	Agent  string `json:"-"`
+	File   string `json:"file,omitempty"`
 	Limit  int64  `json:"limit,omitempty"`
 	Offset int64  `json:"offset,omitempty"`
 }

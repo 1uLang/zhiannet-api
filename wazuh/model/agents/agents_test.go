@@ -36,11 +36,11 @@ func TestStatistics(t *testing.T) {
 
 }
 func TestList(t *testing.T) {
-	err := request.InitServerUrl("https://156.240.95.168")
+	err := request.InitServerUrl("https://156.240.95.34")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = request.InitToken("wazuh", "AgI_kwQ2GQ8v354EQtd6pSpT7bDjdaNJ")
+	err = request.InitToken("wazuh", "m8yfGB_ECbIMSHFFqsVtCm5sUQ8JZVSZ")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,21 +48,18 @@ func TestList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	list, err := List(req, &ListReq{})
+	list, err := List(req, &ListReq{UserId: 1, Limit: 20, Offset: 0})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(list.AffectedItems) > 0 {
-		//err = Delete(req, []string{list.AffectedItems[0].ID})
-		//if err != nil {
-		//	t.Fatal(err)
-		//}
+		//	err = Delete(req, []string{"018"})
+		//	if err != nil {
+		//		t.Fatal(err)
+		//	}
 		item := list.AffectedItems[0]
-		fmt.Println(item.Name,
-			item.Os.Name+" "+item.Os.Version,
-			item.DateAdd,
-			item.LastKeepAlive,
-			item.Status,
+		fmt.Println(
+			item,
 		)
 	}
 }
@@ -131,7 +128,7 @@ func TestSCADetailsList(t *testing.T) {
 }
 
 func TestSysCheckList(t *testing.T) {
-	err := request.InitServerUrl("https://156.240.95.168")
+	err := request.InitServerUrl("https://156.240.95.34")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,7 +140,7 @@ func TestSysCheckList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	list, err := SysCheckList(req, SysCheckListReq{Agent: "007", Limit: 20, Offset: 0})
+	list, err := SysCheckList(req, SysCheckListReq{Agent: "003", Limit: 20, Offset: 0, File: "/etc/rpc"})
 	if err != nil {
 		t.Fatal(err)
 	}

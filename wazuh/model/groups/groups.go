@@ -37,10 +37,17 @@ func Create(req *request.Request, name string) error {
 	}
 	return nil
 }
-func List(req *request.Request) (*ListResp, error) {
+func List(req *request.Request, name ...string) (*ListResp, error) {
 	req.Method = "get"
 	req.Path = groups_api_url
 	req.Params = nil
+
+	if len(name) > 0 {
+		req.Params = map[string]interface{}{
+			"groups_list": name[0],
+		}
+	}
+
 	resp, err := req.DoAndParseResp()
 	if err != nil {
 		return nil, err
