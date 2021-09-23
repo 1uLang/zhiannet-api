@@ -32,6 +32,7 @@ type (
 )
 
 var ApiDbPath = "./build/configs/api_db.yaml"
+var DSN string
 
 //func init() {
 //	InitMysqlLink()
@@ -54,8 +55,8 @@ func InitMysqlLink() {
 		return
 	}
 	//dsn := "root:mysql8@tcp(45.195.61.132:3306)/zhian-edges?charset=utf8mb4&parseTime=True&loc=Local"
-	dsn := conf.Dbs.Prod.Dsn
-	MysqlConn, err = gorm.Open(gmysql.Open(dsn), &gorm.Config{
+	DSN = conf.Dbs.Prod.Dsn
+	MysqlConn, err = gorm.Open(gmysql.Open(DSN), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   "",   //表前缀
 			SingularTable: true, //表名复数形式
@@ -67,8 +68,8 @@ func InitMysqlLink() {
 	}
 
 	//dsn = "root:mysql8@tcp(45.195.61.132:3306)/gfast_open_test?charset=utf8mb4&parseTime=True&loc=Local"
-	dsn = conf.Auditdb.Prod.Dsn
-	AuditMysqlConn, err = gorm.Open(gmysql.Open(dsn), &gorm.Config{
+	DSN = conf.Auditdb.Prod.Dsn
+	AuditMysqlConn, err = gorm.Open(gmysql.Open(DSN), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   "",   //表前缀
 			SingularTable: true, //表名复数形式
