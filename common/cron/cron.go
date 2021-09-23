@@ -7,7 +7,6 @@ import (
 	"github.com/1uLang/zhiannet-api/common/server/attack_check_server"
 	"github.com/1uLang/zhiannet-api/common/server/attack_message_server"
 	ddos_request "github.com/1uLang/zhiannet-api/ddos/request"
-	ddos_host "github.com/1uLang/zhiannet-api/ddos/server/host_status"
 	hids_request "github.com/1uLang/zhiannet-api/hids/server"
 	maltrail_request "github.com/1uLang/zhiannet-api/maltrail/request"
 	monitor_cron "github.com/1uLang/zhiannet-api/monitor/cron"
@@ -60,7 +59,7 @@ func InitCron() {
 	//定时检查云底座内的主机，并添加到ddos主机内
 	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&host_server.CheckHost{}))
 	//主机流量异常检查 ddos
-	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&ddos_host.CheckFlow{}))
+	//c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&ddos_host.CheckFlow{}))
 
 	//waf日志统计定时任务
 	c.AddJob("0 0 */1 * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&logs.StatisticsWAFLogs{}))
