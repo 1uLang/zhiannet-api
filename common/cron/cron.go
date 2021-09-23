@@ -6,6 +6,7 @@ import (
 	"github.com/1uLang/zhiannet-api/common/cron/logs"
 	"github.com/1uLang/zhiannet-api/common/server/attack_check_server"
 	"github.com/1uLang/zhiannet-api/common/server/attack_message_server"
+	"github.com/1uLang/zhiannet-api/common/server/platform_backup_server"
 	ddos_request "github.com/1uLang/zhiannet-api/ddos/request"
 	ddos_host "github.com/1uLang/zhiannet-api/ddos/server/host_status"
 	hids_request "github.com/1uLang/zhiannet-api/hids/server"
@@ -73,5 +74,8 @@ func InitCron() {
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&attack_check_server.AttackCheckRequest{}))
 	//hids 主机防护 漏洞风险 入侵威胁 告警
 	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&attack_message_server.AttackMessageRequest{}))
+
+	//平台数据自动备份 每天凌晨
+	c.AddJob("0 0 0 */1 * ?", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&platform_backup_server.PlatformBackUp{}))
 	c.Start()
 }

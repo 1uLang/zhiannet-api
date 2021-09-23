@@ -5,23 +5,27 @@ import (
 	"crypto/tls"
 	_ "embed"
 	"fmt"
+	"github.com/1uLang/zhiannet-api/common/cache"
 	"github.com/go-resty/resty/v2"
 	"io"
+	"io/ioutil"
 	"os"
 	"testing"
 	"time"
 
 	param "github.com/1uLang/zhiannet-api/nextcloud/const"
 	"github.com/1uLang/zhiannet-api/nextcloud/model"
+
+	mysqlModel "github.com/1uLang/zhiannet-api/common/model"
 )
 
 var (
 	req = &model.LoginReq{
 		User: "admin",
 		// User: "admin_zhoumj",
-		// Password: "Dengbao123!@#",
+		Password: "Dengbao123!@#",
 		// Password: "admin",
-		Password: "21ops.com@",
+		//Password: "21ops.com",
 		// Password: "adminAd#@2021",
 	}
 	fileName = "Nextcloud.png"
@@ -29,6 +33,10 @@ var (
 	nexcloud string
 )
 
+func init() {
+	mysqlModel.InitMysqlLink()
+	cache.InitClient()
+}
 func TestFormatTime(t *testing.T) {
 	ts := FormatTime("Sat, 24 Jul 2021 13:53:13 GMT", "2006-01-02 15:04:05")
 
@@ -272,9 +280,8 @@ func TestGetNCUserInfo(t *testing.T) {
 
 func TestCreateFoler(t *testing.T) {
 	token := GenerateToken(req)
-	param.BASE_URL = "https://bptest.dengbao.cloud"
-
-	err := CreateFoler(token, "", "测试文件夹")
+	param.BASE_URL = "https://backup.dengbao.cloud/"
+	err := CreateFoler(token, "", "平台数据")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -339,18 +346,20 @@ func Test_Change(t *testing.T) {
 }
 
 func TestDownLoadFileWithPath(t *testing.T) {
-	token := `Basic aGFuY2hhbjphZG1pbkFkI0AyMDIx`
-	param.BASE_URL = "https://bptest.dengbao.cloud"
-	uRL := `/remote.php/dav/files/hanchan/456/下载.png`
+	token := `Basic YWRtaW46RGVuZ2JhbzEyMyFAIw==`
+	param.BASE_URL = "https://backup.dengbao.cloud/"
+	uRL := `/remote.php/dav/files/admin/平台数据/edges-202109221.zip`
 	rsp, err := DownLoadFileWithPath(token, uRL)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// bb, err := io.ReadAll(rsp.Body)
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
+	bb, err := io.ReadAll(rsp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = ioutil.WriteFile("edges-202109221.zip", bb, 0644)
+	fmt.Println(rsp.Body)
 	t.Log(rsp.Header.Get("Content-type"))
 	rsp.Body.Close()
 }
