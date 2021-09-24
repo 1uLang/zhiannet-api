@@ -18,6 +18,13 @@ type ListReq struct {
 	UserId      int64 `json:"-"`
 	AdminUserId int64 `json:"-"`
 }
+type UpdateReq struct {
+	ID     string `json:"group"`
+	Remake string `json:"ip"`
+
+	UserId      uint64 `json:"-"`
+	AdminUserId uint64 `json:"-"`
+}
 type SysCheckListReq struct {
 	Agent  string `json:"-"`
 	File   string `json:"file,omitempty"`
@@ -38,6 +45,7 @@ type ListResp struct {
 		MergedSum     string   `json:"mergedSum"`
 		Name          string   `json:"name"`
 		NodeName      string   `json:"node_name"`
+		Remake        string   `json:"remake"`
 		Os            struct {
 			Arch     string `json:"arch"`
 			Codename string `json:"codename"`

@@ -324,6 +324,9 @@ func Delete(req *request.Request, ids []string) error {
 	}
 	bytes, _ := json.Marshal(resp.Data)
 	err = json.Unmarshal(bytes, &list)
+	if err == nil {
+		_ = deleteAgent(ids)
+	}
 	return err
 }
 func List(req *request.Request, args *ListReq) (*ListResp, error) {
@@ -349,6 +352,12 @@ func List(req *request.Request, args *ListReq) (*ListResp, error) {
 	list := &ListResp{}
 	bytes, _ := json.Marshal(resp.Data)
 	err = json.Unmarshal(bytes, &list)
+	if err != nil {
+		return nil, err
+	}
+	for idx, item := range list.AffectedItems {
+		list.AffectedItems[idx].Remake, _ = getInfo(item.ID)
+	}
 	return list, err
 }
 func Scan(req *request.Request, agent []string) error {
@@ -365,6 +374,11 @@ func Scan(req *request.Request, agent []string) error {
 		return fmt.Errorf("主机防护服务异常：%s", resp.Message)
 	}
 	return err
+}
+
+func Update(args UpdateReq) error {
+
+	return updateAgent(&HIDSAgent{AgentId: args.ID, Remake: args.Remake})
 }
 
 //SCADetailsList 合规基线详情

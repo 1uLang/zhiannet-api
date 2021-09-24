@@ -25,6 +25,12 @@ func AgentDelete(ids []string) error {
 	return agents.Delete(req, ids)
 }
 
+//AgentUpdate 资产更新
+func AgentUpdate(args agents.UpdateReq) error {
+
+	return agents.Update(args)
+}
+
 //SysCheckList 文件列表
 func SysCheckList(args agents.SysCheckListReq) (*agents.SysCheckListResp, error) {
 	req, err := request.NewRequest()

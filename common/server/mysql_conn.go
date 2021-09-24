@@ -7,6 +7,7 @@ import (
 	hids_server "github.com/1uLang/zhiannet-api/hids/server"
 	nessus_server "github.com/1uLang/zhiannet-api/nessus/server"
 	next_terminal_server "github.com/1uLang/zhiannet-api/next-terminal/server"
+	wazuh_server "github.com/1uLang/zhiannet-api/wazuh/server"
 )
 
 func SetApiDbPath(path string) {
@@ -33,4 +34,7 @@ func initTable() {
 	nessus_server.InitTable()
 
 	platform_backup_server.InitTable() //平台数据备份记录表
+
+	wazuh_server.InitTable()
+
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/1uLang/zhiannet-api/common/model/edge_messages"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/wazuh/model"
+	"github.com/1uLang/zhiannet-api/wazuh/model/agents"
 	"github.com/1uLang/zhiannet-api/wazuh/model/groups"
 	"github.com/1uLang/zhiannet-api/wazuh/request"
 	"time"
@@ -98,4 +99,8 @@ func (this *CheckRequest) Run() {
 		}
 	}
 
+}
+
+func InitTable() {
+	agents.InitTable()
 }
