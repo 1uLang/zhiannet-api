@@ -32,7 +32,7 @@ func List(req *request.Request, args *ListReq) ([]interface{}, uint64, error) {
 		return nil, 0, fmt.Errorf("服务器异常：%v", resp.Message)
 	}
 	if resp.Data == nil {
-		return nil,0,nil
+		return nil, 0, nil
 	}
 	retData := resp.Data.(map[string]interface{})
 	total, _ := util.Interface2Uint64(retData["total"])
@@ -131,7 +131,7 @@ func Details(req *request.Request, args *DetailsReq) (map[string]interface{}, er
 
 //授权资产
 func Authorize(req *request.Request, args *AuthorizeReq) error {
-	if args.UserId == 0 && args.AdminUserId == 0 || len(args.UserIds) == 0 && len(args.AdminUserIds) == 0 {
+	if args.UserId == 0 && args.AdminUserId == 0 {
 		return fmt.Errorf("参数错误")
 	}
 	//获取资产信息
@@ -231,5 +231,5 @@ func Connect(req *request.Request, args *ConnectReq) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return "/#/access?assetId="+args.Id + "&assetName=" + info.Name + "&protocol=" + info.Proto, nil
+	return "/#/access?assetId=" + args.Id + "&assetName=" + info.Name + "&protocol=" + info.Proto, nil
 }
