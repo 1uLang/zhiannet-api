@@ -1,7 +1,5 @@
 package agents
 
-import "time"
-
 type StatisticsResp struct {
 	Active         int `json:"active"`
 	Disconnected   int `json:"disconnected"`
@@ -278,9 +276,9 @@ type VulnerabilityHitsResp struct {
 			Timestamp string `json:"timestamp"`
 		} `json:"_source"`
 		Fields struct {
-			DataVulnerabilityPublished []time.Time `json:"data.vulnerability.published"`
-			DataVulnerabilityUpdated   []time.Time `json:"data.vulnerability.updated"`
-			Timestamp                  []time.Time `json:"timestamp"`
+			DataVulnerabilityPublished []string `json:"data.vulnerability.published"`
+			DataVulnerabilityUpdated   []string `json:"data.vulnerability.updated"`
+			Timestamp                  []string `json:"timestamp"`
 		} `json:"fields"`
 		Highlight struct {
 			AgentId     []string `json:"agent.id"`
@@ -306,9 +304,9 @@ type vulnerabilityESList struct {
 		Aggregations struct {
 			Field1 struct {
 				Buckets []struct {
-					KeyAsString time.Time `json:"key_as_string"`
-					Key         int64     `json:"key"`
-					DocCount    int       `json:"doc_count"`
+					KeyAsString string `json:"key_as_string"`
+					Key         int64  `json:"key"`
+					DocCount    int    `json:"doc_count"`
 				} `json:"buckets"`
 			} `json:"2"`
 		} `json:"aggregations"`
@@ -353,10 +351,10 @@ type VirusESHitsListResp struct {
 						AlertId string `json:"alert_id"`
 						Md5     string `json:"md5"`
 					} `json:"source"`
-					Total     string    `json:"total,omitempty"`
-					Positives string    `json:"positives,omitempty"`
-					Permalink string    `json:"permalink,omitempty"`
-					ScanDate  time.Time `json:"scan_date,omitempty"`
+					Total     string `json:"total,omitempty"`
+					Positives string `json:"positives,omitempty"`
+					Permalink string `json:"permalink,omitempty"`
+					ScanDate  string `json:"scan_date,omitempty"`
 				} `json:"virustotal"`
 			} `json:"data"`
 			Sampledata bool `json:"@sampledata"`
@@ -374,7 +372,7 @@ type VirusESHitsListResp struct {
 			Timestamp string `json:"timestamp"`
 		} `json:"_source"`
 		Fields struct {
-			Timestamp []time.Time `json:"timestamp"`
+			Timestamp []string `json:"timestamp"`
 		} `json:"fields"`
 		Highlight struct {
 			AgentId     []string `json:"agent.id"`
@@ -400,9 +398,9 @@ type virusESList struct {
 		Aggregations struct {
 			Field1 struct {
 				Buckets []struct {
-					KeyAsString time.Time `json:"key_as_string"`
-					Key         int64     `json:"key"`
-					DocCount    int       `json:"doc_count"`
+					KeyAsString string `json:"key_as_string"`
+					Key         int64  `json:"key"`
+					DocCount    int    `json:"doc_count"`
 				} `json:"buckets"`
 			} `json:"2"`
 		} `json:"aggregations"`
@@ -489,9 +487,9 @@ type SysCheckESHitsListResp struct {
 			Timestamp string `json:"timestamp"`
 		} `json:"_source"`
 		Fields struct {
-			Timestamp           []time.Time `json:"timestamp"`
-			SyscheckMtimeAfter  []time.Time `json:"syscheck.mtime_after,omitempty"`
-			SyscheckMtimeBefore []time.Time `json:"syscheck.mtime_before,omitempty"`
+			Timestamp           []string `json:"timestamp"`
+			SyscheckMtimeAfter  []string `json:"syscheck.mtime_after,omitempty"`
+			SyscheckMtimeBefore []string `json:"syscheck.mtime_before,omitempty"`
 		} `json:"fields"`
 		Highlight struct {
 			AgentId     []string `json:"agent.id"`
@@ -517,9 +515,9 @@ type sysCheckESList struct {
 		Aggregations struct {
 			Field1 struct {
 				Buckets []struct {
-					KeyAsString time.Time `json:"key_as_string"`
-					Key         int64     `json:"key"`
-					DocCount    int       `json:"doc_count"`
+					KeyAsString string `json:"key_as_string"`
+					Key         int64  `json:"key"`
+					DocCount    int    `json:"doc_count"`
 				} `json:"buckets"`
 			} `json:"2"`
 		} `json:"aggregations"`
@@ -583,23 +581,23 @@ type ATTCKESHitsListResp struct {
 						IpPort                    string `json:"ipPort,omitempty"`
 					} `json:"eventdata"`
 					System struct {
-						EventID         string    `json:"eventID"`
-						Keywords        string    `json:"keywords"`
-						ProviderGuid    string    `json:"providerGuid"`
-						Level           string    `json:"level"`
-						Channel         string    `json:"channel"`
-						Opcode          string    `json:"opcode"`
-						Message         string    `json:"message"`
-						Version         string    `json:"version"`
-						SystemTime      time.Time `json:"systemTime"`
-						EventRecordID   string    `json:"eventRecordID"`
-						ThreadID        string    `json:"threadID"`
-						Computer        string    `json:"computer"`
-						Task            string    `json:"task"`
-						ProcessID       string    `json:"processID"`
-						SeverityValue   string    `json:"severityValue"`
-						ProviderName    string    `json:"providerName"`
-						EventSourceName string    `json:"eventSourceName,omitempty"`
+						EventID         string `json:"eventID"`
+						Keywords        string `json:"keywords"`
+						ProviderGuid    string `json:"providerGuid"`
+						Level           string `json:"level"`
+						Channel         string `json:"channel"`
+						Opcode          string `json:"opcode"`
+						Message         string `json:"message"`
+						Version         string `json:"version"`
+						SystemTime      string `json:"systemTime"`
+						EventRecordID   string `json:"eventRecordID"`
+						ThreadID        string `json:"threadID"`
+						Computer        string `json:"computer"`
+						Task            string `json:"task"`
+						ProcessID       string `json:"processID"`
+						SeverityValue   string `json:"severityValue"`
+						ProviderName    string `json:"providerName"`
+						EventSourceName string `json:"eventSourceName,omitempty"`
 					} `json:"system"`
 				} `json:"win,omitempty"`
 				ExtraData string `json:"extra_data,omitempty"`
@@ -659,9 +657,9 @@ type ATTCKESHitsListResp struct {
 			} `json:"syscheck,omitempty"`
 		} `json:"_source"`
 		Fields struct {
-			Timestamp           []time.Time `json:"timestamp"`
-			SyscheckMtimeAfter  []time.Time `json:"syscheck.mtime_after,omitempty"`
-			SyscheckMtimeBefore []time.Time `json:"syscheck.mtime_before,omitempty"`
+			Timestamp           []string `json:"timestamp"`
+			SyscheckMtimeAfter  []string `json:"syscheck.mtime_after,omitempty"`
+			SyscheckMtimeBefore []string `json:"syscheck.mtime_before,omitempty"`
 		} `json:"fields"`
 		Highlight struct {
 			AgentId     []string `json:"agent.id"`
@@ -686,9 +684,9 @@ type aTTCKESList struct {
 		Aggregations struct {
 			Field1 struct {
 				Buckets []struct {
-					KeyAsString time.Time `json:"key_as_string"`
-					Key         int64     `json:"key"`
-					DocCount    int       `json:"doc_count"`
+					KeyAsString string `json:"key_as_string"`
+					Key         int64  `json:"key"`
+					DocCount    int    `json:"doc_count"`
 				} `json:"buckets"`
 			} `json:"2"`
 		} `json:"aggregations"`
@@ -753,7 +751,7 @@ type InvadeThreatESHitsListResp struct {
 			Timestamp string `json:"timestamp"`
 		} `json:"_source"`
 		Fields struct {
-			Timestamp []time.Time `json:"timestamp"`
+			Timestamp []string `json:"timestamp"`
 		} `json:"fields"`
 		Highlight struct {
 			AgentId     []string `json:"agent.id"`
@@ -779,9 +777,9 @@ type invadeThreatESList struct {
 		Aggregations struct {
 			Field1 struct {
 				Buckets []struct {
-					KeyAsString time.Time `json:"key_as_string"`
-					Key         int64     `json:"key"`
-					DocCount    int       `json:"doc_count"`
+					KeyAsString string `json:"key_as_string"`
+					Key         int64  `json:"key"`
+					DocCount    int    `json:"doc_count"`
 				} `json:"buckets"`
 			} `json:"2"`
 		} `json:"aggregations"`
