@@ -242,11 +242,14 @@ func TestVirusESList(t *testing.T) {
 	}
 	breakF := true
 	for breakF {
-		list, err := VirusESList(req, ESListReq{Agent: "007", Limit: 400, Offset: 5})
+		list, err := VirusESList(req, ESListReq{Agent: "007", Limit: 10, Offset: 0})
 		if err != nil {
 			fmt.Println(err)
 		} else {
 			fmt.Println(len(list.Hits), list.Total)
+			for _, v := range list.Hits {
+				fmt.Println(v.Source)
+			}
 			breakF = false
 		}
 	}
