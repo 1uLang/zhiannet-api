@@ -542,7 +542,9 @@ func VirusESList(req *request.Request, args ESListReq) (*VirusESHitsListResp, er
 	var paramStruct esParams
 	_ = json.Unmarshal([]byte(paramString), &paramStruct)
 	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
-	newFilter[2].MatchPhrase.RuleGroups.Query = "virustotal"
+	//newFilter[2].MatchPhrase.RuleGroups.Query = "virustotal"
+	newFilter[2].MatchPhrase.RuleGroups.Query = "vulnerability-detector"
+
 	if args.Agent != "" { //指定agent
 		paramStruct.Params.Body.Query.Bool.Filter[3].MatchPhrase.AgentId.Query = &args.Agent
 		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[3])
