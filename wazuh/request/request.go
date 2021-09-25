@@ -296,7 +296,6 @@ func (this *Request) Do2(param interface{}) (respBody []byte, err error) {
 	if this.Method != "GET" && param != nil {
 		buf, _ := json.Marshal(param)
 		body = bytes.NewReader(buf)
-		fmt.Println(string(buf))
 	}
 	req, err := http.NewRequest(this.Method, this.url+this.Path, body)
 	if err != nil {
