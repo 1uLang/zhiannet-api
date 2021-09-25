@@ -124,7 +124,7 @@ var paramString = `{
                         {
                             "match_phrase":{
                                 "manager.name":{
-                                    "query":"wazuh-server"
+                                    "query":"Server-faa29f71-0449-456b-80bf-35830b9c9989.novalocal"
                                 }
                             }
                         },
