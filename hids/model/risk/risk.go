@@ -1,13 +1,17 @@
 package risk
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/1uLang/zhiannet-api/common/model/logs_statistics"
 	_const "github.com/1uLang/zhiannet-api/hids/const"
 	"github.com/1uLang/zhiannet-api/hids/model"
 	"github.com/1uLang/zhiannet-api/hids/model/agent"
 	"github.com/1uLang/zhiannet-api/hids/model/server"
 	"github.com/1uLang/zhiannet-api/hids/request"
 	"github.com/1uLang/zhiannet-api/hids/util"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -1124,4 +1128,106 @@ func AbnormalProcessProcess(args *ProcessReq) error {
 //SystemCmdProcess 入侵威胁 系统命令篡改
 func SystemCmdProcess(args *ProcessReq) error {
 	return process(args, _const.Risk_system_cmd_process_api_url)
+}
+
+//Statistics  入侵威胁统计
+func Statistics() {
+
+	var err error
+	var ret RiskSearchResp
+	var list []map[string]interface{}
+	checkConfigs := []string{
+		_const.Risk_Virus_api_url,
+		_const.Risk_webshell_api_url,
+		_const.Risk_reboundshell_api_url,
+		_const.Risk_abnormal_account_api_url,
+		_const.Risk_log_delete_api_url,
+		_const.Risk_abnormal_login_api_url,
+		_const.Risk_abnormal_process_api_url,
+		_const.Risk_system_cmd_api_url,
+	}
+	args := &RiskSearchReq{}
+	args.PageSize = 100
+
+	for _, url := range checkConfigs {
+		ret, err = riskList(url, args)
+		if err != nil {
+			return
+		}
+
+		logStatistics := &logs_statistics.LogsStatistics{}
+		logStatistics.Type = 4
+		logStatistics.Time = time.Now().Format("2006-01-02 15") + ":00:00"
+		switch url {
+		case _const.Risk_Virus_api_url:
+			list = ret.VirusCountInfoList
+			logStatistics.Event = "病毒木马"
+		case _const.Risk_webshell_api_url:
+			list = ret.WebshellCountInfoList
+			logStatistics.Event = "网页后门"
+		case _const.Risk_system_cmd_api_url:
+			list = ret.SystemCmdInfoList
+			logStatistics.Event = "反弹shell"
+		case _const.Risk_abnormal_process_api_url:
+			list = ret.AbnormalProcessCountInfoList
+			logStatistics.Event = "异常账号"
+		case _const.Risk_abnormal_login_api_url:
+			list = ret.AbnormalLoginCountInfoList
+			logStatistics.Event = "日志异常删除"
+		case _const.Risk_log_delete_api_url:
+			list = ret.LogDeleteCountInfoList
+			logStatistics.Event = "异常登录"
+		case _const.Risk_abnormal_account_api_url:
+			list = ret.AbnormalAccountCountInfoList
+			logStatistics.Event = "异常进程"
+		case _const.Risk_reboundshell_api_url:
+			list = ret.ReboundshellCountInfoList
+			logStatistics.Event = "异常命令篡改"
+		}
+
+		//统计写入数据库
+		logCount := map[int64]float64{}
+		for _, v := range list {
+			logCount[Ip2Int64(v["serverIp"].(string))] += v["count"].(float64)
+		}
+		for nodeid, total := range logCount {
+			logStatistics.NodeId = nodeid
+			logStatistics.Total, _ = strconv.ParseUint(fmt.Sprintf("%v", total), 10, 64)
+			_, _ = logs_statistics.Save(logStatistics)
+		}
+	}
+
+	return
+
+}
+
+func Ip2Int64(ip string) int64 {
+	ipSegs := strings.Split(ip, ".")
+	var ipInt int64
+	var pos uint = 24
+	for _, ipSeg := range ipSegs {
+		tempInt, _ := strconv.ParseInt(ipSeg, 10, 64)
+		tempInt = tempInt << pos
+		ipInt = ipInt | tempInt
+		pos -= 8
+	}
+	return ipInt
+}
+
+func Int64ToIp(ipInt int64) string {
+	ipSegs := make([]string, 4)
+	var len int = len(ipSegs)
+	buffer := bytes.NewBufferString("")
+	for i := 0; i < len; i++ {
+		tempInt := ipInt & 0xFF
+		ipSegs[len-i-1] = fmt.Sprintf("%v", tempInt)
+		ipInt = ipInt >> 8
+	}
+	for i := 0; i < len; i++ {
+		buffer.WriteString(ipSegs[i])
+		if i < len-1 {
+			buffer.WriteString(".")
+		}
+	}
+	return strings.Join(ipSegs, ".")
 }
