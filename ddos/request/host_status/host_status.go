@@ -210,40 +210,50 @@ func HostList(req *HostReq, loginReq *request.LoginReq, retry bool) (res []*Stat
 	client := request.GetHttpClient(loginReq)
 	url := loginReq.Addr + _const.DDOS_HOST_STATUS_URL
 	wg := &sync.WaitGroup{}
+	ch := make(chan struct{}, 20)
 	for _, v := range req.Addr {
+		ch <- struct{}{}
 		wg.Add(1)
-		resp, err := client.R().
-			SetCookie(&http.Cookie{
-				Name:  "sid",
-				Value: request.GetCookie(loginReq),
-			}).SetFormData(map[string]string{
-			"param_submit_type": "query-host", //查询
-			"param_netaddr":     v,            //单个IP查询
-		}).Post(url)
-		//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_HOST_STATUS_URL)
-		//fmt.Println("get cookie", audit_db.GetCookie(loginReq))
-		//fmt.Println(string(resp.Body()), err)
 
-		apiRes := &StatusHost{}
-		err = xml.Unmarshal(resp.Body(), apiRes)
-		if err != nil {
-			fmt.Println(err)
-			wg.Done()
-			break
-		}
-		if apiRes == nil {
-			apiRes = &StatusHost{}
-		}
-		apiRes.Netaddr = v
-		res = append(res, apiRes)
-		//if len(apiRes.Host) == 0 { //可能登陆信息过期
-		//	failure := &audit_db.Failure{}
-		//	xml.Unmarshal(resp.Body(), &failure)
-		//	if retry && failure.Info == _const.FAILURE_INFO {
-		//		return HostList(req, loginReq, false)
-		//	}
-		//}
-		wg.Done()
+		go func(v string) {
+			defer func() {
+				<-ch
+				wg.Done()
+			}()
+			resp, err := client.R().
+				SetCookie(&http.Cookie{
+					Name:  "sid",
+					Value: request.GetCookie(loginReq),
+				}).SetFormData(map[string]string{
+				"param_submit_type": "query-host", //查询
+				"param_netaddr":     v,            //单个IP查询
+			}).Post(url)
+			//Post("https://" + loginReq.Addr + ":" + loginReq.Port + _const.DDOS_HOST_STATUS_URL)
+			//fmt.Println("get cookie", audit_db.GetCookie(loginReq))
+			//fmt.Println(string(resp.Body()), err)
+
+			apiRes := &StatusHost{}
+			err = xml.Unmarshal(resp.Body(), apiRes)
+			if err != nil {
+				fmt.Println(err)
+				//wg.Done()
+				return
+			}
+			if apiRes == nil {
+				apiRes = &StatusHost{}
+			}
+			apiRes.Netaddr = v
+			res = append(res, apiRes)
+			//if len(apiRes.Host) == 0 { //可能登陆信息过期
+			//	failure := &audit_db.Failure{}
+			//	xml.Unmarshal(resp.Body(), &failure)
+			//	if retry && failure.Info == _const.FAILURE_INFO {
+			//		return HostList(req, loginReq, false)
+			//	}
+			//}
+			//wg.Done()
+		}(v)
+
 	}
 	wg.Wait()
 	return res, err

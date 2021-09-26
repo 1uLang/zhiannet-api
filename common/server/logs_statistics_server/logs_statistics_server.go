@@ -12,7 +12,7 @@ type (
 	}
 )
 
-//report 0日报  1周报
+//report 0日报  1周报 趋势图
 func GetWafStatistics(serverIds []int64, report, logsType int) (res []*Statistics, err error) {
 	res = make([]*Statistics, 0)
 	var sTime, eTime time.Time
@@ -76,5 +76,33 @@ func GetWafStatistics(serverIds []int64, report, logsType int) (res []*Statistic
 			sTime = sTime.Add(time.Hour * 24)
 		}
 	}
+	return
+}
+
+//report 0日报  1周报 分布图
+func GetWafStatisticsDist(serverIds []int64, report, logsType int) (res []*logs_statistics.LogEventResp, err error) {
+	res = make([]*logs_statistics.LogEventResp, 0)
+	var sTime, eTime time.Time
+	NowTime := time.Now()
+	if report == 0 {
+		toDay := NowTime.Add(-24 * time.Hour)
+		sTime = time.Date(toDay.Year(), toDay.Month(), toDay.Day(), 0, 0, 0, 0, time.Local)
+		eTime = sTime.Add(24 * time.Hour)
+	} else {
+		Day7 := NowTime.Add(-24 * 7 * time.Hour)
+		sTime = time.Date(Day7.Year(), Day7.Month(), Day7.Day(), 0, 0, 0, 0, time.Local)
+		eTime = sTime.Add(24 * 7 * time.Hour)
+	}
+	res, err = logs_statistics.GetStatisticsEvent(&logs_statistics.LogReq{
+		Type:   logsType,
+		NodeId: serverIds,
+		STime:  sTime.Format("2006-01-02 15:04:05"),
+		ETime:  eTime.Format("2006-01-02 15:04:05"),
+	})
+
+	if res == nil {
+		res = make([]*logs_statistics.LogEventResp, 0)
+	}
+
 	return
 }

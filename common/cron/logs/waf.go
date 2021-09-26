@@ -14,6 +14,7 @@ type StatisticsWAFLogs struct {
 type ServerCount struct {
 	ServerId int64  `json:"server_id"`
 	Total    uint64 `json:"total"`
+	Event    string `json:"event"`
 }
 
 func (s *StatisticsWAFLogs) Run() {
@@ -54,6 +55,7 @@ func (s *StatisticsWAFLogs) Save(req []ServerCount, t time.Time) {
 				Type:   3,
 				Time:   t.Format("2006-01-02 15:04:05"),
 				Total:  v.Total,
+				Event:  "sql注入",
 			})
 		}
 

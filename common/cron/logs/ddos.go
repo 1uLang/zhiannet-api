@@ -40,11 +40,13 @@ func (s *StatisticsDDOSLogs) Run() {
 		if err != nil || len(iplist) == 0 {
 			continue
 		}
-		total := uint64(0)
+		//total := uint64(0)
 		logReq, err := server.GetLoginInfo(server.NodeReq{NodeId: v.Id})
 		if err != nil {
 			continue
 		}
+
+		eventMap := map[string]int{}
 
 		for _, ipv := range iplist {
 			//查询每个IP的日志
@@ -57,13 +59,30 @@ func (s *StatisticsDDOSLogs) Run() {
 			if err != nil || (ls == nil) {
 				continue
 			}
-			total += uint64(len(ls.Report))
+			//total += uint64(len(ls.Report))
 
+			for _, v1 := range ls.Report {
+				if num, ok := eventMap[v1.Flags]; ok {
+					eventMap[v1.Flags] = num + 1
+				} else {
+					eventMap[v1.Flags] = 1
+				}
+			}
 		}
-		nodeTotal = append(nodeTotal, ServerCount{
-			Total:    total,
-			ServerId: int64(v.Id),
-		})
+
+		if len(eventMap) > 0 {
+			for k, v2 := range eventMap {
+				nodeTotal = append(nodeTotal, ServerCount{
+					Total:    uint64(v2),
+					ServerId: int64(v.Id),
+					Event:    k,
+				})
+			}
+		}
+		//nodeTotal = append(nodeTotal, ServerCount{
+		//	Total:    total,
+		//	ServerId: int64(v.Id),
+		//})
 
 	}
 	s.Save(nodeTotal, sTime)
@@ -78,6 +97,7 @@ func (s *StatisticsDDOSLogs) Save(req []ServerCount, t time.Time) {
 				Type:   1,
 				Time:   t.Format("2006-01-02 15:04:05"),
 				Total:  v.Total,
+				Event:  v.Event,
 			})
 		}
 

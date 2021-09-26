@@ -2,7 +2,6 @@ package logs
 
 //攻击日志
 import (
-	"fmt"
 	"github.com/1uLang/zhiannet-api/ddos/model/ddos_host_ip"
 	"github.com/1uLang/zhiannet-api/ddos/request"
 	"github.com/1uLang/zhiannet-api/ddos/request/logs"
@@ -32,7 +31,7 @@ func GetAttackLogList(req *AttackLogReq) (list *logs.LogsReportAttack, err error
 	//获取节点信息
 	var logReq *request.LoginReq
 	logReq, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
-	fmt.Println("logReq==", logReq)
+	//fmt.Println("logReq==", logReq)
 	if err != nil {
 		return
 	}
@@ -74,7 +73,6 @@ func GetAttackLogList(req *AttackLogReq) (list *logs.LogsReportAttack, err error
 		}
 		list.Report = append(list.Report, ls.Report...)
 	}
-
 	return
 
 }
