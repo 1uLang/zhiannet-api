@@ -135,8 +135,28 @@ func GetStatisticsEvent(req *LogReq) (list []*LogEventResp, err error) {
 		model = model.Where("node_id in (?)", 0)
 	}
 
-	model = model.Debug().Select("event,sum(total) total").Group("event")
+	model = model.Select("event,sum(total) total").Group("event")
 	err = model.Scan(&list).Error
+
+	return
+}
+
+//统计总数
+func GetStatisticsNum(req *LogReq) (num int64, err error) {
+	model := model.MysqlConn.Model(&LogsStatistics{}).Where("type=?", req.Type)
+	if req.STime != "" {
+		model = model.Where("time>=?", req.STime)
+	}
+	if req.ETime != "" {
+		model = model.Where("time<?", req.ETime)
+	}
+	if len(req.NodeId) > 0 {
+		model = model.Where("node_id in (?)", req.NodeId)
+	} else {
+		model = model.Where("node_id in (?)", 0)
+	}
+	model = model.Select("COALESCE(sum(total),0) total")
+	err = model.Scan(&num).Error
 
 	return
 }
