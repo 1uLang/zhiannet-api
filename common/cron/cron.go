@@ -67,10 +67,13 @@ func InitCron() {
 	c.AddJob("0 0 */1 * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&logs.StatisticsDDOSLogs{}))
 	//下一代防火墙 日志统计定时任务
 	c.AddJob("0 0 */1 * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&logs.StatisticsNFWLogs{}))
+	//hids 主机防护 定时统计数据
+	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&hids_request.StatisticsRequest{}))
 
 	//入侵事件检测
 	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&attack_check_server.AttackCheckRequest{}))
 	//hids 主机防护 漏洞风险 入侵威胁 告警
 	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&attack_message_server.AttackMessageRequest{}))
+
 	c.Start()
 }
