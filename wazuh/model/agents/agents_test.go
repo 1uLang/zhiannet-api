@@ -286,7 +286,7 @@ func TestATTCKESList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = request.InitToken("wazuh", "m8yfGB_ECbIMSHFFqsVtCm5sUQ8JZVSZ")
+	err = request.InitToken("wazuh", "k-4AqQJ7BiSC04wgPi76nQUSMtXqKfOR")
 	if err != nil {
 		t.Fatal(err)
 	}

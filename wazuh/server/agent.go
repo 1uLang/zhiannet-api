@@ -31,6 +31,15 @@ func AgentUpdate(args agents.UpdateReq) error {
 	return agents.Update(args)
 }
 
+//AgentCheck 资产重启
+func AgentCheck(agent string) error {
+	req, err := request.NewRequest()
+	if err != nil {
+		return err
+	}
+	return agents.Check(req, agent)
+}
+
 //SysCheckList 文件列表
 func SysCheckList(args agents.SysCheckListReq) (*agents.SysCheckListResp, error) {
 	req, err := request.NewRequest()

@@ -124,7 +124,7 @@ var paramString = `{
                         {
                             "match_phrase":{
                                 "manager.name":{
-                                    "query":"Server-faa29f71-0449-456b-80bf-35830b9c9989.novalocal"
+                                    "query":"wauzh.novalocal"
                                 }
                             }
                         },
@@ -376,6 +376,24 @@ func Scan(req *request.Request, agent []string) error {
 	return err
 }
 
+func Check(req *request.Request, agent string) error {
+
+	req.Method = "put"
+	req.Path = agent_api_url + "/" + agent + "/restart"
+	req.Params = nil
+	resp, err := req.DoAndParseResp()
+	if err != nil {
+		return err
+	}
+	list := &StatisticsResp{}
+	if resp.Error != 0 {
+		return fmt.Errorf("主机防护服务异常：%s", resp.Message)
+	}
+	bytes, _ := json.Marshal(resp.Data)
+	err = json.Unmarshal(bytes, &list)
+	return err
+
+}
 func Update(args UpdateReq) error {
 
 	return updateAgent(&HIDSAgent{AgentId: args.ID, Remake: args.Remake})
