@@ -38,9 +38,9 @@ func Add(req *Edgemessages) (insertId uint64, err error) {
 		err = fmt.Errorf("参数错误")
 		return
 	}
-	if check(req) {
-		return 0, nil
-	}
+	//if check(req) {
+	//	return 0, nil
+	//}
 	req.Hash = calHash(req.Role, req.Clusterid, req.Nodeid, req.Subject, req.Body, []byte(req.Params))
 	res := model.MysqlConn.Table("edgeMessages").Create(&req)
 	if res.Error != nil {
