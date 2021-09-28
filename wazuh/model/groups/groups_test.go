@@ -13,7 +13,7 @@ func TestCreate(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	err = request.InitServerUrl("https://156.240.95.168:55000")
+	err = request.InitServerUrl("https://156.240.95.168")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -25,11 +25,14 @@ func TestCreate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for i := 0; i < 100; i++ {
-		err = Create(req, fmt.Sprintf("user_%v", i))
-		if err != nil {
-			t.Fatal(err)
-		}
+	//for i := 0; i < 100; i++ {
+	err = Create(req, fmt.Sprintf("user_%v", 1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = Delete(req, []string{fmt.Sprintf("user_%v", 1)})
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
@@ -39,7 +42,7 @@ func TestList(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	err = request.InitServerUrl("https://156.240.95.168:55000")
+	err = request.InitServerUrl("https://156.240.95.168")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -55,13 +58,14 @@ func TestList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	fmt.Println(list.TotalAffectedItems)
 	for _, v := range list.AffectedItems {
-		if v.Count == 0 {
-			fmt.Println("delete : ", v.Name)
-			err = Delete(req, []string{v.Name})
-			if err != nil {
-				t.Fatal(err)
-			}
-		}
+		//if v.Count == 0 {
+		fmt.Println("GROUP : ", v.Name)
+		//err = Delete(req, []string{v.Name})
+		//if err != nil {
+		//	t.Fatal(err)
+		//}
+		//}
 	}
 }
