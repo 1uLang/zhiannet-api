@@ -514,7 +514,10 @@ func VulnerabilityESList(req *request.Request, args ESListReq) (*VulnerabilityHi
 	_ = json.Unmarshal([]byte(paramString), &paramStruct)
 
 	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
+
 	newFilter[2].MatchPhrase.RuleGroups.Query = "vulnerability-detector"
+
+	timeFilter := paramStruct.Params.Body.Query.Bool.Filter[5]
 	if args.Agent != "" { //指定agent
 		paramStruct.Params.Body.Query.Bool.Filter[3].MatchPhrase.AgentId.Query = &args.Agent
 		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[3])
@@ -524,13 +527,14 @@ func VulnerabilityESList(req *request.Request, args ESListReq) (*VulnerabilityHi
 		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[4])
 	}
 	if args.Start != 0 && args.End != 0 && args.Start < args.End {
-		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Gte = time.Unix(args.Start, 0)
-		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Lte = time.Unix(args.End, 0)
-		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[5])
+		timeFilter.Range.Timestamp.Gte = time.Unix(args.Start, 0)
+		timeFilter.Range.Timestamp.Lte = time.Unix(args.End, 0)
+		newFilter = append(newFilter, timeFilter)
 	}
 	if args.Limit == 0 {
 		args.Limit = 20
 	}
+
 	paramStruct.Params.Body.Size = args.Limit
 	paramStruct.Params.Body.From = args.Offset
 	paramStruct.Params.Body.Query.Bool.Filter = newFilter
@@ -540,6 +544,38 @@ func VulnerabilityESList(req *request.Request, args ESListReq) (*VulnerabilityHi
 		return nil, err
 	}
 	vuls := &vulnerabilityESList{}
+
+	err = json.Unmarshal(resp, &vuls)
+	if err != nil {
+		return nil, err
+	}
+
+	if vuls.StatusCode == 401 {
+		return nil, fmt.Errorf(vuls.Message)
+	}
+
+	if vuls.RawResponse.Hits.Total > 0 {
+
+		timestamp := vuls.RawResponse.Hits.Hits[0].Source.Timestamp
+		timestamp = timestamp[:13]
+		start, _ := time.Parse("2006-01-02T15", timestamp)
+
+		//设置时区 6小时
+		timeFilter.Range.Timestamp.Gte = start.Add(-8 * time.Hour)
+		timeFilter.Range.Timestamp.Lte = start.Add(-7 * time.Hour)
+		paramStruct.Params.Body.Query.Bool.Filter = append(paramStruct.Params.Body.Query.Bool.Filter, timeFilter)
+	} else {
+
+		return &vuls.RawResponse.Hits, nil
+	}
+
+	paramStruct.Params.Body.Size = args.Limit
+	paramStruct.Params.Body.From = args.Offset
+	resp, err = req.Do2(paramStruct)
+	if err != nil {
+		return nil, err
+	}
+	vuls = &vulnerabilityESList{}
 	err = json.Unmarshal(resp, &vuls)
 	if err != nil {
 		return nil, err
@@ -559,6 +595,7 @@ func VirusESList(req *request.Request, args ESListReq) (*VirusESHitsListResp, er
 
 	var paramStruct esParams
 	_ = json.Unmarshal([]byte(paramString), &paramStruct)
+
 	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
 	newFilter[2].MatchPhrase.RuleGroups.Query = "virustotal"
 
