@@ -227,22 +227,22 @@ func (this *Request) Do() (respBody []byte, err error) {
 	}
 
 	//非get 参数设置在body中 以json形式传输
-	//if this.Method != "GET" && len(this.Params) > 0 {
-	//	buf, _ := json.Marshal(this.Params)
-	//	body = bytes.NewReader(buf)
-	//}
+	if this.Method == "POST" && len(this.Params) > 0 {
+		buf, _ := json.Marshal(this.Params)
+		body = bytes.NewReader(buf)
+	}
 	req, err := http.NewRequest(this.Method, this.url+server_api_port+this.Path, body)
 
 	if err != nil {
 		return nil, err
 	}
-	//if this.Method == "GET" {
-	q := req.URL.Query()
-	for k, v := range this.Params {
-		q.Add(k, fmt.Sprintf("%v", v))
+	if this.Method != "POST" {
+		q := req.URL.Query()
+		for k, v := range this.Params {
+			q.Add(k, fmt.Sprintf("%v", v))
+		}
+		req.URL.RawQuery = q.Encode()
 	}
-	req.URL.RawQuery = q.Encode()
-	//}
 	//todo:获取token
 	token, err := this.token()
 	if err != nil {
@@ -252,7 +252,7 @@ func (this *Request) Do() (respBody []byte, err error) {
 	for k, v := range this.Headers {
 		req.Header.Add(k, v)
 	}
-
+	//fmt.Println(q.Encode())
 doRequest:
 	req.Header.Set("Authorization", authorization_template+token)
 	//请求

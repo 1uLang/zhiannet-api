@@ -514,7 +514,10 @@ func VulnerabilityESList(req *request.Request, args ESListReq) (*VulnerabilityHi
 	_ = json.Unmarshal([]byte(paramString), &paramStruct)
 
 	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
+
 	newFilter[2].MatchPhrase.RuleGroups.Query = "vulnerability-detector"
+
+	timeFilter := paramStruct.Params.Body.Query.Bool.Filter[5]
 	if args.Agent != "" { //指定agent
 		paramStruct.Params.Body.Query.Bool.Filter[3].MatchPhrase.AgentId.Query = &args.Agent
 		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[3])
@@ -524,15 +527,16 @@ func VulnerabilityESList(req *request.Request, args ESListReq) (*VulnerabilityHi
 		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[4])
 	}
 	if args.Start != 0 && args.End != 0 && args.Start < args.End {
-		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Gte = time.Unix(args.Start, 0)
-		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Lte = time.Unix(args.End, 0)
-		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[5])
+		timeFilter.Range.Timestamp.Gte = time.Unix(args.Start, 0)
+		timeFilter.Range.Timestamp.Lte = time.Unix(args.End, 0)
+		newFilter = append(newFilter, timeFilter)
 	}
 	if args.Limit == 0 {
 		args.Limit = 20
 	}
-	paramStruct.Params.Body.Size = args.Limit
-	paramStruct.Params.Body.From = args.Offset
+
+	paramStruct.Params.Body.Size = 1
+	paramStruct.Params.Body.From = 0
 	paramStruct.Params.Body.Query.Bool.Filter = newFilter
 
 	resp, err := req.Do2(paramStruct)
@@ -540,6 +544,38 @@ func VulnerabilityESList(req *request.Request, args ESListReq) (*VulnerabilityHi
 		return nil, err
 	}
 	vuls := &vulnerabilityESList{}
+
+	err = json.Unmarshal(resp, &vuls)
+	if err != nil {
+		return nil, err
+	}
+
+	if vuls.StatusCode == 401 {
+		return nil, fmt.Errorf(vuls.Message)
+	}
+
+	if vuls.RawResponse.Hits.Total > 0 {
+
+		timestamp := vuls.RawResponse.Hits.Hits[0].Source.Timestamp
+		timestamp = timestamp[:13]
+		start, _ := time.Parse("2006-01-02T15", timestamp)
+
+		//设置时区 6小时
+		timeFilter.Range.Timestamp.Gte = start.Add(-8 * time.Hour)
+		timeFilter.Range.Timestamp.Lte = start.Add(-7 * time.Hour)
+		paramStruct.Params.Body.Query.Bool.Filter = append(paramStruct.Params.Body.Query.Bool.Filter, timeFilter)
+	} else {
+
+		return &vuls.RawResponse.Hits, nil
+	}
+
+	paramStruct.Params.Body.Size = args.Limit
+	paramStruct.Params.Body.From = args.Offset
+	resp, err = req.Do2(paramStruct)
+	if err != nil {
+		return nil, err
+	}
+	vuls = &vulnerabilityESList{}
 	err = json.Unmarshal(resp, &vuls)
 	if err != nil {
 		return nil, err
@@ -559,9 +595,11 @@ func VirusESList(req *request.Request, args ESListReq) (*VirusESHitsListResp, er
 
 	var paramStruct esParams
 	_ = json.Unmarshal([]byte(paramString), &paramStruct)
+
 	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
 	newFilter[2].MatchPhrase.RuleGroups.Query = "virustotal"
 
+	timeFilter := paramStruct.Params.Body.Query.Bool.Filter[5]
 	if args.Agent != "" { //指定agent
 		paramStruct.Params.Body.Query.Bool.Filter[3].MatchPhrase.AgentId.Query = &args.Agent
 		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[3])
@@ -574,24 +612,56 @@ func VirusESList(req *request.Request, args ESListReq) (*VirusESHitsListResp, er
 	if args.Limit == 0 {
 		args.Limit = 20
 	}
-	paramStruct.Params.Body.Size = args.Limit
-	paramStruct.Params.Body.From = args.Offset
+	paramStruct.Params.Body.Size = 1
+	paramStruct.Params.Body.From = 0
 	paramStruct.Params.Body.Query.Bool.Filter = newFilter
 
 	resp, err := req.Do2(paramStruct)
 	if err != nil {
 		return nil, err
 	}
-	vuls := &virusESList{}
-	err = json.Unmarshal(resp, &vuls)
+	virus := &virusESList{}
+
+	err = json.Unmarshal(resp, &virus)
 	if err != nil {
 		return nil, err
 	}
 
-	if vuls.StatusCode == 401 {
-		return nil, fmt.Errorf(vuls.Message)
+	if virus.StatusCode == 401 {
+		return nil, fmt.Errorf(virus.Message)
 	}
-	return &vuls.RawResponse.Hits, nil
+
+	if virus.RawResponse.Hits.Total > 0 {
+
+		timestamp := virus.RawResponse.Hits.Hits[0].Source.Timestamp
+		timestamp = timestamp[:13]
+		start, _ := time.Parse("2006-01-02T15", timestamp)
+
+		//设置时区 6小时
+		timeFilter.Range.Timestamp.Gte = start.Add(-8 * time.Hour)
+		timeFilter.Range.Timestamp.Lte = start.Add(-7 * time.Hour)
+		paramStruct.Params.Body.Query.Bool.Filter = append(paramStruct.Params.Body.Query.Bool.Filter, timeFilter)
+	} else {
+
+		return &virus.RawResponse.Hits, nil
+	}
+
+	paramStruct.Params.Body.Size = args.Limit
+	paramStruct.Params.Body.From = args.Offset
+	resp, err = req.Do2(paramStruct)
+	if err != nil {
+		return nil, err
+	}
+	virus = &virusESList{}
+	err = json.Unmarshal(resp, &virus)
+	if err != nil {
+		return nil, err
+	}
+
+	if virus.StatusCode == 401 {
+		return nil, fmt.Errorf(virus.Message)
+	}
+	return &virus.RawResponse.Hits, nil
 }
 
 //SysCheckESList 文件监控列表
@@ -605,6 +675,7 @@ func SysCheckESList(req *request.Request, args ESListReq) (*SysCheckESHitsListRe
 
 	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
 	newFilter[2].MatchPhrase.RuleGroups.Query = "syscheck"
+	timeFilter := paramStruct.Params.Body.Query.Bool.Filter[5]
 	if args.Agent != "" { //指定agent
 		paramStruct.Params.Body.Query.Bool.Filter[3].MatchPhrase.AgentId.Query = &args.Agent
 		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[3])
@@ -620,24 +691,56 @@ func SysCheckESList(req *request.Request, args ESListReq) (*SysCheckESHitsListRe
 	if args.Limit == 0 {
 		args.Limit = 20
 	}
-	paramStruct.Params.Body.Size = args.Limit
-	paramStruct.Params.Body.From = args.Offset
+	paramStruct.Params.Body.Size = 1
+	paramStruct.Params.Body.From = 0
 	paramStruct.Params.Body.Query.Bool.Filter = newFilter
 
 	resp, err := req.Do2(paramStruct)
 	if err != nil {
 		return nil, err
 	}
-	sysChecks := &sysCheckESList{}
-	err = json.Unmarshal(resp, &sysChecks)
+	syscheck := &sysCheckESList{}
+
+	err = json.Unmarshal(resp, &syscheck)
 	if err != nil {
 		return nil, err
 	}
 
-	if sysChecks.StatusCode == 401 {
-		return nil, fmt.Errorf(sysChecks.Message)
+	if syscheck.StatusCode == 401 {
+		return nil, fmt.Errorf(syscheck.Message)
 	}
-	return &sysChecks.RawResponse.Hits, nil
+
+	if syscheck.RawResponse.Hits.Total > 0 {
+
+		timestamp := syscheck.RawResponse.Hits.Hits[0].Source.Timestamp
+		timestamp = timestamp[:13]
+		start, _ := time.Parse("2006-01-02T15", timestamp)
+
+		//设置时区 6小时
+		timeFilter.Range.Timestamp.Gte = start.Add(-8 * time.Hour)
+		timeFilter.Range.Timestamp.Lte = start.Add(-7 * time.Hour)
+		paramStruct.Params.Body.Query.Bool.Filter = append(paramStruct.Params.Body.Query.Bool.Filter, timeFilter)
+	} else {
+
+		return &syscheck.RawResponse.Hits, nil
+	}
+
+	paramStruct.Params.Body.Size = args.Limit
+	paramStruct.Params.Body.From = args.Offset
+	resp, err = req.Do2(paramStruct)
+	if err != nil {
+		return nil, err
+	}
+	syscheck = &sysCheckESList{}
+	err = json.Unmarshal(resp, &syscheck)
+	if err != nil {
+		return nil, err
+	}
+
+	if syscheck.StatusCode == 401 {
+		return nil, fmt.Errorf(syscheck.Message)
+	}
+	return &syscheck.RawResponse.Hits, nil
 }
 
 //ATTCKESList 安全事件监控列表
@@ -650,6 +753,7 @@ func ATTCKESList(req *request.Request, args ESListReq) (*ATTCKESHitsListResp, er
 	_ = json.Unmarshal([]byte(paramString), &paramStruct)
 
 	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
+	timeFilter := paramStruct.Params.Body.Query.Bool.Filter[5]
 	newFilter[2].MatchPhrase = nil
 	newFilter[2].Exists = &struct {
 		Field string `json:"field,omitempty"`
@@ -667,8 +771,8 @@ func ATTCKESList(req *request.Request, args ESListReq) (*ATTCKESHitsListResp, er
 	if args.Limit == 0 {
 		args.Limit = 20
 	}
-	paramStruct.Params.Body.Size = args.Limit
-	paramStruct.Params.Body.From = args.Offset
+	paramStruct.Params.Body.Size = 1
+	paramStruct.Params.Body.From = 0
 	paramStruct.Params.Body.Query.Bool.Filter = newFilter
 
 	resp, err := req.Do2(paramStruct)
@@ -676,6 +780,38 @@ func ATTCKESList(req *request.Request, args ESListReq) (*ATTCKESHitsListResp, er
 		return nil, err
 	}
 	attck := &aTTCKESList{}
+
+	err = json.Unmarshal(resp, &attck)
+	if err != nil {
+		return nil, err
+	}
+
+	if attck.StatusCode == 401 {
+		return nil, fmt.Errorf(attck.Message)
+	}
+
+	if attck.RawResponse.Hits.Total > 0 {
+
+		timestamp := attck.RawResponse.Hits.Hits[0].Source.Timestamp
+		timestamp = timestamp[:13]
+		start, _ := time.Parse("2006-01-02T15", timestamp)
+
+		//设置时区 6小时
+		timeFilter.Range.Timestamp.Gte = start.Add(-8 * time.Hour)
+		timeFilter.Range.Timestamp.Lte = start.Add(-7 * time.Hour)
+		paramStruct.Params.Body.Query.Bool.Filter = append(paramStruct.Params.Body.Query.Bool.Filter, timeFilter)
+	} else {
+
+		return &attck.RawResponse.Hits, nil
+	}
+
+	paramStruct.Params.Body.Size = args.Limit
+	paramStruct.Params.Body.From = args.Offset
+	resp, err = req.Do2(paramStruct)
+	if err != nil {
+		return nil, err
+	}
+	attck = &aTTCKESList{}
 	err = json.Unmarshal(resp, &attck)
 	if err != nil {
 		return nil, err
@@ -698,6 +834,7 @@ func InvadeThreatESList(req *request.Request, args ESListReq) (*InvadeThreatESHi
 
 	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:2]
 	newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[6])
+	timeFilter := paramStruct.Params.Body.Query.Bool.Filter[5]
 	if args.Agent != "" { //指定agent
 		paramStruct.Params.Body.Query.Bool.Filter[3].MatchPhrase.AgentId.Query = &args.Agent
 		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[3])
@@ -710,8 +847,8 @@ func InvadeThreatESList(req *request.Request, args ESListReq) (*InvadeThreatESHi
 	if args.Limit == 0 {
 		args.Limit = 20
 	}
-	paramStruct.Params.Body.Size = args.Limit
-	paramStruct.Params.Body.From = args.Offset
+	paramStruct.Params.Body.Size = 1
+	paramStruct.Params.Body.From = 0
 	paramStruct.Params.Body.Query.Bool.Filter = newFilter
 
 	resp, err := req.Do2(paramStruct)
@@ -719,6 +856,38 @@ func InvadeThreatESList(req *request.Request, args ESListReq) (*InvadeThreatESHi
 		return nil, err
 	}
 	invade := &invadeThreatESList{}
+
+	err = json.Unmarshal(resp, &invade)
+	if err != nil {
+		return nil, err
+	}
+
+	if invade.StatusCode == 401 {
+		return nil, fmt.Errorf(invade.Message)
+	}
+
+	if invade.RawResponse.Hits.Total > 0 {
+
+		timestamp := invade.RawResponse.Hits.Hits[0].Source.Timestamp
+		timestamp = timestamp[:13]
+		start, _ := time.Parse("2006-01-02T15", timestamp)
+
+		//设置时区 6小时
+		timeFilter.Range.Timestamp.Gte = start.Add(-8 * time.Hour)
+		timeFilter.Range.Timestamp.Lte = start.Add(-7 * time.Hour)
+		paramStruct.Params.Body.Query.Bool.Filter = append(paramStruct.Params.Body.Query.Bool.Filter, timeFilter)
+	} else {
+
+		return &invade.RawResponse.Hits, nil
+	}
+
+	paramStruct.Params.Body.Size = args.Limit
+	paramStruct.Params.Body.From = args.Offset
+	resp, err = req.Do2(paramStruct)
+	if err != nil {
+		return nil, err
+	}
+	invade = &invadeThreatESList{}
 	err = json.Unmarshal(resp, &invade)
 	if err != nil {
 		return nil, err

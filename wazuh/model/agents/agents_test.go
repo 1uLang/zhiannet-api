@@ -195,11 +195,11 @@ func TestVulnerabilityList(t *testing.T) {
 	}
 }
 func TestVulnerabilityESList(t *testing.T) {
-	err := request.InitServerUrl("https://156.240.95.168")
+	err := request.InitServerUrl("https://156.240.95.34")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = request.InitToken("wazuh", "AgI_kwQ2GQ8v354EQtd6pSpT7bDjdaNJ")
+	err = request.InitToken("wazuh", "k-4AqQJ7BiSC04wgPi76nQUSMtXqKfOR")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -210,10 +210,10 @@ func TestVulnerabilityESList(t *testing.T) {
 	breakF := true
 	for breakF {
 		list, err := VulnerabilityESList(req, ESListReq{
-			//Agent: "001", Severity: "Critical",
-			Start: 1630982235, End: 1631068635,
+			Agent: "004", Severity: "Critical",
+			//Start: 1630982235, End: 1631068635,
 			//Limit: 5,
-			Offset: 20,
+			//Offset: 20,
 		})
 		if err != nil {
 			t.Fatal(err)
