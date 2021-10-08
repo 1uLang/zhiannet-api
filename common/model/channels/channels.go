@@ -28,8 +28,18 @@ type (
 	}
 )
 
+//初始化建表
+func InitTable() {
+	err := model.MysqlConn.AutoMigrate(&Channels{})
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
+}
+
 //获取列表
 func GetList(req *ChannelReq) (list []*Channels, total int64, err error) {
+	InitTable()
 	//从数据库获取
 	model := model.MysqlConn.Model(&Channels{}).Order("status DESC,id ASC")
 	if req != nil {
