@@ -101,9 +101,9 @@ func Edit(req *Channels, id uint64) (rows uint64, err error) {
 	entity.Status = req.Status
 	entity.Domain = req.Domain
 	entity.Remake = req.Remake
-	if req.Logo != "" {
-		entity.Logo = req.Logo
-	}
+	//if req.Logo != "" {
+	entity.Logo = req.Logo
+	//}
 	res := model.MysqlConn.Model(&Channels{}).Where("id=?", id).Save(&entity)
 	if res.Error != nil {
 		err = res.Error
@@ -129,4 +129,18 @@ func GetChannelById(id uint64) (info *Channels, err error) {
 func UpdateState(id uint64, status int) (row int64, err error) {
 	tx := model.MysqlConn.Model(&Channels{}).Where("id=?", id).Update("status", status)
 	return tx.RowsAffected, tx.Error
+}
+
+//检测是否已存在
+func CheckName(name string, id uint64) (ext bool, err error) {
+	model := model.MysqlConn.Model(&Channels{}).Where("name=?", name)
+	if id > 0 {
+		model = model.Where("id!=?", id)
+	}
+	var num int64
+	err = model.Count(&num).Error
+	if num > 0 {
+		ext = true
+	}
+	return ext, err
 }

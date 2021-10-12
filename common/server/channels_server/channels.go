@@ -1,6 +1,7 @@
 package channels_server
 
 import (
+	"fmt"
 	"github.com/1uLang/zhiannet-api/common/model/channels"
 	"github.com/1uLang/zhiannet-api/common/model/edge_users"
 )
@@ -13,6 +14,14 @@ func GetList(req *channels.ChannelReq) (list []*channels.Channels, total int64, 
 
 //添加
 func Add(req *channels.Channels) (id uint64, err error) {
+	ext, err := channels.CheckName(req.Name, req.Id)
+	if err != nil {
+		return
+	}
+	if ext {
+		err = fmt.Errorf("渠道名称[%v]，已存在", req.Name)
+		return
+	}
 	if req.Id == 0 {
 		return channels.Add(req)
 	}
