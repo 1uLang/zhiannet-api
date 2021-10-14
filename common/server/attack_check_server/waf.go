@@ -22,6 +22,7 @@ type httpLog struct {
 	Status           int    `gorm:"column:status" json:"status" form:"status"`
 	FirewallPolicyId uint64 `gorm:"column:firewallPolicyId" json:"firewallPolicyId" form:"firewallPolicyId"`
 	RemoteAddr       string `gorm:"column:remoteAddr" json:"remoteAddr" form:"remoteAddr"`
+	Content          string `gorm:"column:content" json:"content" form:"content"`
 }
 
 type version struct {
@@ -104,6 +105,15 @@ func checkAndUpdateHttpsConfig(config []byte) {
 		}
 	}
 }
+func getHost(content string) string {
+	cont := struct {
+		Host string `json:"host"`
+	}{}
+
+	_ = json.Unmarshal([]byte(content), &cont)
+
+	return cont.Host
+}
 
 //waf 入侵检测
 func (waf) WAFAttackCheck() error {
@@ -135,6 +145,18 @@ func (waf) WAFAttackCheck() error {
 		//入侵拦截
 		//找到 所属waf策略[firewallPolicyId] -> 策略自动添加该ip黑名单
 		if ok {
+
+			edge_messages.Add(&edge_messages.Edgemessages{
+				Level:     "warning",
+				Subject:   "waf拦截功能",
+				Body:      fmt.Sprintf("您的服务[%s]产生新的攻击拦截，请前往WAF服务下相应服务查阅拦截日志记录。", getHost(v.Content)),
+				Type:      "WAFRisk",
+				Params:    "{}",
+				Createdat: uint64(time.Now().Unix()),
+				Day:       time.Now().Format("20060102"),
+				Hash:      "",
+				Role:      "warning",
+			})
 			err = addBlackIP(listId, v.RemoteAddr)
 			if err != nil {
 				return err
