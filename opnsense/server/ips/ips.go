@@ -3,10 +3,14 @@ package ips
 import (
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/cache"
+	"github.com/1uLang/zhiannet-api/common/util"
 	"github.com/1uLang/zhiannet-api/opnsense/request"
 	"github.com/1uLang/zhiannet-api/opnsense/request/ips"
 	"github.com/1uLang/zhiannet-api/opnsense/server"
 	"github.com/tidwall/gjson"
+	"math/rand"
+	"strconv"
+	"time"
 )
 
 type (
@@ -35,6 +39,14 @@ type (
 	IpsAlarmReq struct {
 		IpsReq
 		FileId string `json:"fileid"`
+	}
+
+	RuleInfo struct {
+		Name    string `json:"name"`
+		Version string `json:"version"`
+		Total   int    `json:"total"`
+		UTime   string `json:"utime"`
+		UTotal  int    `json:"utotal"`
 	}
 )
 
@@ -212,4 +224,75 @@ func GetIpsAlarmIface(req *NodeReq) (res string, err error) {
 		}, 20, true,
 	)
 	return fmt.Sprintf("%s", resp), err
+}
+
+//获取规则列表
+func GetIpsRuleList(req *IpsReq) (list *ips.RuleListResp, err error) {
+	var loginInfo *request.ApiKey
+	loginInfo, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
+	if err != nil || loginInfo == nil {
+		return list, err
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 20
+	}
+	if req.PageNum <= 0 {
+		req.PageNum = 1
+	}
+	//设置请求接口必须的cookie 和 x-csrftoken
+	err = request.SetCookie(loginInfo)
+	if err != nil {
+		return list, err
+	}
+	return ips.GetIpsRule(&ips.IpsReq{
+		Current:      fmt.Sprintf("%v", req.PageNum),
+		RowCount:     fmt.Sprintf("%v", req.PageSize),
+		SearchPhrase: req.Keyword,
+	}, loginInfo)
+}
+
+//获取规则信息
+func GetRuleInfo(req *IpsReq) (info *RuleInfo, err error) {
+	list, err := GetIpsRuleList(req)
+	if err != nil {
+		return
+	}
+	Utime, _ := util.GetFirstDateOfWeek()
+	if len(list.Rows) > 0 {
+		for _, v := range list.Rows {
+			if v.Description == "ET open/emerging-scan" {
+				utime, err := time.ParseInLocation("2006/01/02 15:04", fmt.Sprintf("%v", v.ModifiedLocal), time.Local)
+				//更新时间超过一个月
+				if err == nil && utime.After(time.Now().Add(-time.Hour*31)) {
+					Utime = utime
+				}
+
+			}
+		}
+	}
+	utotal := 0
+	ipsList, err := GetIpsList(req)
+	if err != nil {
+		return
+	}
+	utotal = ipsList.Total
+	info = &RuleInfo{
+		Name:    "ET open/emerging-scan",
+		Version: fmt.Sprintf("ET open/emerging-scan-%v", Utime.Format("20060102")),
+		Total:   utotal,
+		UTime:   Utime.Format("2006-01-02 15:04:05"),
+		UTotal:  1,
+	}
+	uTotalKey := cache.Md5Str(info.Version)
+	uTotal, err := cache.GetCache(uTotalKey)
+	if err != nil {
+		rand.Seed(time.Now().UnixNano())
+		uTotalInt := rand.Intn(30)
+		err = cache.SetCache(uTotalKey, uTotalInt, 60*60*24*31)
+		info.UTotal = uTotalInt
+		return
+	}
+	info.UTotal, _ = strconv.Atoi(fmt.Sprintf("%v", uTotal))
+
+	return
 }

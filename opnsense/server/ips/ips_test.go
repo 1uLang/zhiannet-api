@@ -19,7 +19,7 @@ func Test_InitDB(t *testing.T) {
 
 //获取ips列表
 func Test_ips_list(t *testing.T) {
-	list, err := GetIpsList(&IpsReq{NodeId: 12})
+	list, err := GetIpsList(&IpsReq{NodeId: 2})
 	fmt.Println(list)
 	fmt.Println(err)
 }
@@ -47,7 +47,7 @@ func Test_apply(t *testing.T) {
 
 //修改action
 func Test_action(t *testing.T) {
-	res, err := EditAction(&EditActionReq{NodeId: 12, Sid: 2000005, Action: "alert"})
+	res, err := EditAction(&EditActionReq{NodeId: 2, Sid: 2000005, Action: "drop"})
 	fmt.Println(res)
 	fmt.Println(err)
 	time.Sleep(time.Minute)
@@ -81,5 +81,24 @@ func Test_ips_alarm_Iface(t *testing.T) {
 		NodeId: 2,
 	})
 	fmt.Println(list)
+	fmt.Println(err)
+}
+
+//
+func Test_GetIpsRuleList(t *testing.T) {
+	list, err := GetIpsRuleList(&IpsReq{
+		NodeId: 2,
+	})
+	fmt.Println(list)
+	fmt.Println(err)
+}
+
+func Test_gettotal(t *testing.T) {
+	//uTotalKey := "fdsfsdfsdf"
+	//res,err := cache.GetCache(uTotalKey)
+	res, err := GetRuleInfo(&IpsReq{
+		NodeId: 2,
+	})
+	fmt.Println(res)
 	fmt.Println(err)
 }

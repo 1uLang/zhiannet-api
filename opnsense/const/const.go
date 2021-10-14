@@ -14,6 +14,7 @@ const (
 	OPNSENSE_IPS_ALARM_TIME_URL   = "/api/ids/service/getAlertLogs"                //ips-下拉时间
 	OPNSENSE_IPS_ALARM_IFACE_URL  = "/api/diagnostics/interface/getInterfaceNames" //ips-接口名称
 	OPNSENSE_DIAGNOSTICS_LIST_URL = "/api/diagnostics/firewall/query_pf_top"       //会话列表
+	OPNSENSE_IPS_RULE             = "/api/ids/settings/listRulesets"               //规则列表
 
 	OPNSENSE_FILTER_SEARCH_URL = "/api/firewall/filter/searchRule" //过滤规则 搜索
 	OPNSENSE_FILTER_ENABLE_URL = "/api/firewall/filter/toggleRule" //过滤规则 启用停用

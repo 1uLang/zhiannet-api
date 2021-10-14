@@ -100,6 +100,20 @@ type (
 		Filename string      `json:"filename"`
 		Sequence interface{} `json:"sequence"`
 	}
+
+	RuleListResp struct {
+		Rows []struct {
+			Description      string      `json:"description"`
+			Filename         string      `json:"filename"`
+			DocumentationURL string      `json:"documentation_url"`
+			Documentation    string      `json:"documentation"`
+			ModifiedLocal    interface{} `json:"modified_local"`
+			Enabled          string      `json:"enabled"`
+		} `json:"rows"`
+		RowCount int `json:"rowCount"`
+		Total    int `json:"total"`
+		Current  int `json:"current"`
+	}
 )
 
 //var client = resty.New() //.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).SetTimeout(time.Second * 2)
@@ -281,5 +295,30 @@ func GetIpsAlarmIface(apiKey *request.ApiKey) (list string, err error) {
 	//fmt.Println(string(resp.Body()), err)
 	//json 的key不固定，所以返回json字符串，用时按需取
 	list = string(resp.Body())
+	return list, err
+}
+
+//获取规则列表
+func GetIpsRule(req *IpsReq, apiKey *request.ApiKey) (list *RuleListResp, err error) {
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_IPS_RULE)
+	client := request.GetHttpClient(apiKey)
+	resp, err := client.R().
+		//SetBasicAuth(apiKey.Username, apiKey.Password).
+		SetHeader("x-csrftoken", apiKey.XCsrfToken).
+		SetCookie(&http.Cookie{
+			Name:  "PHPSESSID",
+			Value: apiKey.Cookie,
+		}).
+		//SetFormData(map[string]string{
+		//	"current":      req.Current, //
+		//	"rowCount":     req.RowCount,
+		//	"searchPhrase": req.SearchPhrase,
+		//}).
+		Get(url)
+	fmt.Println(string(resp.Body()))
+	err = json.Unmarshal(resp.Body(), &list)
+	if err != nil {
+		return list, err
+	}
 	return list, err
 }
