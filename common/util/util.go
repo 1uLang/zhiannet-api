@@ -8,6 +8,7 @@ import (
 	"github.com/1uLang/zhiannet-api/common/encrypt"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const DBNodePasswordEncodedPrefix = "EDGE_ENCODED:"
@@ -60,4 +61,17 @@ func GetSHA256HashCode(message []byte) string {
 	//bytes2:=sha256.Sum256(message)//计算哈希值，返回一个长度为32的数组
 	//hashcode2:=hex.EncodeToString(bytes2[:])//将数组转换成切片，转换成16进制，返回字符串
 	//return hashcode2
+}
+
+func GetFirstDateOfWeek() (weekMonday time.Time, err error) {
+	now := time.Now()
+
+	offset := int(time.Monday - now.Weekday())
+	if offset > 0 {
+		offset = -6
+	}
+
+	weekStartDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, offset)
+	weekMonday = weekStartDate
+	return
 }
