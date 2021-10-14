@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	redis_cache "github.com/1uLang/zhiannet-api/common/cache"
+	"github.com/1uLang/zhiannet-api/common/util"
 	"github.com/1uLang/zhiannet-api/wazuh/request"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -14,7 +16,7 @@ const rules_api_url = "/rules"
 type InfoResp struct {
 	Version    string `json:"version"`
 	Num        int64  `json:"num"`
-	UpdateTime int64  `json:"update_time"`
+	UpdateTime string `json:"update_time"`
 	UpdateNum  int64  `json:"update_num"`
 }
 
@@ -32,7 +34,7 @@ type rulesResp struct {
 
 func Info(req *request.Request) (*InfoResp, error) {
 
-	req.Method = "post"
+	req.Method = "get"
 	req.Path = rules_api_url
 	req.Params = map[string]interface{}{
 		"offset": 0,
@@ -57,28 +59,17 @@ func Info(req *request.Request) (*InfoResp, error) {
 	}, nil
 }
 
-func getUpdateInfo(num int64) (int64, int64) {
+func getUpdateInfo(num int64) (string, int64) {
 
-	key := "virusLibrary"
-
-	//当周一 0点
-	tm := time.Now()
-	week := tm.Weekday()
-	if week != time.Monday {
-		if week == time.Sunday {
-			tm.AddDate(0, 0, -6)
-		} else {
-			tm.AddDate(0, 0, 1-int(week))
-		}
-	}
-	t, _ := time.Parse(tm.Format("20060102"), "20060102")
-
-	value, _ := redis_cache.GetInt(key)
+	t, _ := util.GetFirstDateOfWeek()
+	key := fmt.Sprintf("virusLibrary-%v", t.Format("2006-01-02"))
+	values, _ := redis_cache.GetCache(key)
+	value, _ := strconv.Atoi(fmt.Sprintf("%v", values))
 	if value <= 0 {
 		p := rand.Intn(10) + 1
 		value = int(num) * p / 100
-		_ = redis_cache.SetCache(key, value, 0)
+		_ = redis_cache.SetCache(key, value, 24*60*60*7)
 	}
 
-	return t.Unix(), int64(value)
+	return t.Format("2006-01-02 15:04"), int64(value)
 }
