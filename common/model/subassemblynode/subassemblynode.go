@@ -28,16 +28,23 @@ type (
 	}
 )
 
+func InitTable() {
+	err := model.MysqlConn.AutoMigrate(&Subassemblynode{})
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
+}
 func updateIdc() {
 	//修改字段类型
-	{
-
-		err := model.MysqlConn.Exec("alter table subassemblynode modify column idc varchar(50);").Error
-		if err != nil {
-			fmt.Println("update table subassemblynode column error : ", err)
-			return
-		}
-	}
+	//{
+	//
+	//	err := model.MysqlConn.Exec("alter table subassemblynode modify column idc varchar(50);").Error
+	//	if err != nil {
+	//		fmt.Println("update table subassemblynode column error : ", err)
+	//		return
+	//	}
+	//}
 	list := []Subassemblynode{}
 	err := model.MysqlConn.Model(&Subassemblynode{}).Find(&list).Error
 	if err != nil {
