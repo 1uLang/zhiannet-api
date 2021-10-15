@@ -5,10 +5,10 @@ import (
 	"fmt"
 	redis_cache "github.com/1uLang/zhiannet-api/common/cache"
 	"github.com/1uLang/zhiannet-api/common/util"
+	"github.com/1uLang/zhiannet-api/wazuh/model/server"
 	"github.com/1uLang/zhiannet-api/wazuh/request"
 	"math/rand"
 	"strconv"
-	"time"
 )
 
 const rules_api_url = "/rules"
@@ -51,8 +51,9 @@ func Info(req *request.Request) (*InfoResp, error) {
 	bytes, _ := json.Marshal(resp.Data)
 	_ = json.Unmarshal(bytes, &rules)
 	t, n := getUpdateInfo(rules.TotalAffectedItems)
+	svr, _ := server.Info(req)
 	return &InfoResp{
-		Version:    "virusLibrary_" + time.Now().Format("20060102"),
+		Version:    svr.ApiVersion,
 		Num:        rules.TotalAffectedItems,
 		UpdateTime: t,
 		UpdateNum:  n,
