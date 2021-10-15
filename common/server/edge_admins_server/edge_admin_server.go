@@ -40,7 +40,6 @@ func UpdatePwd(id uint64, newPwd string) (res int64, err error) {
 //更新密码时间
 func UpdatePwdAt(id uint64) (res int64, err error) {
 	return edge_admins.UpdatePwdAt(id)
-
 }
 
 //登录限制检查
@@ -84,4 +83,8 @@ func GetUserInfoByName(name string) (info *edge_admins.EdgeAdmins, err error) {
 		err = nil
 	}
 	return
+}
+
+func InitField() {
+	edge_admins.InitFiled()
 }

@@ -276,18 +276,25 @@ func GetRuleInfo(req *IpsReq) (info *RuleInfo, err error) {
 		return
 	}
 	utotal = ipsList.Total
+	version, err := GetSuricataVersion(&NodeReq{
+		NodeId: req.NodeId,
+	})
+	if err != nil {
+		return
+	}
 	info = &RuleInfo{
-		Name:    "ET open/emerging-scan",
-		Version: fmt.Sprintf("ET open/emerging-scan-%v", Utime.Format("20060102")),
+		Name: "ET open/emerging-scan",
+		//Version: fmt.Sprintf("ET open/emerging-scan-%v", Utime.Format("20060102")),
+		Version: version,
 		Total:   utotal,
 		UTime:   Utime.Format("2006-01-02 15:04:05"),
 		UTotal:  1,
 	}
-	uTotalKey := cache.Md5Str(info.Version)
+	uTotalKey := cache.Md5Str(info.Version + info.UTime)
 	uTotal, err := cache.GetCache(uTotalKey)
 	if err != nil {
 		rand.Seed(time.Now().UnixNano())
-		uTotalInt := rand.Intn(30)
+		uTotalInt := rand.Intn(30) + 1
 		err = cache.SetCache(uTotalKey, uTotalInt, 60*60*24*31)
 		info.UTotal = uTotalInt
 		return
@@ -295,4 +302,49 @@ func GetRuleInfo(req *IpsReq) (info *RuleInfo, err error) {
 	info.UTotal, _ = strconv.Atoi(fmt.Sprintf("%v", uTotal))
 
 	return
+}
+
+//获取固件信息
+func GetFirmwareInfo(req *NodeReq) (res string, err error) {
+	var resp interface{}
+	resp, err = cache.CheckCache(
+		fmt.Sprintf("opnsense_GetFirmwareInfo_%v", req.NodeId),
+		func() (interface{}, error) {
+			res := &ips.FirmwareInfo{}
+			var loginInfo *request.ApiKey
+			loginInfo, err = server.GetLoginInfo(server.NodeReq{NodeId: req.NodeId})
+			if err != nil || loginInfo == nil {
+				return res, err
+			}
+			//设置请求接口必须的cookie 和 x-csrftoken
+			err = request.SetCookie(loginInfo)
+			if err != nil {
+				return res, err
+			}
+			res, err = ips.GetFirmwareInfo(loginInfo)
+			return res, err
+		}, 300, true,
+	)
+	return fmt.Sprintf("%s", resp), err
+}
+
+//获取固件 suricata 版本信息
+func GetSuricataVersion(req *NodeReq) (res string, err error) {
+	list, err := GetFirmwareInfo(req)
+	if err != nil {
+		return res, err
+	}
+	if list != "" {
+		dom := gjson.Parse(list)
+		if dom.Get("package").Exists() {
+			for _, v := range dom.Get("package").Array() {
+				if v.Get("name").String() == "suricata" {
+					res = v.Get("version").String()
+					return res, err
+				}
+			}
+		}
+
+	}
+	return "6.0.3_2", nil
 }

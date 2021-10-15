@@ -102,3 +102,14 @@ func Test_gettotal(t *testing.T) {
 	fmt.Println(res)
 	fmt.Println(err)
 }
+
+////
+func Test_GetRuleInfo(t *testing.T) {
+	//uTotalKey := "fdsfsdfsdf"
+	//res,err := cache.GetCache(uTotalKey)
+	res, err := GetFirmwareInfo(&NodeReq{
+		NodeId: 2,
+	})
+	fmt.Println(res)
+	fmt.Println(err)
+}
