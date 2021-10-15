@@ -3,6 +3,7 @@ package server
 import (
 	awvs_server "github.com/1uLang/zhiannet-api/awvs/server"
 	"github.com/1uLang/zhiannet-api/common/model"
+	"github.com/1uLang/zhiannet-api/common/model/channels"
 	"github.com/1uLang/zhiannet-api/common/server/platform_backup_server"
 	hids_server "github.com/1uLang/zhiannet-api/hids/server"
 	nessus_server "github.com/1uLang/zhiannet-api/nessus/server"
@@ -36,5 +37,10 @@ func initTable() {
 	platform_backup_server.InitTable() //平台数据备份记录表
 
 	wazuh_server.InitTable()
+
+	//初始化渠道表
+	channels.InitTable()
+
+	//平台用户
 
 }

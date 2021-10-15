@@ -23,6 +23,16 @@ type (
 	}
 )
 
+//初始化建表
+func InitFiled() {
+	model.MysqlConn.Exec("alter table edgeAdmins add pwdAt bigint unsigned DEFAULT '0' COMMENT '密码修改时间';")
+	model.MysqlConn.Exec("alter table edgeUsers add pwdAt bigint unsigned DEFAULT '0' COMMENT '密码修改时间';")
+	model.MysqlConn.Exec("alter table edgeUsers add channelId int(11) not null default 0 comment \"渠道ID\";")
+	model.MysqlConn.Exec("alter table edgeUsers add parentId int(11) not null default 0 comment \"父ID\";")
+	//if err != nil {
+	//	fmt.Println("err=====",err)
+	//}
+}
 func GetList() (list []*EdgeAdmins, total int64, err error) {
 	model := model.MysqlConn.Table("edgeAdmins").Where("isOn=?", 1)
 	err = model.Count(&total).Error

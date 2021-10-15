@@ -30,6 +30,7 @@ func Info(req *request.Request) (*InfoResp, error) {
 	}
 	info := InfoResp{}
 	bytes, _ := json.Marshal(resp.Data)
+	fmt.Println(string(bytes))
 	_ = json.Unmarshal(bytes, &info)
 	return &info, err
 }

@@ -114,6 +114,67 @@ type (
 		Total    int `json:"total"`
 		Current  int `json:"current"`
 	}
+
+	FirmwareInfo struct {
+		ProductID      string `json:"product_id"`
+		ProductVersion string `json:"product_version"`
+		Package        []struct {
+			Name       string `json:"name"`
+			Version    string `json:"version"`
+			Comment    string `json:"comment"`
+			Flatsize   string `json:"flatsize"`
+			Locked     string `json:"locked"`
+			Automatic  string `json:"automatic"`
+			License    string `json:"license"`
+			Repository string `json:"repository"`
+			Origin     string `json:"origin"`
+			Provided   string `json:"provided"`
+			Installed  string `json:"installed"`
+			Path       string `json:"path"`
+			Configured string `json:"configured"`
+		} `json:"package"`
+		Plugin []struct {
+			Name       string `json:"name"`
+			Version    string `json:"version"`
+			Comment    string `json:"comment"`
+			Flatsize   string `json:"flatsize"`
+			Locked     string `json:"locked"`
+			Automatic  string `json:"automatic"`
+			License    string `json:"license"`
+			Repository string `json:"repository"`
+			Origin     string `json:"origin"`
+			Provided   string `json:"provided"`
+			Installed  string `json:"installed"`
+			Path       string `json:"path"`
+			Configured string `json:"configured"`
+		} `json:"plugin"`
+		Changelog []struct {
+			Series  string `json:"series"`
+			Version string `json:"version"`
+			Date    string `json:"date"`
+		} `json:"changelog"`
+		Product struct {
+			ProductAbi            string      `json:"product_abi"`
+			ProductArch           string      `json:"product_arch"`
+			ProductCheck          interface{} `json:"product_check"`
+			ProductCopyrightOwner string      `json:"product_copyright_owner"`
+			ProductCopyrightURL   string      `json:"product_copyright_url"`
+			ProductCopyrightYears string      `json:"product_copyright_years"`
+			ProductCrypto         string      `json:"product_crypto"`
+			ProductEmail          string      `json:"product_email"`
+			ProductFlavour        string      `json:"product_flavour"`
+			ProductHash           string      `json:"product_hash"`
+			ProductID             string      `json:"product_id"`
+			ProductMirror         string      `json:"product_mirror"`
+			ProductName           string      `json:"product_name"`
+			ProductNickname       string      `json:"product_nickname"`
+			ProductRepos          string      `json:"product_repos"`
+			ProductSeries         string      `json:"product_series"`
+			ProductTime           string      `json:"product_time"`
+			ProductVersion        string      `json:"product_version"`
+			ProductWebsite        string      `json:"product_website"`
+		} `json:"product"`
+	}
 )
 
 //var client = resty.New() //.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).SetTimeout(time.Second * 2)
@@ -315,7 +376,25 @@ func GetIpsRule(req *IpsReq, apiKey *request.ApiKey) (list *RuleListResp, err er
 		//	"searchPhrase": req.SearchPhrase,
 		//}).
 		Get(url)
-	fmt.Println(string(resp.Body()))
+	err = json.Unmarshal(resp.Body(), &list)
+	if err != nil {
+		return list, err
+	}
+	return list, err
+}
+
+//获取固件版本 suricata
+func GetFirmwareInfo(apiKey *request.ApiKey) (list *FirmwareInfo, err error) {
+	url := fmt.Sprintf("%v%v", apiKey.Addr, _const.OPNSENSE_FIRMWARE)
+	client := request.GetHttpClient(apiKey)
+	resp, err := client.R().
+		//SetBasicAuth(apiKey.Username, apiKey.Password).
+		SetHeader("x-csrftoken", apiKey.XCsrfToken).
+		SetCookie(&http.Cookie{
+			Name:  "PHPSESSID",
+			Value: apiKey.Cookie,
+		}).
+		Get(url)
 	err = json.Unmarshal(resp.Body(), &list)
 	if err != nil {
 		return list, err

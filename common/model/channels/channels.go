@@ -39,7 +39,7 @@ func InitTable() {
 
 //获取列表
 func GetList(req *ChannelReq) (list []*Channels, total int64, err error) {
-	InitTable()
+	//InitTable()
 	//从数据库获取
 	model := model.MysqlConn.Model(&Channels{}).Order("status DESC,id ASC")
 	if req != nil {
