@@ -55,7 +55,7 @@ func GetList(req *ListReq) (list []*EdgeUsers, total int64, err error) {
 		if req.ParentId > 0 {
 			model = model.Where("parentId=?", req.ParentId)
 		} else {
-			model = model.Where(" parentId is null")
+			model = model.Where(" (parentId is null or parentId =0)")
 		}
 		if req.ChannelId > 0 {
 			model = model.Where("channelId=?", req.ChannelId)
@@ -140,7 +140,7 @@ func GetChannelUserTotal(channelId []uint64, subUse bool) (total []ChanUserTotal
 	total = make([]ChanUserTotal, 0)
 	model := model.MysqlConn.Table("edgeUsers").Where("state=? ", 1)
 	if !subUse {
-		model = model.Where(" parentId is null")
+		model = model.Where(" (parentId is null or parentId=0)")
 	}
 	model = model.Where("channelId in(?)", channelId).Group("channelId").
 		Select("count(id) total,channelId channel_id")
