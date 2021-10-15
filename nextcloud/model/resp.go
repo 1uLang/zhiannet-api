@@ -80,3 +80,10 @@ type NCUserInfo struct {
 		} `xml:"quota"`
 	} `xml:"data"`
 }
+
+// MoveError move的错误
+type MoveError struct {
+	Exception string `xml:"exception"`
+	Message   string `xml:"message"`
+	Header    string `xml:"header"`
+}
