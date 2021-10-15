@@ -3,14 +3,13 @@ module github.com/1uLang/zhiannet-api
 go 1.16
 
 require (
-	github.com/DATA-DOG/go-sqlmock v1.5.0 // indirect
-	github.com/JamesStewy/go-mysqldump v0.2.2 // indirect
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/PuerkitoBio/goquery v1.7.1
 	github.com/SebastiaanKlippert/go-wkhtmltopdf v1.7.1
 	github.com/dlclark/regexp2 v1.4.0
 	github.com/go-redis/redis/v8 v8.10.0
 	github.com/go-resty/resty/v2 v2.6.0
-	github.com/go-sql-driver/mysql v1.6.0 // indirect
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/iwind/TeaGo v0.0.0-20210809112119-a57ed0e84e34
 	github.com/loveleshsharma/gohive v0.0.0-20191008095549-7eec91c92993
 	github.com/pkg/errors v0.9.1 // indirect

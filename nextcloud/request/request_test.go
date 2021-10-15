@@ -5,13 +5,14 @@ import (
 	"crypto/tls"
 	_ "embed"
 	"fmt"
-	"github.com/1uLang/zhiannet-api/common/cache"
-	"github.com/go-resty/resty/v2"
 	"io"
 	"io/ioutil"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/1uLang/zhiannet-api/common/cache"
+	"github.com/go-resty/resty/v2"
 
 	param "github.com/1uLang/zhiannet-api/nextcloud/const"
 	"github.com/1uLang/zhiannet-api/nextcloud/model"
@@ -23,9 +24,9 @@ var (
 	req = &model.LoginReq{
 		User: "admin",
 		// User: "admin_zhoumj",
-		Password: "Dengbao123!@#",
+		// Password: "Dengbao123!@#",
 		// Password: "admin",
-		//Password: "21ops.com",
+		Password: "123456",
 		// Password: "adminAd#@2021",
 	}
 	fileName = "Nextcloud.png"
@@ -143,12 +144,13 @@ func TestCreateUser(t *testing.T) {
 
 func TestListFoldersWithPath(t *testing.T) {
 	token := GenerateToken(req)
-	token = `Basic aGFuY2hhbjphZG1pbkFkI0AyMDIx`
+	// token = `Basic aGFuY2hhbjphZG1pbkFkI0AyMDIx`
 	var url string
 	param.BASE_URL = "https://bptest.dengbao.cloud"
+	param.BASE_URL = "http://localhost:8080"
 	param.AdminUser = "admin"
 	param.AdminPasswd = "admin"
-	url = `/remote.php/dav/files/hanchan/test/`
+	url = `/remote.php/dav/files/admin/`
 	ls, err := ListFoldersWithPath(token, url)
 	if err != nil {
 		t.Fatal(err)
@@ -368,5 +370,16 @@ func TestHasSpecialChar(t *testing.T) {
 	str := "12345`"
 	if !hasSpecialChar(str) {
 		t.Fail()
+	}
+}
+
+func TestMoveFileOrFolder(t *testing.T) {
+	srcURL := `http://localhost:8080/remote.php/dav/files/admin/123/`
+	newName := "456"
+	token := `Basic YWRtaW46MTIzNDU2`
+
+	err := MoveFileOrFolder(srcURL, newName, token)
+	if err != nil {
+		t.Fatal(err)
 	}
 }
