@@ -376,3 +376,46 @@ func hasSpecialChar(str string) bool {
 
 	return len(strs1) > 0 || len(strs2) > 0
 }
+
+func MoveFileOrFolder(srcURL, newName, token string) error {
+	srcURL = strings.TrimSpace(srcURL)
+	newName = strings.TrimSpace(newName)
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	cli := &http.Client{
+		Transport: tr,
+	}
+
+	req, err := http.NewRequest("MOVE", srcURL, nil)
+	if err != nil {
+		return fmt.Errorf("新建请求失败：%w", err)
+	}
+
+	srcURL = strings.TrimRight(srcURL, "/")
+	ss := strings.Split(srcURL, "/")
+	newName = strings.TrimRight(srcURL, ss[len(ss)-1]) + newName
+	req.Header.Set("Authorization", token)
+	req.Header.Set("OCS-APIRequest", "true")
+	req.Header.Set("Destination", newName)
+	req.Header.Set("Overwrite", "F")
+
+	resp, err := cli.Do(req)
+	if err != nil {
+		return fmt.Errorf("请求执行失败：%w", err)
+	}
+	body, err := io.ReadAll(resp.Body)
+	if err == io.EOF {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("请求执行失败：%w", err)
+	}
+	var me model.MoveError
+	if err = xml.Unmarshal(body, &me); err != nil && err != io.EOF {
+		return fmt.Errorf("响应体解析失败：%w", err)
+	}
+
+	return fmt.Errorf("重命名执行失败: %s", me.Message)
+}
