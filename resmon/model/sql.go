@@ -1,12 +1,17 @@
 package model
 
+import (
+	"fmt"
+	"github.com/1uLang/zhiannet-api/common/model"
+)
+
 // ResMonModel 资源监控表
 type ResMonModel struct {
 	ID     string `gorm:"column:id"`
 	OSType uint8  `gorm:"column:os_type"`
 }
 
-func (ResMonModel)TableName() string {
+func (ResMonModel) TableName() string {
 	return "resmon"
 }
 
@@ -27,4 +32,12 @@ func GetCPUType(id uint8) string {
 	}
 
 	return CPUTypeMap[1]
+}
+
+func InitTable() {
+	err := model.MysqlConn.AutoMigrate(&ResMonModel{})
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
 }

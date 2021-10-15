@@ -34,6 +34,14 @@ type (
 	}
 )
 
+func InitTable() {
+	err := model.MysqlConn.AutoMigrate(&DdosHostIp{})
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
+}
+
 //获取节点
 func GetList(req *HostReq) (list []*DdosHostIp, total int64, err error) {
 	//从数据库获取

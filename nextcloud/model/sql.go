@@ -1,5 +1,10 @@
 package model
 
+import (
+	"fmt"
+	db_model "github.com/1uLang/zhiannet-api/common/model"
+)
+
 // NextCloudToken nextcloud token表
 type NextCloudToken struct {
 	ID    int64  `gorm:"column:id"`
@@ -29,4 +34,13 @@ func (NextCloudToken) TableName() string {
 // TableName 表名映射
 func (Subassemblynode) TableName() string {
 	return "subassemblynode"
+}
+
+//初始化建表
+func InitTable() {
+	err := db_model.MysqlConn.AutoMigrate(&NextCloudToken{})
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
 }

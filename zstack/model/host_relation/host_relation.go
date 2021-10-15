@@ -22,6 +22,13 @@ type (
 	}
 )
 
+func InitTable() {
+	err := model.MysqlConn.AutoMigrate(&HostRelation{})
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
+}
 func GetList(req *ListReq) (list []*HostRelation, total int64, err error) {
 	//从数据库获取
 	model := model.MysqlConn.Table("host_relation")

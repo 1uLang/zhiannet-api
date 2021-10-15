@@ -22,6 +22,15 @@ type (
 	}
 )
 
+func InitTable() {
+	err := model.MysqlConn.AutoMigrate(&AuditUserRelation{})
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
+
+}
+
 //获取关联信息
 func GetInfo(req *AuditReq) (info *AuditUserRelation, err error) {
 	//从数据库获取
