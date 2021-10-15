@@ -378,7 +378,8 @@ func hasSpecialChar(str string) bool {
 }
 
 func MoveFileOrFolder(srcURL, newName, token string) error {
-	srcURL = strings.TrimSpace(srcURL)
+	getNCInfo()
+	srcURL = param.BASE_URL + strings.TrimSpace(srcURL)
 	newName = strings.TrimSpace(newName)
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
