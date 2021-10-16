@@ -1,6 +1,7 @@
 package ips
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/cache"
 	"github.com/1uLang/zhiannet-api/common/util"
@@ -253,7 +254,23 @@ func GetIpsRuleList(req *IpsReq) (list *ips.RuleListResp, err error) {
 
 //获取规则信息
 func GetRuleInfo(req *IpsReq) (info *RuleInfo, err error) {
-	list, err := GetIpsRuleList(req)
+	ruleInfoKey := fmt.Sprintf("GetRuleInfo-%v", req.NodeId)
+	res, err := cache.CheckCache(
+		ruleInfoKey,
+		func() (interface{}, error) {
+			return GetIpsRuleList(req)
+		}, 3600*12, true,
+	)
+	if err != nil {
+		return
+	}
+	resData, err := json.Marshal(res)
+	if err != nil {
+		return
+	}
+	var list = &ips.RuleListResp{}
+	err = json.Unmarshal(resData, &list)
+	//list, err := GetIpsRuleList(req)
 	if err != nil {
 		return
 	}
@@ -323,7 +340,7 @@ func GetFirmwareInfo(req *NodeReq) (res string, err error) {
 			}
 			res, err = ips.GetFirmwareInfo(loginInfo)
 			return res, err
-		}, 300, true,
+		}, 3600*12, true,
 	)
 	return fmt.Sprintf("%s", resp), err
 }
