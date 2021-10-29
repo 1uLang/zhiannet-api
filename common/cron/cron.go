@@ -3,10 +3,6 @@ package cron
 import (
 	audit_request "github.com/1uLang/zhiannet-api/audit/request"
 	awvs_request "github.com/1uLang/zhiannet-api/awvs/server"
-	"github.com/1uLang/zhiannet-api/common/cron/logs"
-	"github.com/1uLang/zhiannet-api/common/server/attack_check_server"
-	"github.com/1uLang/zhiannet-api/common/server/attack_message_server"
-	"github.com/1uLang/zhiannet-api/common/server/platform_backup_server"
 	ddos_request "github.com/1uLang/zhiannet-api/ddos/request"
 	ddos_host "github.com/1uLang/zhiannet-api/ddos/server/host_status"
 	hids_request "github.com/1uLang/zhiannet-api/hids/server"
@@ -64,18 +60,18 @@ func InitCron() {
 	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&ddos_host.CheckFlow{}))
 
 	//waf日志统计定时任务
-	c.AddJob("0 0 */1 * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&logs.StatisticsWAFLogs{}))
+	//c.AddJob("0 0 */1 * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&logs.StatisticsWAFLogs{}))
 	//ddos 日志统计定时任务
-	c.AddJob("0 0 */1 * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&logs.StatisticsDDOSLogs{}))
+	//c.AddJob("0 0 */1 * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&logs.StatisticsDDOSLogs{}))
 	//下一代防火墙 日志统计定时任务
-	c.AddJob("0 0 */1 * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&logs.StatisticsNFWLogs{}))
+	//c.AddJob("0 0 */1 * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&logs.StatisticsNFWLogs{}))
 
 	//入侵事件检测
-	c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&attack_check_server.AttackCheckRequest{}))
+	//c.AddJob("0 */10 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&attack_check_server.AttackCheckRequest{}))
 	//hids 主机防护 漏洞风险 入侵威胁 告警
-	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&attack_message_server.AttackMessageRequest{}))
+	//c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&attack_message_server.AttackMessageRequest{}))
 
 	//平台数据自动备份 每天凌晨
-	c.AddJob("0 0 0 */1 * ?", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&platform_backup_server.PlatformBackUp{}))
+	//c.AddJob("0 0 0 */1 * ?", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&platform_backup_server.PlatformBackUp{}))
 	c.Start()
 }

@@ -41,9 +41,9 @@ func InitMysqlLink() {
 	var err error
 	var yamlFile []byte
 	conf := new(DBConfig)
-	//yamlFile, err = ioutil.ReadFile(ApiDbPath)
+	yamlFile, err = ioutil.ReadFile(ApiDbPath)
 	////yamlFile, err = ioutil.ReadFile("./build/configs/api_db.yaml")
-	yamlFile, err = ioutil.ReadFile("/Users/dp/zhian/zhiannet-edge-line/EdgeAdmin/build/configs/api_db.yaml")
+	//yamlFile, err = ioutil.ReadFile("/Users/dp/zhian/zhiannet-edge-line/EdgeAdmin/build/configs/api_db.yaml")
 	if err != nil {
 		//panic(fmt.Errorf("zhiannet package mysql link yamlFile.Get err #%v ", err))
 		return
