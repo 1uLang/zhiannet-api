@@ -1,5 +1,12 @@
 package agents
 
+type ResInfo struct {
+	Affected_items []struct {
+		Group []string `json:"group"`
+		IP    string   `json:"ip"`
+		Name  string   `json:"name"`
+	} `json:"affected_items"`
+}
 type StatisticsResp struct {
 	Active         int `json:"active"`
 	Disconnected   int `json:"disconnected"`

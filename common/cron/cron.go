@@ -3,6 +3,7 @@ package cron
 import (
 	audit_request "github.com/1uLang/zhiannet-api/audit/request"
 	awvs_request "github.com/1uLang/zhiannet-api/awvs/server"
+	"github.com/1uLang/zhiannet-api/common/server/attack_message_server"
 	ddos_request "github.com/1uLang/zhiannet-api/ddos/request"
 	ddos_host "github.com/1uLang/zhiannet-api/ddos/server/host_status"
 	hids_request "github.com/1uLang/zhiannet-api/hids/server"
@@ -16,6 +17,7 @@ import (
 	zstack_request "github.com/1uLang/zhiannet-api/zstack/request"
 	"github.com/1uLang/zhiannet-api/zstack/server/host_server"
 	"github.com/robfig/cron/v3"
+	"time"
 )
 
 func InitCron() {
@@ -73,5 +75,9 @@ func InitCron() {
 
 	//平台数据自动备份 每天凌晨
 	//c.AddJob("0 0 0 */1 * ?", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&platform_backup_server.PlatformBackUp{}))
+
+	//wezuh 告警
+	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).
+		Then(&attack_message_server.AttackMessageRequest{Interval: 5 * time.Minute}))
 	c.Start()
 }

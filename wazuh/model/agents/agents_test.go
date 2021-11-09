@@ -14,6 +14,26 @@ func init() {
 	}
 }
 
+func TestInfo(t *testing.T) {
+
+	err := request.InitServerUrl("https://156.240.95.34")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = request.InitToken("wazuh", "wazuh")
+	if err != nil {
+		t.Fatal(err)
+	}
+	req, err := request.NewRequest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	info, err := Info(req, "029")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(info)
+}
 func TestStatistics(t *testing.T) {
 
 	err := request.InitServerUrl("https://156.240.95.168")

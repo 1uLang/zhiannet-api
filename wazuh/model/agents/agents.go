@@ -287,6 +287,25 @@ type esParams struct {
 	} `json:"params"`
 }
 
+func Info(req *request.Request, id string) (*ResInfo, error) {
+	req.Method = "get"
+	req.Path = agent_api_url
+	req.Params = map[string]interface{}{
+		"agents_list": id,
+	}
+	resp, err := req.DoAndParseResp()
+	if err != nil {
+		return nil, err
+	}
+	info := &ResInfo{}
+	if resp.Error != 0 {
+		return nil, fmt.Errorf("主机防护服务异常：%s", resp.Message)
+	}
+	bytes, _ := json.Marshal(resp.Data)
+	fmt.Println(string(bytes))
+	err = json.Unmarshal(bytes, &info)
+	return info, err
+}
 func Statistics(req *request.Request) (*StatisticsResp, error) {
 
 	req.Method = "get"
