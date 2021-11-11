@@ -614,6 +614,14 @@ func VirusESList(req *request.Request, args ESListReq) (*VirusESHitsListResp, er
 	var paramStruct esParams
 	_ = json.Unmarshal([]byte(paramString), &paramStruct)
 
+	//过滤
+	paramStruct.Params.Body.Query.Bool.MustNot = []interface{}{
+		map[string]interface{}{
+			"match_phrase": map[string]interface{}{
+				"data.virustotal.positives": "0",
+			},
+		},
+	}
 	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
 	newFilter[2].MatchPhrase.RuleGroups.Query = "virustotal"
 

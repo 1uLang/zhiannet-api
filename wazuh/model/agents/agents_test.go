@@ -252,7 +252,7 @@ func TestVirusESList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = request.InitToken("wazuh", "m8yfGB_ECbIMSHFFqsVtCm5sUQ8JZVSZ")
+	err = request.InitToken("wazuh", "k-4AqQJ7BiSC04wgPi76nQUSMtXqKfOR")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -262,7 +262,7 @@ func TestVirusESList(t *testing.T) {
 	}
 	breakF := true
 	for breakF {
-		list, err := VirusESList(req, ESListReq{Agent: "009", Limit: 10, Offset: 0})
+		list, err := VirusESList(req, ESListReq{Agent: "035", Limit: 10, Offset: 0})
 		if err != nil {
 			fmt.Println(err)
 		} else {
