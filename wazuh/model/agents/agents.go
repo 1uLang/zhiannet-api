@@ -302,7 +302,6 @@ func Info(req *request.Request, id string) (*ResInfo, error) {
 		return nil, fmt.Errorf("主机防护服务异常：%s", resp.Message)
 	}
 	bytes, _ := json.Marshal(resp.Data)
-	fmt.Println(string(bytes))
 	err = json.Unmarshal(bytes, &info)
 	return info, err
 }

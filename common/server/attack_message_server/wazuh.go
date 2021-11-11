@@ -16,8 +16,8 @@ import (
 type wazuh struct{}
 
 func (wazuh) AttackCheck(interval time.Duration) error {
-
 	host, user, password, from, port, emailId := getEmailInfo()
+	fmt.Println("获取管理端配置发送者邮箱：", host, user, password, from, port, emailId)
 	if host == "" {
 		return nil
 	}
@@ -41,10 +41,14 @@ func (wazuh) AttackCheck(interval time.Duration) error {
 	agents := map[string]uint8{}
 	now := time.Now()
 	filecomList, err := wazuh_server.SysCheckESList(agents_model.ESListReq{Start: now.Add(-interval).Unix(), End: now.Unix(), Limit: 100})
+	fmt.Println("文件篡改 ： ", len(filecomList.Hits))
 	if err != nil {
 		fmt.Println("文件完整性列表获取失败")
 	} else {
 		for _, c := range filecomList.Hits {
+			if c.Source.Agent.Id == "000" { //wazuh agent 忽略
+				continue
+			}
 			//添加|删除|修改
 			if c.Source.Rule.Id == "554" || c.Source.Rule.Id == "553" || c.Source.Rule.Id == "550" {
 				agents[c.Source.Agent.Id] = 0x01
@@ -53,10 +57,14 @@ func (wazuh) AttackCheck(interval time.Duration) error {
 	}
 	//病毒检测
 	riskList, err := wazuh_server.VirusList(agents_model.ESListReq{Start: now.Add(-interval).Unix(), End: now.Unix(), Limit: 100})
+	fmt.Println("病毒检测 ： ", len(riskList.Hits))
 	if err != nil {
 		fmt.Println("文件完整性列表获取失败")
 	} else {
 		for _, c := range riskList.Hits {
+			if c.Source.Agent.Id == "000" { //wazuh agent 忽略
+				continue
+			}
 			//病毒
 			if c.Source.Rule.Id == "87105" {
 				agents[c.Source.Agent.Id] = agents[c.Source.Agent.Id] | 0x02
@@ -65,10 +73,14 @@ func (wazuh) AttackCheck(interval time.Duration) error {
 	}
 	//暴力破解
 	attList, err := wazuh_server.ATTCKESList(agents_model.ESListReq{Start: now.Add(-interval).Unix(), End: now.Unix(), Limit: 100})
+	fmt.Println("暴力破解 ： ", len(attList.Hits))
 	if err != nil {
 		fmt.Println("文件完整性列表获取失败")
 	} else {
 		for _, c := range attList.Hits {
+			if c.Source.Agent.Id == "000" { //wazuh agent 忽略
+				continue
+			}
 			//病毒 ssh: 5700 - 5759 rdp : 9500 - 9505 9510 9551
 			ruleId, _ := strconv.Atoi(c.Source.Rule.Id)
 			if ruleId >= 5700 && ruleId <= 5759 ||
