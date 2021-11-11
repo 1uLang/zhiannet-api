@@ -160,8 +160,8 @@ func getEmailInfo() (host, user, password, from string, port int, id uint32) {
 }
 
 //发送邮件
-func sendEmail(host, user, password, from, email, content string, port int) error {
-	return util.SendEmail(host, user, password, from, "243971996@qq.com", content, port)
+func sendEmail(host, user, password, from, to, content string, port int) error {
+	return util.SendEmail(host, user, password, from, to, content, port)
 }
 
 //获取用户邮箱
