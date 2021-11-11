@@ -220,7 +220,7 @@ type filter struct {
 	Exists *struct {
 		Field string `json:"field,omitempty"`
 	} `json:"exists,omitempty"`
-	MultiMatch  *multiMatch  `json:"multi_match"`
+	MultiMatch  *multiMatch  `json:"multi_match,omitempty"`
 	MatchPhrase *matchPhrase `json:"match_phrase,omitempty"`
 	Bool        *struct {
 		Should []struct {
@@ -640,11 +640,12 @@ func VirusESList(req *request.Request, args ESListReq) (*VirusESHitsListResp, er
 		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Gte = time.Unix(args.Start, 0)
 		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Lte = time.Unix(args.End, 0)
 		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[5])
+	} else {
+		paramStruct.Params.Body.Size = 1
 	}
 	if args.Limit == 0 {
 		args.Limit = 20
 	}
-	paramStruct.Params.Body.Size = 1
 	paramStruct.Params.Body.From = 0
 	paramStruct.Params.Body.Query.Bool.Filter = newFilter
 
@@ -661,6 +662,9 @@ func VirusESList(req *request.Request, args ESListReq) (*VirusESHitsListResp, er
 
 	if virus.StatusCode == 401 {
 		return nil, fmt.Errorf(virus.Message)
+	}
+	if args.Start != 0 && args.End != 0 && args.Start < args.End {
+		return &virus.RawResponse.Hits, nil
 	}
 
 	if virus.RawResponse.Hits.Total > 0 {
@@ -726,11 +730,12 @@ func SysCheckESList(req *request.Request, args ESListReq) (*SysCheckESHitsListRe
 		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Gte = time.Unix(args.Start, 0)
 		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Lte = time.Unix(args.End, 0)
 		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[5])
+	} else {
+		paramStruct.Params.Body.Size = 1
 	}
 	if args.Limit == 0 {
 		args.Limit = 20
 	}
-	paramStruct.Params.Body.Size = 1
 	paramStruct.Params.Body.From = 0
 	paramStruct.Params.Body.Query.Bool.Filter = newFilter
 
@@ -747,6 +752,9 @@ func SysCheckESList(req *request.Request, args ESListReq) (*SysCheckESHitsListRe
 
 	if syscheck.StatusCode == 401 {
 		return nil, fmt.Errorf(syscheck.Message)
+	}
+	if args.Start != 0 && args.End != 0 && args.Start < args.End {
+		return &syscheck.RawResponse.Hits, nil
 	}
 
 	if syscheck.RawResponse.Hits.Total > 0 {
@@ -813,11 +821,12 @@ func ATTCKESList(req *request.Request, args ESListReq) (*ATTCKESHitsListResp, er
 		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Gte = time.Unix(args.Start, 0)
 		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Lte = time.Unix(args.End, 0)
 		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[5])
+	} else {
+		paramStruct.Params.Body.Size = 1
 	}
 	if args.Limit == 0 {
 		args.Limit = 20
 	}
-	paramStruct.Params.Body.Size = 1
 	paramStruct.Params.Body.From = 0
 	paramStruct.Params.Body.Query.Bool.Filter = newFilter
 	if args.Warning {
@@ -829,7 +838,6 @@ func ATTCKESList(req *request.Request, args ESListReq) (*ATTCKESHitsListResp, er
 			},
 		})
 	}
-
 	resp, err := req.Do2(paramStruct)
 	if err != nil {
 		return nil, err
@@ -843,6 +851,10 @@ func ATTCKESList(req *request.Request, args ESListReq) (*ATTCKESHitsListResp, er
 
 	if attck.StatusCode == 401 {
 		return nil, fmt.Errorf(attck.Message)
+	}
+
+	if args.Start != 0 && args.End != 0 && args.Start < args.End {
+		return &attck.RawResponse.Hits, nil
 	}
 
 	if attck.RawResponse.Hits.Total > 0 {

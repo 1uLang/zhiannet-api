@@ -190,7 +190,7 @@ type ESListReq struct {
 	End      int64
 	Limit    int
 	Offset   int
-	Warning  bool
+	Warning  bool `json:"-"`
 }
 type VulnerabilityHitsResp struct {
 	Total    int         `json:"total"`
