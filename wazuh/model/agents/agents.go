@@ -698,7 +698,14 @@ func SysCheckESList(req *request.Request, args ESListReq) (*SysCheckESHitsListRe
 
 	var paramStruct esParams
 	_ = json.Unmarshal([]byte(paramString), &paramStruct)
-
+	//过滤
+	paramStruct.Params.Body.Query.Bool.MustNot = []interface{}{
+		map[string]interface{}{
+			"match_phrase": map[string]interface{}{
+				"agent.id": "000",
+			},
+		},
+	}
 	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
 	newFilter[2].MatchPhrase.RuleGroups.Query = "syscheck"
 	timeFilter := paramStruct.Params.Body.Query.Bool.Filter[5]
@@ -777,7 +784,14 @@ func ATTCKESList(req *request.Request, args ESListReq) (*ATTCKESHitsListResp, er
 
 	var paramStruct esParams
 	_ = json.Unmarshal([]byte(paramString), &paramStruct)
-
+	//过滤
+	paramStruct.Params.Body.Query.Bool.MustNot = []interface{}{
+		map[string]interface{}{
+			"match_phrase": map[string]interface{}{
+				"agent.id": "000",
+			},
+		},
+	}
 	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
 	timeFilter := paramStruct.Params.Body.Query.Bool.Filter[5]
 	newFilter[2].MatchPhrase = nil

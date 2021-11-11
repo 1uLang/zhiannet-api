@@ -77,7 +77,7 @@ func InitCron() {
 	//c.AddJob("0 0 0 */1 * ?", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&platform_backup_server.PlatformBackUp{}))
 
 	//wezuh 告警
-	c.AddJob("0 */5 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).
-		Then(&attack_message_server.AttackMessageRequest{Interval: 5 * time.Minute}))
+	c.AddJob("0 */1 * * * *", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).
+		Then(&attack_message_server.AttackMessageRequest{Interval: 1 * time.Minute}))
 	c.Start()
 }
