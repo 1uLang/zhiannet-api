@@ -209,12 +209,18 @@ type matchPhrase struct {
 	SyscheckPath              string  `json:"syscheck.path,omitempty"`
 	DataVulnerabilitySeverity *string `json:"data.vulnerability.severity,omitempty"`
 }
+type multiMatch struct {
+	Lenient bool   `json:"lenient"`
+	Query   string `json:"query"`
+	Type    string `json:"type"`
+}
 type filter struct {
 	MatchAll *struct {
 	} `json:"match_all,omitempty"`
 	Exists *struct {
 		Field string `json:"field,omitempty"`
 	} `json:"exists,omitempty"`
+	MultiMatch  *multiMatch  `json:"multi_match"`
 	MatchPhrase *matchPhrase `json:"match_phrase,omitempty"`
 	Bool        *struct {
 		Should []struct {
@@ -814,6 +820,15 @@ func ATTCKESList(req *request.Request, args ESListReq) (*ATTCKESHitsListResp, er
 	paramStruct.Params.Body.Size = 1
 	paramStruct.Params.Body.From = 0
 	paramStruct.Params.Body.Query.Bool.Filter = newFilter
+	if args.Warning {
+		paramStruct.Params.Body.Query.Bool.Filter = append(paramStruct.Params.Body.Query.Bool.Filter, filter{
+			MultiMatch: &multiMatch{
+				Type:    "best_fields",
+				Query:   "Brute Force",
+				Lenient: true,
+			},
+		})
+	}
 
 	resp, err := req.Do2(paramStruct)
 	if err != nil {

@@ -76,7 +76,7 @@ func (wazuh) AttackCheck(interval time.Duration) error {
 		}
 	}
 	//暴力破解
-	attList, err := wazuh_server.ATTCKESList(agents_model.ESListReq{Start: now.Add(-interval).Unix(), End: now.Unix(), Limit: 10000})
+	attList, err := wazuh_server.ATTCKESList(agents_model.ESListReq{Start: now.Add(-interval).Unix(), End: now.Unix(), Limit: 10000, Warning: true})
 	fmt.Println("暴力破解 ： ", len(attList.Hits))
 	if err != nil {
 		fmt.Println("文件完整性列表获取失败")
@@ -85,10 +85,12 @@ func (wazuh) AttackCheck(interval time.Duration) error {
 			if c.Source.Agent.Id == "000" { //wazuh agent 忽略
 				continue
 			}
-			//病毒 ssh: 5700 - 5759 rdp : 9500 - 9505 9510 9551
-			ruleId, _ := strconv.Atoi(c.Source.Rule.Id)
-			if agents[c.Source.Agent.Id]&0x04 == 0 && (ruleId >= 5700 && ruleId <= 5759 ||
-				ruleId >= 9500 && ruleId <= 9505 || ruleId == 9510 || ruleId == 9551) {
+			fmt.Println()
+			//ssh: 5712 rdp : 9500 - 9505 9510 9551
+			//ruleId, _ := strconv.Atoi(c.Source.Rule.Id)
+			if agents[c.Source.Agent.Id]&0x04 == 0 {
+				//&& (ruleId == 5712 || ruleId == 60204)
+				//{
 				agents[c.Source.Agent.Id] = agents[c.Source.Agent.Id] | 0x04
 				fmt.Println("==========暴力破解", agents[c.Source.Agent.Id])
 			}
