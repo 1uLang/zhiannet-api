@@ -38,4 +38,8 @@ const (
 	//用户
 	AUDIT_ADD_USER = "/system/auth/addUser" //添加用户
 
+	AUDIT_EMAIL_INFO  = "/system/auth/getCustomerInfo"   //邮件配置详情信息
+	AUDIT_EMAIL_EDIT  = "/system/auth/editCustomerSMTP"  //保存邮件配置
+	AUDIT_EMAIL_CHECK = "/system/auth/checkCustomerSMTP" //检测邮件配置
+
 )

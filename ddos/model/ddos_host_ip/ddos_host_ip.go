@@ -14,6 +14,7 @@ type (
 		//UserId     uint64 `json:"user_id" gorm:"column:user_id"`         // 用户ID
 		Remark     string `json:"remark" gorm:"column:remark"`           // 备注
 		CreateTime int64  `json:"create_time" gorm:"column:create_time"` // 创建时间
+		IsDelete   int    `json:"id_delete" gorm:"column:id_delete"`     // 删除
 	}
 	HostReq struct {
 		Addr   string `json:"addr" `
@@ -33,6 +34,14 @@ type (
 		Remark string `json:"remark"`                        //备注
 	}
 )
+
+func InitTable() {
+	err := model.MysqlConn.AutoMigrate(&DdosHostIp{})
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
+}
 
 //获取节点
 func GetList(req *HostReq) (list []*DdosHostIp, total int64, err error) {

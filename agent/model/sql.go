@@ -1,5 +1,10 @@
 package model
 
+import (
+	"fmt"
+	db_model "github.com/1uLang/zhiannet-api/common/model"
+)
+
 // AgentFile Agent文件详情表
 type AgentFile struct {
 	ID        int64  `gorm:"column:id;primaryKey" json:"id"`      // 主键ID
@@ -16,4 +21,13 @@ type AgentFile struct {
 // TableName 表明映射
 func (AgentFile) TableName() string {
 	return "agent_file"
+}
+
+//初始化建表
+func InitTable() {
+	err := db_model.MysqlConn.AutoMigrate(&AgentFile{})
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
 }

@@ -19,7 +19,9 @@ require (
 	github.com/spf13/viper v1.8.1
 	github.com/tidwall/gjson v1.8.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/fatih/set.v0 v0.2.1
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/mysql v1.1.0
 	gorm.io/gorm v1.21.10

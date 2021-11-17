@@ -209,12 +209,18 @@ type matchPhrase struct {
 	SyscheckPath              string  `json:"syscheck.path,omitempty"`
 	DataVulnerabilitySeverity *string `json:"data.vulnerability.severity,omitempty"`
 }
+type multiMatch struct {
+	Lenient bool   `json:"lenient"`
+	Query   string `json:"query"`
+	Type    string `json:"type"`
+}
 type filter struct {
 	MatchAll *struct {
 	} `json:"match_all,omitempty"`
 	Exists *struct {
 		Field string `json:"field,omitempty"`
 	} `json:"exists,omitempty"`
+	MultiMatch  *multiMatch  `json:"multi_match,omitempty"`
 	MatchPhrase *matchPhrase `json:"match_phrase,omitempty"`
 	Bool        *struct {
 		Should []struct {
@@ -287,6 +293,24 @@ type esParams struct {
 	} `json:"params"`
 }
 
+func Info(req *request.Request, id string) (*ResInfo, error) {
+	req.Method = "get"
+	req.Path = agent_api_url
+	req.Params = map[string]interface{}{
+		"agents_list": id,
+	}
+	resp, err := req.DoAndParseResp()
+	if err != nil {
+		return nil, err
+	}
+	info := &ResInfo{}
+	if resp.Error != 0 {
+		return nil, fmt.Errorf("主机防护服务异常：%s", resp.Message)
+	}
+	bytes, _ := json.Marshal(resp.Data)
+	err = json.Unmarshal(bytes, &info)
+	return info, err
+}
 func Statistics(req *request.Request) (*StatisticsResp, error) {
 
 	req.Method = "get"
@@ -596,6 +620,14 @@ func VirusESList(req *request.Request, args ESListReq) (*VirusESHitsListResp, er
 	var paramStruct esParams
 	_ = json.Unmarshal([]byte(paramString), &paramStruct)
 
+	//过滤
+	paramStruct.Params.Body.Query.Bool.MustNot = []interface{}{
+		map[string]interface{}{
+			"match_phrase": map[string]interface{}{
+				"data.virustotal.positives": "0",
+			},
+		},
+	}
 	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
 	newFilter[2].MatchPhrase.RuleGroups.Query = "virustotal"
 
@@ -608,11 +640,12 @@ func VirusESList(req *request.Request, args ESListReq) (*VirusESHitsListResp, er
 		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Gte = time.Unix(args.Start, 0)
 		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Lte = time.Unix(args.End, 0)
 		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[5])
+	} else {
+		paramStruct.Params.Body.Size = 1
 	}
 	if args.Limit == 0 {
 		args.Limit = 20
 	}
-	paramStruct.Params.Body.Size = 1
 	paramStruct.Params.Body.From = 0
 	paramStruct.Params.Body.Query.Bool.Filter = newFilter
 
@@ -629,6 +662,9 @@ func VirusESList(req *request.Request, args ESListReq) (*VirusESHitsListResp, er
 
 	if virus.StatusCode == 401 {
 		return nil, fmt.Errorf(virus.Message)
+	}
+	if args.Start != 0 && args.End != 0 && args.Start < args.End {
+		return &virus.RawResponse.Hits, nil
 	}
 
 	if virus.RawResponse.Hits.Total > 0 {
@@ -672,7 +708,14 @@ func SysCheckESList(req *request.Request, args ESListReq) (*SysCheckESHitsListRe
 
 	var paramStruct esParams
 	_ = json.Unmarshal([]byte(paramString), &paramStruct)
-
+	//过滤
+	paramStruct.Params.Body.Query.Bool.MustNot = []interface{}{
+		map[string]interface{}{
+			"match_phrase": map[string]interface{}{
+				"agent.id": "000",
+			},
+		},
+	}
 	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
 	newFilter[2].MatchPhrase.RuleGroups.Query = "syscheck"
 	timeFilter := paramStruct.Params.Body.Query.Bool.Filter[5]
@@ -687,11 +730,12 @@ func SysCheckESList(req *request.Request, args ESListReq) (*SysCheckESHitsListRe
 		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Gte = time.Unix(args.Start, 0)
 		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Lte = time.Unix(args.End, 0)
 		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[5])
+	} else {
+		paramStruct.Params.Body.Size = 1
 	}
 	if args.Limit == 0 {
 		args.Limit = 20
 	}
-	paramStruct.Params.Body.Size = 1
 	paramStruct.Params.Body.From = 0
 	paramStruct.Params.Body.Query.Bool.Filter = newFilter
 
@@ -708,6 +752,9 @@ func SysCheckESList(req *request.Request, args ESListReq) (*SysCheckESHitsListRe
 
 	if syscheck.StatusCode == 401 {
 		return nil, fmt.Errorf(syscheck.Message)
+	}
+	if args.Start != 0 && args.End != 0 && args.Start < args.End {
+		return &syscheck.RawResponse.Hits, nil
 	}
 
 	if syscheck.RawResponse.Hits.Total > 0 {
@@ -751,7 +798,14 @@ func ATTCKESList(req *request.Request, args ESListReq) (*ATTCKESHitsListResp, er
 
 	var paramStruct esParams
 	_ = json.Unmarshal([]byte(paramString), &paramStruct)
-
+	//过滤
+	paramStruct.Params.Body.Query.Bool.MustNot = []interface{}{
+		map[string]interface{}{
+			"match_phrase": map[string]interface{}{
+				"agent.id": "000",
+			},
+		},
+	}
 	newFilter := paramStruct.Params.Body.Query.Bool.Filter[:3]
 	timeFilter := paramStruct.Params.Body.Query.Bool.Filter[5]
 	newFilter[2].MatchPhrase = nil
@@ -767,14 +821,23 @@ func ATTCKESList(req *request.Request, args ESListReq) (*ATTCKESHitsListResp, er
 		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Gte = time.Unix(args.Start, 0)
 		paramStruct.Params.Body.Query.Bool.Filter[5].Range.Timestamp.Lte = time.Unix(args.End, 0)
 		newFilter = append(newFilter, paramStruct.Params.Body.Query.Bool.Filter[5])
+	} else {
+		paramStruct.Params.Body.Size = 1
 	}
 	if args.Limit == 0 {
 		args.Limit = 20
 	}
-	paramStruct.Params.Body.Size = 1
 	paramStruct.Params.Body.From = 0
 	paramStruct.Params.Body.Query.Bool.Filter = newFilter
-
+	if args.Warning {
+		paramStruct.Params.Body.Query.Bool.Filter = append(paramStruct.Params.Body.Query.Bool.Filter, filter{
+			MultiMatch: &multiMatch{
+				Type:    "best_fields",
+				Query:   "Brute Force",
+				Lenient: true,
+			},
+		})
+	}
 	resp, err := req.Do2(paramStruct)
 	if err != nil {
 		return nil, err
@@ -788,6 +851,10 @@ func ATTCKESList(req *request.Request, args ESListReq) (*ATTCKESHitsListResp, er
 
 	if attck.StatusCode == 401 {
 		return nil, fmt.Errorf(attck.Message)
+	}
+
+	if args.Start != 0 && args.End != 0 && args.Start < args.End {
+		return &attck.RawResponse.Hits, nil
 	}
 
 	if attck.RawResponse.Hits.Total > 0 {

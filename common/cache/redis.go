@@ -43,10 +43,10 @@ func InitTestClient() (err error) {
 		return err
 	}
 	Rdb = redis.NewClient(&redis.Options{
-		Addr:     "192.168.137.8:6379",     //"45.195.61.132:6379",
-		Password: "", //"1232345342675", // no password set
-		DB:       0,                   // use default DB
-		PoolSize: 100,                 // 连接池大小
+		Addr:     "156.249.24.85:6379", //"45.195.61.132:6379",
+		Password: "1232345342675",      // no password set
+		DB:       0,                    // use default DB
+		PoolSize: 100,                  // 连接池大小
 	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

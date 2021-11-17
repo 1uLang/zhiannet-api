@@ -30,6 +30,13 @@ func AgentUpdate(args agents.UpdateReq) error {
 
 	return agents.Update(args)
 }
+func AgentInfo(id string) (*agents.ResInfo, error) {
+	req, err := request.NewRequest()
+	if err != nil {
+		return nil, err
+	}
+	return agents.Info(req, id)
+}
 
 //AgentCheck 资产重启
 func AgentCheck(agent string) error {

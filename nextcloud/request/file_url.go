@@ -378,7 +378,8 @@ func hasSpecialChar(str string) bool {
 }
 
 func MoveFileOrFolder(srcURL, newName, token string) error {
-	srcURL = strings.TrimSpace(srcURL)
+	getNCInfo()
+	srcURL = param.BASE_URL + strings.TrimSpace(srcURL)
 	newName = strings.TrimSpace(newName)
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -417,5 +418,9 @@ func MoveFileOrFolder(srcURL, newName, token string) error {
 		return fmt.Errorf("响应体解析失败：%w", err)
 	}
 
-	return fmt.Errorf("重命名执行失败: %s", me.Message)
+	if me.Message != "" {
+		return fmt.Errorf("重命名执行失败: %s", me.Message)
+	}
+
+	return nil
 }

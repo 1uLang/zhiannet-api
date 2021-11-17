@@ -32,6 +32,14 @@ type (
 	}
 )
 
+func InitTable() {
+	err := model.MysqlConn.AutoMigrate(&AuditAssetsRelation{})
+	if err != nil {
+		fmt.Println("初始化建表，失败：", err.Error())
+		return
+	}
+}
+
 func GetList(req *ListReq) (list []*AuditAssetsRelation, total int64, err error) {
 	//从数据库获取
 	model := model.MysqlConn.Debug().Table("audit_assets_relation").Where("assets_type=?", req.AssetsType)

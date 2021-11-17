@@ -14,6 +14,26 @@ func init() {
 	}
 }
 
+func TestInfo(t *testing.T) {
+
+	err := request.InitServerUrl("https://156.240.95.34")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = request.InitToken("wazuh", "wazuh")
+	if err != nil {
+		t.Fatal(err)
+	}
+	req, err := request.NewRequest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	info, err := Info(req, "029")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(info)
+}
 func TestStatistics(t *testing.T) {
 
 	err := request.InitServerUrl("https://156.240.95.168")
@@ -232,7 +252,7 @@ func TestVirusESList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = request.InitToken("wazuh", "m8yfGB_ECbIMSHFFqsVtCm5sUQ8JZVSZ")
+	err = request.InitToken("wazuh", "k-4AqQJ7BiSC04wgPi76nQUSMtXqKfOR")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -242,7 +262,7 @@ func TestVirusESList(t *testing.T) {
 	}
 	breakF := true
 	for breakF {
-		list, err := VirusESList(req, ESListReq{Agent: "009", Limit: 10, Offset: 0})
+		list, err := VirusESList(req, ESListReq{Agent: "035", Limit: 10, Offset: 0})
 		if err != nil {
 			fmt.Println(err)
 		} else {
