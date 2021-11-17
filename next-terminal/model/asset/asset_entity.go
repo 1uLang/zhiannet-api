@@ -12,19 +12,20 @@ type (
 		AdminUserId int64 `json:"-"`
 	}
 	CreateReq struct {
-		AccountType  string `json:"accountType"`
-		Description  string `json:"description"`
-		IP           string `json:"ip"`
-		Name         string `json:"name"`
-		Password     string `json:"password"`
-		Port         int    `json:"port"`
-		Protocol     string `json:"protocol"`
-		SshMode      string `json:"ssh-mode"`
-		Tags         string `json:"tags"`
-		Username     string `json:"username"`
-		CredentialId string `json:"credentialId,omitempty"`
-		UserId       uint64 `json:"-"`
-		AdminUserId  uint64 `json:"-"`
+		AccountType     string `json:"accountType"`
+		Description     string `json:"description"`
+		IP              string `json:"ip"`
+		Name            string `json:"name"`
+		Password        string `json:"password"`
+		Port            int    `json:"port"`
+		Protocol        string `json:"protocol"`
+		SshMode         string `json:"ssh-mode"`
+		Tags            string `json:"tags"`
+		Username        string `json:"username"`
+		CredentialId    string `json:"credentialId,omitempty"`
+		AccessGatewayId string `json:"accessGatewayId"`
+		UserId          uint64 `json:"-"`
+		AdminUserId     uint64 `json:"-"`
 	}
 	UpdateReq struct {
 		Id string `json:"-"`
@@ -37,7 +38,7 @@ type (
 		Id string
 	}
 	AuthorizeReq struct {
-		AssetId      string
+		AssetId string
 
 		UserId       uint64
 		AdminUserId  uint64
@@ -83,7 +84,7 @@ func (this *CreateReq) check() error {
 			this.Tags = fmt.Sprintf("admin_%v", this.AdminUserId)
 		}
 	}
-	if this.AccountType == "custom"{
+	if this.AccountType == "custom" {
 		this.CredentialId = ""
 	}
 	_, isExist := protos[this.Protocol]
@@ -94,7 +95,7 @@ func (this *CreateReq) check() error {
 	return nil
 }
 func (this *UpdateReq) check() error {
-	if this.Id == ""{
+	if this.Id == "" {
 		return fmt.Errorf("参数错误")
 	}
 	return this.CreateReq.check()

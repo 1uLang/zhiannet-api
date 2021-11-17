@@ -5,6 +5,7 @@ import (
 	"github.com/1uLang/zhiannet-api/common/model/edge_messages"
 	"github.com/1uLang/zhiannet-api/common/model/subassemblynode"
 	"github.com/1uLang/zhiannet-api/next-terminal/model"
+	access_gateway_model "github.com/1uLang/zhiannet-api/next-terminal/model/access_gateway"
 	asset_model "github.com/1uLang/zhiannet-api/next-terminal/model/asset"
 	cert_model "github.com/1uLang/zhiannet-api/next-terminal/model/cert"
 	"github.com/1uLang/zhiannet-api/next-terminal/request"
@@ -15,25 +16,21 @@ type Request struct {
 	Assets  asset   //资产接口
 	Session session //会话管理
 	Cert    cert    //授权凭证
+	GateWay gateway //接入网关
 }
-
-var req *Request
 
 //NewServerRequest 初始化 服务器url 当前用户的username,password
 func NewServerRequest(url, username, password string) (*Request, error) {
 
-	_ = request.InitServerUrl(url)
-	err := request.InitToken(username, password)
-	if err != nil {
-		return nil, err
-	}
+	var err error
 	req := &Request{}
-	req.Assets.req, err = request.NewRequest()
+	req.Assets.req, err = request.NewRequest(url)
 	if err != nil {
 		return nil, err
 	}
 	req.Session.req = req.Assets.req
 	req.Cert.req = req.Assets.req
+	req.GateWay.req = req.Assets.req
 	return req, err
 }
 func GetFortCloud() (resp *model.NextTerminalResp, err error) {
@@ -109,4 +106,5 @@ func (this *CheckRequest) Run() {
 func InitTable() {
 	cert_model.InitTable()
 	asset_model.InitTable()
+	access_gateway_model.InitTable()
 }

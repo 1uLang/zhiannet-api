@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/1uLang/zhiannet-api/common/util"
 	"github.com/1uLang/zhiannet-api/next-terminal/model"
+	"github.com/1uLang/zhiannet-api/next-terminal/model/access_gateway"
 	"github.com/1uLang/zhiannet-api/next-terminal/request"
 	"strings"
 	"time"
@@ -55,8 +56,9 @@ func Create(req *request.Request, args *CreateReq) error {
 		return fmt.Errorf("服务器异常：%v", resp.Message)
 	}
 	asset := resp.Data.(map[string]interface{})
+
 	//写入数据库
-	return addAsset(&nextTerminalAssets{
+	err = addAsset(&nextTerminalAssets{
 		AssetsId:    asset["id"].(string),
 		Name:        asset["name"].(string),
 		Proto:       asset["protocol"].(string),
@@ -65,6 +67,12 @@ func Create(req *request.Request, args *CreateReq) error {
 		IsDelete:    0,
 		CreateTime:  time.Now().Unix(),
 	})
+	if err != nil {
+		_ = Delete(req, &DeleteReq{Id: asset["id"].(string)})
+		return err
+	}
+	go access_gateway.SyncAssetGateway(asset["id"].(string), args.AccessGatewayId)
+	return nil
 }
 
 //修改资产 默认同步到数据库
@@ -111,7 +119,12 @@ func Delete(req *request.Request, args *DeleteReq) error {
 		return fmt.Errorf("服务器异常：%v", resp.Message)
 	}
 	//删除数据库相关信息
-	return deleteAsset(args.Id)
+	err = deleteAsset(args.Id)
+	if err != nil {
+		return err
+	}
+	go access_gateway.DeleteAsset(args.Id)
+	return nil
 }
 
 //资产详情
