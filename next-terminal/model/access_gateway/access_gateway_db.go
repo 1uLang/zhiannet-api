@@ -77,7 +77,6 @@ func getList(req *ListReq) (list []*nextTerminalAccessGateway, total int64, err 
 	}
 	return
 }
-
 func authAccessGateway(req *AuthorizeReq) (err error) {
 	tx := db_model.MysqlConn.Begin()
 	defer func() {
@@ -120,7 +119,6 @@ func authAccessGateway(req *AuthorizeReq) (err error) {
 	}
 	return
 }
-
 func authUserList(id string) ([]uint64, error) {
 
 	var o []nextTerminalAccessGateway
@@ -137,6 +135,12 @@ func authUserList(id string) ([]uint64, error) {
 	return ids, err
 }
 
+func getUserNum(gateway string) (int64, error) {
+	var count int64
+	err := db_model.MysqlConn.Model(&nextTerminalAccessGateway{}).Where("is_delete=?", 0).Where("gateway_id = ?", gateway).
+		Where("auth = 1").Count(&count).Error
+	return count, err
+}
 func SyncAssetGateway(asset, gateway string) error {
 	return db_model.MysqlConn.Create(&nextTerminalAssetGateway{AssetId: asset, GatewayId: gateway}).Error
 }

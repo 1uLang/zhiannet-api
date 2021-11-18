@@ -23,6 +23,7 @@ type (
 		Created     string `json:"created"`
 		Connected   bool   `json:"connected"`
 		Message     string `json:"message"`
+		AuthUser    int64  `json:"authUser"`
 	}
 	CreateReq struct {
 		Name        string `json:"name"`
@@ -73,7 +74,7 @@ func (this CreateReq) check() error {
 			goto ERR
 		}
 	} else if this.AccountType == "private-key" {
-		if this.Username == "" && this.Password == "" {
+		if this.Username == "" && this.PrivateKey == "" {
 			errMsg = "网关授权账号/私钥不能为空"
 			goto ERR
 		}

@@ -20,6 +20,7 @@ func List(req *request.Request, args *ListReq) ([]ListRes, int64, error) {
 		if err != nil {
 			return nil, 0, err
 		}
+		info.AuthUser, _ = getUserNum(v.GatewayId)
 		resp = append(resp, ListRes{*info})
 	}
 	return resp, total, err
