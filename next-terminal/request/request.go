@@ -85,8 +85,7 @@ func (this *Request) Do() (respBody []byte, err error) {
 	for k, v := range this.Headers {
 		req.Header.Add(k, v)
 	}
-	//req.Header.Set("X-Auth-Token", "85a69e08-bf9b-4d05-bd31-841238a090c1e6cf1f0a-3392-465a-b89f-8c0c9542e88f2637fae9-5229-407b-ae77-67282415ea571abcc44e-37d3-438b-91a9-f366a3bb396c")
-	req.Header.Set("X-Auth-Token", "0bff649f-6c51-4b29-ab03-3d1f298e66cc870cc9fc-c21b-4b38-ac01-2ef31aeb41edf04b4a84-785f-4a37-ad0e-397ba95b1b2f38aca310-a9c9-4f9f-89b2-39bd2ba4fa29")
+	//req.Header.Set("X-Auth-Token", "3776e8f7-4cb5-48a4-8568-4c0f1cb4f5d35daacfeb-ee38-4267-9136-f41d15954c79b7d54370-0c67-458c-87e0-d790f813c683f63c883c-6a1c-46c0-8c78-6904f4238183")
 	//请求
 	resp, err := client.Do(req)
 	if err != nil {
