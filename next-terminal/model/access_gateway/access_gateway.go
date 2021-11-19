@@ -18,13 +18,27 @@ func List(req *request.Request, args *ListReq) ([]ListRes, int64, error) {
 	for _, v := range list {
 		info, err := GetInfo(req, v.GatewayId)
 		if err != nil {
-			return nil, 0, err
+			total--
+			continue
 		}
 		info.AuthUser, _ = getUserNum(v.GatewayId)
 		info.Auth = v.Auth == 0
 		resp = append(resp, ListRes{*info})
 	}
 	return resp, total, err
+}
+
+func GetAll(req *request.Request, args *GetAllReq) ([]GetAllRes, error) {
+	var resp []GetAllRes
+	list, err := getAll(args)
+	for _, v := range list {
+		info, err := GetInfo(req, v.GatewayId)
+		if err != nil || info == nil {
+			continue
+		}
+		resp = append(resp, GetAllRes{info.ID, info.Name})
+	}
+	return resp, err
 }
 
 // Create 创建网关

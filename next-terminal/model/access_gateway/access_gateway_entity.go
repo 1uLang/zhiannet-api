@@ -13,6 +13,14 @@ type (
 		UserId      int64 `json:"-"`
 		AdminUserId int64 `json:"-"`
 	}
+	GetAllReq struct {
+		UserId      int64 `json:"-"`
+		AdminUserId int64 `json:"-"`
+	}
+	GetAllRes struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	}
 	ListRes struct {
 		GatewayInfo
 	}

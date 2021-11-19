@@ -79,6 +79,26 @@ func getList(req *ListReq) (list []*nextTerminalAccessGateway, total int64, err 
 	}
 	return
 }
+
+func getAll(req *GetAllReq) (list []*nextTerminalAccessGateway, err error) {
+	//从数据库获取
+	model := db_model.MysqlConn.Model(&nextTerminalAccessGateway{}).Where("is_delete=?", 0)
+	if req != nil {
+		fmt.Println("req ...", req)
+		if req.UserId > 0 {
+			model = model.Where("user_id=?", req.UserId)
+		}
+		if req.AdminUserId > 0 {
+			model = model.Where("admin_user_id=?", req.AdminUserId)
+		}
+	}
+	err = model.Debug().Order("id desc").Find(&list).Error
+	if err != nil {
+		return
+	}
+	return
+}
+
 func authAccessGateway(req *AuthorizeReq) (err error) {
 	tx := db_model.MysqlConn.Begin()
 	defer func() {
