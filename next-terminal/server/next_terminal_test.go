@@ -19,20 +19,20 @@ func Test_conn(t *testing.T) {
 }
 func TestGateway_List(t *testing.T) {
 	//req, err := NewServerRequest("http://156.249.24.77:7799", "admin", "admin")
-	req, err := NewServerRequest("http://192.168.137.8:8088", "admin", "admin")
+	req, err := NewServerRequest("http://192.168.137.8:7799", "admin", "admin")
 	if err != nil {
 		t.Fatal(err)
 	}
-	//err = req.GateWay.Create(&gateway_model.CreateReq{
-	//	Name:        "test",
-	//	IP:          "127.0.0.1",
-	//	Port:        22,
-	//	AccountType: "password",
-	//	Username:    "root",
-	//	Password:    "123456",
-	//})
-	//fmt.Println(err)
-	list, total, err := req.GateWay.List(&gateway_model.ListReq{UserId: 3})
+	err = req.GateWay.Create(&gateway_model.CreateReq{
+		Name:        "test",
+		IP:          "127.0.0.1",
+		Port:        22,
+		AccountType: "password",
+		Username:    "root",
+		Password:    "123456",
+	})
+	fmt.Println(err)
+	list, total, err := req.GateWay.List(&gateway_model.ListReq{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,4 +108,17 @@ func TestGateway_AuthorizeUserList(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(usrs, err)
+}
+
+func TestGateway_Info(t *testing.T) {
+	req, err := NewServerRequest("http://156.249.24.77:7799", "admin", "admin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	info, err := req.GateWay.Info("cf4cc148-c528-43ef-a67c-0359c7ff5532")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(info, err)
 }

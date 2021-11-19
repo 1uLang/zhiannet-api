@@ -16,7 +16,7 @@ func List(req *request.Request, args *ListReq) ([]ListRes, int64, error) {
 	var resp []ListRes
 	list, total, err := getList(args)
 	for _, v := range list {
-		info, err := getInfo(req, v.GatewayId)
+		info, err := GetInfo(req, v.GatewayId)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -46,7 +46,6 @@ func Create(req *request.Request, args *CreateReq) error {
 	if resp.Data == nil {
 		return nil
 	}
-	fmt.Println(resp)
 	err = addAccessGateway(&nextTerminalAccessGateway{GatewayId: resp.Data.(string),
 		Auth:        0,
 		UserId:      args.UserId,
@@ -60,7 +59,7 @@ func Create(req *request.Request, args *CreateReq) error {
 }
 
 // 获取网关信息
-func getInfo(req *request.Request, id string) (*GatewayInfo, error) {
+func GetInfo(req *request.Request, id string) (*GatewayInfo, error) {
 	info := &GatewayInfo{}
 	req.Method = "GET"
 	req.Path = access_gateway_path + "/" + id

@@ -10,6 +10,9 @@ type gateway struct{ req *request.Request }
 func (this *gateway) List(args *gateway_model.ListReq) ([]gateway_model.ListRes, int64, error) {
 	return gateway_model.List(this.req, args)
 }
+func (this *gateway) Info(id string) (*gateway_model.GatewayInfo, error) {
+	return gateway_model.GetInfo(this.req, id)
+}
 func (this *gateway) Create(args *gateway_model.CreateReq) error {
 	return gateway_model.Create(this.req, args)
 }

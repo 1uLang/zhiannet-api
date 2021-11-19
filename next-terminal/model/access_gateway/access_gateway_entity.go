@@ -25,6 +25,12 @@ type (
 		Message     string `json:"message"`
 		Auth        bool   `json:"auth"`
 		AuthUser    int64  `json:"authUser"`
+		IP          string `json:"ip"`
+		Port        int    `json:"port"`
+		Username    string `json:"username"`
+		Password    string `json:"password"`
+		PrivateKey  string `json:"privateKey"`
+		Passphrase  string `json:"passphrase"`
 	}
 	CreateReq struct {
 		Name        string `json:"name"`
@@ -54,7 +60,7 @@ type (
 	}
 )
 
-func (this CreateReq) check() error {
+func (this *CreateReq) check() error {
 	errMsg := ""
 
 	if this.Name == "" {
