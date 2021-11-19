@@ -23,6 +23,7 @@ type (
 		Created     string `json:"created"`
 		Connected   bool   `json:"connected"`
 		Message     string `json:"message"`
+		Auth        bool   `json:"auth"`
 		AuthUser    int64  `json:"authUser"`
 	}
 	CreateReq struct {
@@ -109,7 +110,7 @@ func (this AuthorizeReq) check() error {
 
 	// 判断当前用户是否用户授权权限
 	var count int64
-	model := db_model.MysqlConn.Model(&nextTerminalAccessGateway{}).Where("is_delete=?", 0).Where("auth = 0")
+	model := db_model.MysqlConn.Model(&nextTerminalAccessGateway{}).Where("is_delete=?", 0).Where("is_auth = 0")
 	if this.UserId != 0 {
 		model = model.Where("user_id = ?", this.UserId)
 	}

@@ -21,6 +21,7 @@ func List(req *request.Request, args *ListReq) ([]ListRes, int64, error) {
 			return nil, 0, err
 		}
 		info.AuthUser, _ = getUserNum(v.GatewayId)
+		info.Auth = v.Auth == 0
 		resp = append(resp, ListRes{*info})
 	}
 	return resp, total, err
@@ -45,6 +46,7 @@ func Create(req *request.Request, args *CreateReq) error {
 	if resp.Data == nil {
 		return nil
 	}
+	fmt.Println(resp)
 	err = addAccessGateway(&nextTerminalAccessGateway{GatewayId: resp.Data.(string),
 		Auth:        0,
 		UserId:      args.UserId,
@@ -75,6 +77,7 @@ func getInfo(req *request.Request, id string) (*GatewayInfo, error) {
 		return nil, fmt.Errorf("该网关不存在")
 	}
 	bytes, _ := json.Marshal(resp.Data)
+
 	err = json.Unmarshal(bytes, &info)
 	return info, err
 }
@@ -104,7 +107,7 @@ func Delete(req *request.Request, id string) error {
 	if resp.Code != 1 {
 		return fmt.Errorf("服务器异常：%v", resp.Message)
 	}
-	return nil
+	return deleteAccessGateway(id)
 }
 
 // Update 更新网关信息
@@ -123,9 +126,6 @@ func Update(req *request.Request, args *UpdateReq) error {
 	if resp.Code != 1 {
 		return fmt.Errorf("服务器异常：%v", resp.Message)
 	}
-	if resp.Data == nil {
-		return fmt.Errorf("该网关不存在")
-	}
 	return nil
 }
 
@@ -135,7 +135,7 @@ func Reconnect(req *request.Request, id string) error {
 	if id == "" {
 		return fmt.Errorf("网关id不能为空")
 	}
-	req.Method = "PUT"
+	req.Method = "POST"
 	req.Path = access_gateway_path + "/" + id + "/reconnect"
 	req.Params = nil
 

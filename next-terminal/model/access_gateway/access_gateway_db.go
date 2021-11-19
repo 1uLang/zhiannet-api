@@ -54,7 +54,9 @@ func addAccessGateway(req *nextTerminalAccessGateway) (err error) {
 	req.CreateTime = time.Now().Unix()
 	return db_model.MysqlConn.Create(&req).Error
 }
-
+func deleteAccessGateway(id string) error {
+	return db_model.MysqlConn.Model(&nextTerminalAccessGateway{}).Where("is_delete = 0").Where("gateway_id = ?", id).Update("is_delete", 1).Error
+}
 func getList(req *ListReq) (list []*nextTerminalAccessGateway, total int64, err error) {
 	//从数据库获取
 	model := db_model.MysqlConn.Model(&nextTerminalAccessGateway{}).Where("is_delete=?", 0)
@@ -87,7 +89,7 @@ func authAccessGateway(req *AuthorizeReq) (err error) {
 		}
 	}()
 	err = tx.Model(&nextTerminalAccessGateway{}).Where("is_delete=?", 0).
-		Where("auth = 1").Where("gateway_id = ?", req.Id).Update("is_delete", 1).Error
+		Where("is_auth = 1").Where("gateway_id = ?", req.Id).Update("is_delete", 1).Error
 	if err != nil {
 		return err
 	}
@@ -99,6 +101,7 @@ func authAccessGateway(req *AuthorizeReq) (err error) {
 			IsDelete:    0,
 			CreateTime:  time.Now().Unix(),
 		}
+		err = tx.Create(obj).Error
 		err = tx.Create(obj).Error
 		if err != nil {
 			return err
@@ -112,7 +115,7 @@ func authAccessGateway(req *AuthorizeReq) (err error) {
 			IsDelete:   0,
 			CreateTime: time.Now().Unix(),
 		}
-		err = tx.Create(obj).Error
+		err = tx.Create(&obj).Error
 		if err != nil {
 			return err
 		}
@@ -124,7 +127,7 @@ func authUserList(id string) ([]uint64, error) {
 	var o []nextTerminalAccessGateway
 	var ids []uint64
 	err := db_model.MysqlConn.Model(&nextTerminalAccessGateway{}).Where("is_delete=?", 0).Where("gateway_id = ?", id).
-		Where("auth = 1").Find(&o).Error
+		Where("is_auth = 1").Find(&o).Error
 	for _, v := range o {
 		if v.UserId > 0 {
 			ids = append(ids, v.UserId)
@@ -138,7 +141,7 @@ func authUserList(id string) ([]uint64, error) {
 func getUserNum(gateway string) (int64, error) {
 	var count int64
 	err := db_model.MysqlConn.Model(&nextTerminalAccessGateway{}).Where("is_delete=?", 0).Where("gateway_id = ?", gateway).
-		Where("auth = 1").Count(&count).Error
+		Where("is_auth = 1").Count(&count).Error
 	return count, err
 }
 func SyncAssetGateway(asset, gateway string) error {
@@ -146,9 +149,9 @@ func SyncAssetGateway(asset, gateway string) error {
 }
 func checkAssetGateway(gateway string) (bool, error) {
 	var count int64
-	err := db_model.MysqlConn.Model(nextTerminalAssetGateway{}).Where("is_delete = 0").Where("gateway_id = ?", gateway).Count(&count).Error
+	err := db_model.MysqlConn.Model(&nextTerminalAssetGateway{}).Where("is_delete = 0").Where("gateway_id = ?", gateway).Count(&count).Error
 	return err == nil && count > 0, err
 }
 func DeleteAsset(asset string) error {
-	return db_model.MysqlConn.Model(nextTerminalAssetGateway{}).Where("is_delete = 0").Where("asset_id = ?", asset).Update("is_delete ", 1).Error
+	return db_model.MysqlConn.Model(&nextTerminalAssetGateway{}).Where("is_delete = 0").Where("asset_id = ?", asset).Update("is_delete", 1).Error
 }
