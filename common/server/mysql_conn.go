@@ -4,6 +4,7 @@ import (
 	agent_model "github.com/1uLang/zhiannet-api/agent/model"
 	"github.com/1uLang/zhiannet-api/audit/model/audit_user_relation"
 	awvs_server "github.com/1uLang/zhiannet-api/awvs/server"
+	"github.com/1uLang/zhiannet-api/common/cache"
 	"github.com/1uLang/zhiannet-api/common/model"
 	"github.com/1uLang/zhiannet-api/common/model/audit_assets_relation"
 	"github.com/1uLang/zhiannet-api/common/model/channels"
@@ -23,6 +24,7 @@ import (
 
 func SetApiDbPath(path string) {
 	model.ApiDbPath = path
+	cache.ApiDbPath = path
 }
 func GetApiDbPath() string {
 	return model.ApiDbPath
