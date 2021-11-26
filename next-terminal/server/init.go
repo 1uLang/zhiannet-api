@@ -7,6 +7,7 @@ import (
 	"github.com/1uLang/zhiannet-api/next-terminal/model"
 	access_gateway_model "github.com/1uLang/zhiannet-api/next-terminal/model/access_gateway"
 	asset_model "github.com/1uLang/zhiannet-api/next-terminal/model/asset"
+	cert_model "github.com/1uLang/zhiannet-api/next-terminal/model/cert"
 	"github.com/1uLang/zhiannet-api/next-terminal/request"
 	"time"
 )
@@ -103,7 +104,7 @@ func (this *CheckRequest) Run() {
 }
 
 func InitTable() {
-	//cert_model.InitTable()
-	//asset_model.InitTable()
+	cert_model.InitTable()
+	asset_model.InitTable()
 	access_gateway_model.InitTable()
 }

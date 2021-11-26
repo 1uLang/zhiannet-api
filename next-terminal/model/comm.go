@@ -36,7 +36,7 @@ func GetNextTerminalInfo() (resp *NextTerminalResp, err error) {
 		PageSize: 1,
 	})
 	if err != nil || len(list) == 0 {
-		return resp, fmt.Errorf("获取堡垒机节点错误")
+		return resp, fmt.Errorf("该节点暂未添加，请添加后重试")
 	}
 	info := list[0]
 	addr := utils.CheckHttpUrl(info.Addr, info.IsSsl == 1)

@@ -36,6 +36,13 @@ type (
 	}
 )
 
+func GetAll() (list []*UserLogResp, err error) {
+
+	err = model.MysqlConn.Table("edgeLogs").Where("edgeLogs.userId != 0").Where("edgeLogs.level ='info'").
+		Joins("left join edgeUsers on edgeUsers.id=edgeLogs.userId").Select("edgeLogs.*,edgeUsers.username").
+		Order("edgeLogs.id desc").Find(&list).Error
+	return
+}
 func GetList(req *UserLogReq) (list []*UserLogResp, total int64, err error) {
 	parentIds := []uint64{}
 	info := &edge_users.EdgeUsers{}
@@ -45,13 +52,13 @@ func GetList(req *UserLogReq) (list []*UserLogResp, total int64, err error) {
 	}
 	list = make([]*UserLogResp, 0)
 	parentId := []*edge_users.EdgeUsers{}
-	pid,err := edge_users_model.GetParentId(&edge_users_model.GetParentIdReq{UserId: req.UserId})
+	pid, err := edge_users_model.GetParentId(&edge_users_model.GetParentIdReq{UserId: req.UserId})
 	if err != nil {
 		return nil, 0, err
 	}
-	sqlStr := fmt.Sprintf("edgeUsers.id=%v or edgeUsers.parentId= '%v'",req.UserId,req.UserId)
+	sqlStr := fmt.Sprintf("edgeUsers.id=%v or edgeUsers.parentId= '%v'", req.UserId, req.UserId)
 	if pid > 0 {
-		sqlStr = fmt.Sprintf("edgeUsers.id=%v or edgeUsers.parentId= '%v'",pid,pid)
+		sqlStr = fmt.Sprintf("edgeUsers.id=%v or edgeUsers.parentId= '%v'", pid, pid)
 	}
 	err = model.MysqlConn.Table("edgeUsers").Where(sqlStr).Find(&parentId).Error
 	if err != nil {
@@ -92,10 +99,10 @@ func GetList(req *UserLogReq) (list []*UserLogResp, total int64, err error) {
 func GetNum(req *UserLogReq) (total int64, err error) {
 	parentIds := []uint64{}
 	parentId := []*edge_users.EdgeUsers{}
-	pid,err := edge_users_model.GetParentId(&edge_users_model.GetParentIdReq{UserId: req.UserId})
-	sqlStr := fmt.Sprintf("edgeUsers.id=%v or edgeUsers.parentId= '%v'",req.UserId,req.UserId)
+	pid, err := edge_users_model.GetParentId(&edge_users_model.GetParentIdReq{UserId: req.UserId})
+	sqlStr := fmt.Sprintf("edgeUsers.id=%v or edgeUsers.parentId= '%v'", req.UserId, req.UserId)
 	if pid > 0 {
-		sqlStr = fmt.Sprintf("edgeUsers.id=%v or edgeUsers.parentId= '%v'",pid,pid)
+		sqlStr = fmt.Sprintf("edgeUsers.id=%v or edgeUsers.parentId= '%v'", pid, pid)
 	}
 	err = model.MysqlConn.Table("edgeUsers").Where(sqlStr).Find(&parentId).Error
 

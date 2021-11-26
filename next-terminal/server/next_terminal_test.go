@@ -5,6 +5,7 @@ import (
 	"github.com/1uLang/zhiannet-api/common/cache"
 	"github.com/1uLang/zhiannet-api/common/model"
 	gateway_model "github.com/1uLang/zhiannet-api/next-terminal/model/access_gateway"
+	session_model "github.com/1uLang/zhiannet-api/next-terminal/model/session"
 	"testing"
 )
 
@@ -18,8 +19,8 @@ func Test_conn(t *testing.T) {
 	ls.Run()
 }
 func TestGateway_List(t *testing.T) {
-	//req, err := NewServerRequest("http://156.249.24.77:7799", "admin", "admin")
-	req, err := NewServerRequest("http://192.168.137.8:7799", "admin", "admin")
+	req, err := NewServerRequest("http://156.249.24.77:7799", "admin", "admin")
+	//req, err := NewServerRequest("http://192.168.137.8:7799", "admin", "admin")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,7 +32,6 @@ func TestGateway_List(t *testing.T) {
 		Username:    "root",
 		Password:    "123456",
 	})
-	fmt.Println(err)
 	list, total, err := req.GateWay.List(&gateway_model.ListReq{})
 	if err != nil {
 		t.Fatal(err)
@@ -116,6 +116,19 @@ func TestGateway_Info(t *testing.T) {
 		t.Fatal(err)
 	}
 	info, err := req.GateWay.Info("cf4cc148-c528-43ef-a67c-0359c7ff5532")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(info, err)
+}
+
+func TestSession_Replay(t *testing.T) {
+	req, err := NewServerRequest("http://156.249.24.77:7799", "admin", "admin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	info, err := req.Session.Replay(&session_model.ReplayReq{Id: "39f28274-aed6-41c7-8bb3-120b02eba0e2"})
 
 	if err != nil {
 		t.Fatal(err)

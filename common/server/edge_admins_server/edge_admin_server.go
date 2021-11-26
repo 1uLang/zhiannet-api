@@ -21,7 +21,6 @@ func CheckPwdInvalid(id uint64) (res bool, err error) {
 	if int64(info.PwdAt) < time.Now().Add(-time.Second*60*60*24*90).Unix() {
 		res = true
 	}
-	fmt.Println("----", info.PwdAt, time.Now().Add(-time.Second*60*60*24*90).Unix())
 	return res, err
 }
 

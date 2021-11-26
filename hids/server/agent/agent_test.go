@@ -10,7 +10,7 @@ import (
 
 func init() {
 	//初始化 nessus 服务器地址
-	err := server.SetUrl("https://user.cloudhids.net")
+	err := server.SetUrl("https://hids.zhiannet.com")
 	if err != nil {
 		panic(err)
 	}
@@ -24,7 +24,7 @@ func init() {
 	}
 }
 func TestList(t *testing.T) {
-	list, err := List(&agent.SearchReq{UserName: "LUSIR2"})
+	list, err := List(&agent.SearchReq{UserName: "dengbao"})
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()
@@ -39,7 +39,7 @@ func TestDisport(t *testing.T) {
 	}
 }
 func TestDownload(t *testing.T) {
-	download, err := Download( "Linux64")
+	download, err := Download("Linux64")
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()

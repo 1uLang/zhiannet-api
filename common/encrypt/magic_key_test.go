@@ -49,34 +49,34 @@ func do(param map[string]interface{}) {
 	if ret.Code != 1 {
 		panic(fmt.Errorf(ret.Message))
 	}
-	fmt.Println("add asset success... ",param["name"])
+	fmt.Println("add asset success... ", param["name"])
 }
 func ipAdd(ip string) string {
 
-	ips := strings.Split(ip,".")
-	var add  func(i []int,idx int)
+	ips := strings.Split(ip, ".")
+	var add func(i []int, idx int)
 
-	add = func(i []int,idx int) {
+	add = func(i []int, idx int) {
 		if idx < 0 {
 			return
 		}
 		if i[idx] > 255 {
-			add(i,idx -1)
+			add(i, idx-1)
 			return
-		}else{
-			i[idx] ++
+		} else {
+			i[idx]++
 		}
 	}
-	ints := make([]int,4)
-	for k,v := range ips{
-		ints[k],_ = strconv.Atoi(v)
+	ints := make([]int, 4)
+	for k, v := range ips {
+		ints[k], _ = strconv.Atoi(v)
 	}
-	add(ints,3)
+	add(ints, 3)
 
-	for k,v := range ints {
+	for k, v := range ints {
 		ips[k] = strconv.Itoa(v)
 	}
-	return strings.Join(ips,".")
+	return strings.Join(ips, ".")
 }
 func TestNextTerminal(t *testing.T) {
 
@@ -91,7 +91,7 @@ func TestNextTerminal(t *testing.T) {
 	}
 	name := "next_terminal"
 	for idx := 0; idx < 100; idx++ {
-		param["name"] = fmt.Sprintf("%v-%v",name, strconv.Itoa(idx))
+		param["name"] = fmt.Sprintf("%v-%v", name, strconv.Itoa(idx))
 		//param["ip"] = ipAdd(param["ip"].(string))
 		do(param)
 	}
@@ -104,8 +104,8 @@ func TestMagicKeyEncode(t *testing.T) {
 	var day int
 	var hour int
 	var err error
-	code = "eb61dd90c7514b039d946cc7ec54c6b8"
-	year = 1
+	code = "5a031da8bca24ca198ffbb66a4416330"
+	year = 10
 	month = 0
 	day = 0
 	now := time.Now()
