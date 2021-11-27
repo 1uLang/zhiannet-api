@@ -5,6 +5,7 @@ import (
 	"github.com/1uLang/zhiannet-api/common/cache"
 	"github.com/1uLang/zhiannet-api/common/model"
 	gateway_model "github.com/1uLang/zhiannet-api/next-terminal/model/access_gateway"
+	asset_model "github.com/1uLang/zhiannet-api/next-terminal/model/asset"
 	session_model "github.com/1uLang/zhiannet-api/next-terminal/model/session"
 	"testing"
 )
@@ -134,4 +135,101 @@ func TestSession_Replay(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(info, err)
+}
+
+func TestAsset_Create(t *testing.T) {
+
+	req, err := NewServerRequest("http://156.249.24.77:7799", "admin", "admin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = req.Assets.Create(&asset_model.CreateReq{
+		AccountType: "custom",
+		IP:          "1.1.1.1",
+		Name:        "test",
+		Password:    "1231231",
+		Port:        22,
+		Protocol:    "ssh",
+		Username:    "root",
+		UserId:      1,
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestAsset_List(t *testing.T) {
+
+	req, err := NewServerRequest("http://156.249.24.77:7799", "admin", "admin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	list, _, err := req.Assets.List(&asset_model.ListReq{
+		UserId: 1,
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, v := range list {
+		fmt.Println(v)
+	}
+}
+func TestAsset_Connect(t *testing.T) {
+
+	req, err := NewServerRequest("http://156.249.24.77:7799", "admin", "admin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	url, err := req.Assets.Connect(&asset_model.ConnectReq{
+		Id: "166129b2-85f2-42bd-8131-c705dc7274f2",
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(url)
+}
+
+func TestAsset_Update(t *testing.T) {
+
+	req, err := NewServerRequest("http://156.249.24.77:7799", "admin", "admin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	args := &asset_model.UpdateReq{
+		Id: "daf8004c-46bc-4bce-963b-183234c8b013",
+	}
+	args.AccountType = "custom"
+	args.IP = "1.1.1.1"
+	args.Name = "test"
+	args.Password = "1231231"
+	args.Port = 22
+	args.Protocol = "ssh"
+	args.Username = "root"
+	args.UserId = 1
+	err = req.Assets.Update(args)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestAsset_Authorize(t *testing.T) {
+
+	req, err := NewServerRequest("http://156.249.24.77:7799", "admin", "admin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	args := &asset_model.AuthorizeReq{
+		AssetId: "7fb127d7-bc27-4ac9-b145-4b9e45679caa",
+		UserId:  1,
+		UserIds: []uint64{2, 3},
+	}
+	err = req.Assets.Authorize(args)
+
+	if err != nil {
+		t.Fatal(err)
+	}
 }

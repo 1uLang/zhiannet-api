@@ -88,7 +88,10 @@ func (this *CreateReq) check() error {
 		this.CredentialId = ""
 	}
 	_, isExist := protos[this.Protocol]
-
+	//原生模式才支持回放跟监控
+	if this.Protocol == "ssh" {
+		this.SshMode = "naive"
+	}
 	if !isExist {
 		return fmt.Errorf("暂不支持该协议")
 	}
@@ -98,5 +101,16 @@ func (this *UpdateReq) check() error {
 	if this.Id == "" {
 		return fmt.Errorf("参数错误")
 	}
-	return this.CreateReq.check()
+	if this.AccountType == "custom" {
+		this.CredentialId = ""
+	}
+	_, isExist := protos[this.Protocol]
+	//原生模式才支持回放跟监控
+	if this.Protocol == "ssh" {
+		this.SshMode = "naive"
+	}
+	if !isExist {
+		return fmt.Errorf("暂不支持该协议")
+	}
+	return nil
 }

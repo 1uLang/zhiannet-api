@@ -80,6 +80,15 @@ func Update(req *request.Request, args *UpdateReq, syncDB ...bool) error {
 	if err := args.check(); err != nil {
 		return err
 	}
+
+	//获取资产信息
+	if len(syncDB) == 0 || syncDB[0] {
+		asset, err := Details(req, &DetailsReq{args.Id})
+		if err != nil {
+			return err
+		}
+		args.Tags = asset["tags"].(string)
+	}
 	req.Path = asset_path + "/" + args.Id
 	req.Method = "PUT"
 	req.Params = model.ToMap(args)
@@ -236,7 +245,8 @@ func Connect(req *request.Request, args *ConnectReq) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if retInfo["code"].(float64) != 1 || retInfo["message"].(string) != "success" || !retInfo["data"].(bool) {
+	fmt.Println(retInfo)
+	if retInfo["code"].(float64) != 1 || retInfo["message"].(string) != "success" {
 		return "", fmt.Errorf("连接资产失败：%v", retInfo["message"])
 	}
 	//获取本地数据库保存资产的名称跟协议
