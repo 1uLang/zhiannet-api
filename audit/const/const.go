@@ -21,6 +21,13 @@ const (
 	AUDIT_DEL_HOST      = "/system/audit/deleteHost"   //链接列表
 	AUDIT_HOST_LOG_LIST = "/system/audit/hostLogList"  //日志列表
 
+	//设备
+	AUDIT_DEVICE_LIST     = "/system/audit/deviceList"     //列表
+	AUDIT_ADD_DEVICE      = "/system/audit/addDevice"      //添加
+	AUDIT_EDIT_DEVICE     = "/system/audit/editNameDevice" //修改
+	AUDIT_DEL_DEVICE      = "/system/audit/deleteDevice"   //链接列表
+	AUDIT_DEVICE_LOG_LIST = "/system/audit/deviceLogList"  //日志列表
+
 	//应用
 	AUDIT_APP_LIST     = "/system/audit/appList"     //主机列表
 	AUDIT_ADD_APP      = "/system/audit/addApp"      //添加

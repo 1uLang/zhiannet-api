@@ -14,6 +14,7 @@ type (
 	ListReq struct {
 		Date   string `json:"date"`
 		NodeId uint64 `json:"node_id"`
+		Type   string `json:"type"` //类型 url=网络防病毒
 	}
 
 	ListResp struct {
@@ -58,13 +59,14 @@ func GetList(req *ListReq) (list []*ListResp, err error) {
 	if err != nil {
 		return
 	}
-	return MustList(resp)
+	return MustList(resp, req.Type)
 
 }
 
-func MustList(str []byte) (newResp []*ListResp, err error) {
+func MustList(str []byte, t string) (newResp []*ListResp, err error) {
 	strs := string(str)
 	resp := make([]*ListResp, 0)
+	newResp = make([]*ListResp, 0)
 
 	strSli := strings.Split(strs, "\n")
 	if len(strSli) > 1 {
@@ -91,7 +93,7 @@ func MustList(str []byte) (newResp []*ListResp, err error) {
 			if len(ll) >= 2 {
 				firshTime, _ := time.ParseInLocation("2006-01-02 15:04:05.000000", strings.Trim(ll[0], "\""), time.Local)
 				ips.Time = firshTime.Format("2006-01-02 15:04:05")
-				ips.Info = ll[1]
+				ips.Info = strings.TrimRight(strings.TrimLeft(ll[1], "\""), "\"")
 				ips.Reference = s[len(s)-1]
 				if len(ll) >= 3 {
 					//ips.Trail = ll[1]
@@ -99,7 +101,7 @@ func MustList(str []byte) (newResp []*ListResp, err error) {
 				}
 				if len(ll) >= 4 {
 					ips.Trail = ll[1]
-					ips.Info = ll[2]
+					ips.Info = strings.TrimRight(strings.TrimLeft(ll[2], "\""), "\"")
 					ips.Reference = ll[3]
 				}
 			}
@@ -113,14 +115,31 @@ func MustList(str []byte) (newResp []*ListResp, err error) {
 				resp = append(resp, ips)
 			}
 		}
+		reg := regexp.MustCompile(`(\(.*?\))$`)
 		for _, v := range resp {
-			if num, ok := strMap[v.SrcIp]; ok {
-				value := &ListResp{}
-				*value = *v
-				value.Events = num
-				newResp = append(newResp, value)
-				delete(strMap, v.SrcIp)
+			//fmt.Println("--------",t,strings.TrimSpace(v.Type))
+			if t == "url" { //网络防病毒
+				if strings.TrimSpace(v.Type) == "URL" {
+					if num, ok := strMap[v.SrcIp]; ok {
+						value := &ListResp{}
+						*value = *v
+						value.Events = num
+						value.Trail = reg.ReplaceAllString(value.Trail, ``) //182.150.0.117(/board.cgi) => 182.150.0.117 正则替换，去掉后面括号和括号内的内容
+						newResp = append(newResp, value)
+						delete(strMap, v.SrcIp)
+					}
+				}
+
+			} else {
+				if num, ok := strMap[v.SrcIp]; ok {
+					value := &ListResp{}
+					*value = *v
+					value.Events = num
+					newResp = append(newResp, value)
+					delete(strMap, v.SrcIp)
+				}
 			}
+
 		}
 	}
 	return newResp, err
