@@ -142,13 +142,13 @@ func Download(url string, pdf bool) ([]byte, string, error) {
 
 	//综合报表
 	bytes = strings.Replace(bytes, "class=\"col-xs-12 col-sm-6 end-sm\"", "class=\"col-xs-12 col-sm-6 end-sm\" style=\"display:none\"", 1)
+	bytes = strings.Replace(bytes, "class=\"col-xs-12 col-sm-6\" id=\"logoContainer\"", "class=\"col-xs-12 col-sm-6\" id=\"logoContainer\" style=\"display:none\"", 1)
 	bytes = strings.Replace(bytes, "Acunetix", "", 4)
 	if pdf { //pdf
 		bts, err := util.HTML2PDF(bytes)
 		if err != nil {
 			fmt.Println(err)
 		} else {
-
 			bytes = string(bts)
 			contents = strings.Replace(contents, "html", "pdf", 1)
 		}
