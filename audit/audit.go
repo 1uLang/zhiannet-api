@@ -34,7 +34,7 @@ func InitLogAddr() {
 	}
 	err = yaml.Unmarshal(yamlFile, &conf)
 	if err == nil {
-		if addr := strings.Split(conf.Audit.Addr, ","); len(addr) > 1 && addr[0] != "" {
+		if addr := strings.Split(conf.Audit.Addr, ","); len(addr) >= 1 && addr[0] != "" {
 			LogSubmitAddr = addr
 		}
 	}
