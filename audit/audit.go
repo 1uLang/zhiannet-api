@@ -25,7 +25,7 @@ func InitLogAddr() {
 	var err error
 	conf := new(AuditLogSubmitAddr)
 	yamlFile, err = ioutil.ReadFile(ApiDbPath)
-	yamlFile, err = ioutil.ReadFile("/Users/dp/zhian/zhiannet-edge-line/EdgeAdmin/build/configs/api_db.yaml")
+	//yamlFile, err = ioutil.ReadFile("/Users/dp/zhian/zhiannet-edge-line/EdgeAdmin/build/configs/api_db.yaml")
 
 	if err != nil {
 		fmt.Println("err1=", err)
@@ -34,7 +34,9 @@ func InitLogAddr() {
 	}
 	err = yaml.Unmarshal(yamlFile, &conf)
 	if err == nil {
-		LogSubmitAddr = strings.Split(conf.Audit.Addr, ",")
+		if addr := strings.Split(conf.Audit.Addr, ","); len(addr) > 1 && addr[0] != "" {
+			LogSubmitAddr = addr
+		}
 	}
 	fmt.Println("err2=", err)
 }
