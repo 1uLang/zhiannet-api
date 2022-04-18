@@ -63,19 +63,19 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 		return list, err
 	}
 	//获取数据库 当前用户的扫描用户
-	targetList, total, err := GetList(&AddrListReq{
-		UserId:      args.UserId,
-		AdminUserId: args.AdminUserId,
-		PageSize:    999,
-		PageNum:     1,
-	})
-	if total == 0 || err != nil {
-		return map[string]interface{}{}, err
-	}
+	//targetList, total, err := GetList(&AddrListReq{
+	//	UserId:      args.UserId,
+	//	AdminUserId: args.AdminUserId,
+	//	PageSize:    999,
+	//	PageNum:     1,
+	//})
+	//if total == 0 || err != nil {
+	//	return map[string]interface{}{}, err
+	//}
 	tarMap := map[string]uint64{}
-	for _, v := range targetList {
-		tarMap[v.TargetId] = v.Id
-	}
+	//for _, v := range targetList {
+	//	tarMap[v.TargetId] = v.Id
+	//}
 	resList := gjson.ParseBytes(resp)
 	list = map[string]interface{}{}
 	targets := []interface{}{}
@@ -90,17 +90,17 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 	}
 doNext:
 	if resList.Get("pagination").Exists() {
-		if resList.Get("pagination").Get("count").Int() > int64(args.Limit*(args.C+1)) {
+		if resList.Get("pagination").Get("count").Int() > int64(args.Limit+args.C) {
 			req.Url += _const.Targets_api_url
 			args.Limit = 100
-			args.C++
+			args.C += args.Limit
 			req.Params = model.ToMap(args)
 
 			resp, err := req.Do()
 			if err != nil {
 				return nil, err
 			}
-			resList := gjson.ParseBytes(resp)
+			resList = gjson.ParseBytes(resp)
 			list = map[string]interface{}{}
 			if resList.Get("targets").Exists() {
 				for _, v := range resList.Get("targets").Array() {
