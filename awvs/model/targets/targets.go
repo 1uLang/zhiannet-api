@@ -63,19 +63,19 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 		return list, err
 	}
 	//获取数据库 当前用户的扫描用户
-	//targetList, total, err := GetList(&AddrListReq{
-	//	UserId:      args.UserId,
-	//	AdminUserId: args.AdminUserId,
-	//	PageSize:    999,
-	//	PageNum:     1,
-	//})
-	//if total == 0 || err != nil {
-	//	return map[string]interface{}{}, err
-	//}
+	targetList, total, err := GetList(&AddrListReq{
+		UserId:      args.UserId,
+		AdminUserId: args.AdminUserId,
+		PageSize:    999,
+		PageNum:     1,
+	})
+	if total == 0 || err != nil {
+		return map[string]interface{}{}, err
+	}
 	tarMap := map[string]uint64{}
-	//for _, v := range targetList {
-	//	tarMap[v.TargetId] = v.Id
-	//}
+	for _, v := range targetList {
+		tarMap[v.TargetId] = v.Id
+	}
 	resList := gjson.ParseBytes(resp)
 	list = map[string]interface{}{}
 	targets := []interface{}{}
