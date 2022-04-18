@@ -48,6 +48,7 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 
 	req.Method = "GET"
 	req.Url += _const.Targets_api_url
+	args.C = 0
 	args.Limit = 100
 	req.Params = model.ToMap(args)
 
@@ -91,7 +92,6 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 doNext:
 	if resList.Get("pagination").Exists() {
 		if resList.Get("pagination").Get("count").Int() > int64(args.Limit+args.C) {
-			req.Url += _const.Targets_api_url
 			args.Limit = 100
 			args.C += args.Limit
 			req.Params = model.ToMap(args)
@@ -101,7 +101,6 @@ doNext:
 				return nil, err
 			}
 			resList = gjson.ParseBytes(resp)
-			list = map[string]interface{}{}
 			if resList.Get("targets").Exists() {
 				for _, v := range resList.Get("targets").Array() {
 					if dbid, ok := tarMap[v.Get("target_id").String()]; ok {
