@@ -78,8 +78,8 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 	}
 	resList := gjson.ParseBytes(resp)
 	list = map[string]interface{}{}
+	targets := []interface{}{}
 	if resList.Get("targets").Exists() {
-		targets := []interface{}{}
 		for _, v := range resList.Get("targets").Array() {
 			if dbid, ok := tarMap[v.Get("target_id").String()]; ok {
 				item := v.Value().(map[string]interface{})
@@ -87,8 +87,34 @@ func List(args *ListReq) (list map[string]interface{}, err error) {
 				targets = append(targets, item)
 			}
 		}
-		list["targets"] = targets
 	}
+doNext:
+	if resList.Get("pagination").Exists() {
+		if resList.Get("pagination").Get("count").Int() > int64(args.Limit*(args.C+1)) {
+			req.Url += _const.Targets_api_url
+			args.Limit = 100
+			args.C++
+			req.Params = model.ToMap(args)
+
+			resp, err := req.Do()
+			if err != nil {
+				return nil, err
+			}
+			resList := gjson.ParseBytes(resp)
+			list = map[string]interface{}{}
+			if resList.Get("targets").Exists() {
+				for _, v := range resList.Get("targets").Array() {
+					if dbid, ok := tarMap[v.Get("target_id").String()]; ok {
+						item := v.Value().(map[string]interface{})
+						item["id"] = dbid
+						targets = append(targets, item)
+					}
+				}
+			}
+			goto doNext
+		}
+	}
+	list["targets"] = targets
 
 	return list, err
 }
